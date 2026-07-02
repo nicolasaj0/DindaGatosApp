@@ -1,0 +1,51 @@
+import { Hospedagem } from './types';
+
+export const hospedagensMock: Hospedagem[] = [
+  {
+    id: '1',
+    nomeGato: 'Mia',
+    nomeTutor: 'Juliana',
+    fotoUrl: 'https://images.pexels.com/photos/45201/kitty-cat-kitten-pet-45201.jpeg?auto=compress&cs=tinysrgb&w=800',
+    dataCheckIn: '2026-06-27',
+    dataCheckOut: '2026-06-30',
+    status: 'hospedado',
+    perfil: {
+      sociabilidade: 'sociavel',
+      personalidade: 'Calmo',
+      dieta: 'Ração premium 60g manhã e noite',
+      observacoes: 'Gosta de brinquedos com penas',
+      medicamentos: 'Nenhum',
+    },
+  },
+  {
+    id: '2',
+    nomeGato: 'Nina',
+    nomeTutor: 'Carlos',
+    dataCheckIn: '2026-07-01',
+    dataCheckOut: '2026-07-05',
+    status: 'agendado',
+    perfil: {
+      sociabilidade: 'isolado',
+      personalidade: 'Medrosa',
+      dieta: 'Dieta hipoalergênica 50g 3x ao dia',
+      observacoes: 'Prefere ficar em isolamento inicial',
+      medicamentos: 'Nenhum',
+    },
+  },
+  {
+    id: '3',
+    nomeGato: 'Tico',
+    nomeTutor: 'Mariana',
+    fotoUrl: 'https://images.pexels.com/photos/1834399/pexels-photo-1834399.jpeg?auto=compress&cs=tinysrgb&w=800',
+    dataCheckIn: '2026-06-27',
+    dataCheckOut: '2026-06-27',
+    status: 'saindo_hoje',
+    perfil: {
+      sociabilidade: 'sociavel',
+      personalidade: 'Brincalhão',
+      dieta: 'Comida úmida 40g 2x ao dia',
+      observacoes: 'Tomar cuidado com barulhos altos',
+      medicamentos: 'Antialérgico 1x ao dia',
+    },
+  },
+];
