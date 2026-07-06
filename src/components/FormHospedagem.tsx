@@ -150,7 +150,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
     <form onSubmit={handleSubmit} className="space-y-3">
       {/* Seletor de Hóspede Existente */}
       <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
-        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2 flex items-center gap-1.5">
+        <label className="flex text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2 items-center gap-1.5">
           <Sparkles size={14} className="text-cyan-600 dark:text-cyan-400" />
           Hóspede
         </label>
