@@ -1,14 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { useHospedagemStore } from './store';
-import { HospedagemStatus, Hospedagem } from './types';
+import { HospedagemStatus, Hospedagem, Gato, Estadia } from './types';
 import { Column } from './components/Column';
 import { Header } from './components/Header';
 import { Modal } from './components/Modal';
 import { FormHospedagem } from './components/FormHospedagem';
 import { FormEditHospedagem } from './components/FormEditHospedagem';
 import { FichaHospedagem } from './components/FichaHospedagem';
-import { Download, Upload } from 'lucide-react';
-import { getLocalDateString, getLocalTimestampString, getStatusLabel } from './utils';
+import { FormEditGato } from './components/FormEditGato';
+import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, HeartPulse, ChevronDown, ChevronUp } from 'lucide-react';
+import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
   'agendado',
@@ -16,6 +17,89 @@ const statusOrder: HospedagemStatus[] = [
   'saindo_hoje',
   'concluido',
 ];
+
+interface GatoStayHistoryProps {
+  gatoId: string;
+  estadias: Estadia[];
+}
+
+function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
+  const [isOpen, setIsOpen] = useState(false);
+  const history = useMemo(() => {
+    return estadias
+      .filter((e) => e.gatoId === gatoId)
+      .sort((a, b) => b.dataCheckIn.localeCompare(a.dataCheckIn));
+  }, [gatoId, estadias]);
+
+  const stats = useMemo(() => {
+    const totalNights = history.reduce((sum, e) => sum + calculateNights(e.dataCheckIn, e.dataCheckOut), 0);
+    const totalSpent = history.reduce((sum, e) => {
+      const nights = calculateNights(e.dataCheckIn, e.dataCheckOut);
+      return sum + (nights * (e.valorDiaria || 50));
+    }, 0);
+    return {
+      count: history.length,
+      nights: totalNights,
+      spent: totalSpent,
+    };
+  }, [history]);
+
+  if (history.length === 0) {
+    return (
+      <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center font-medium">
+        Nenhuma hospedagem registrada ainda.
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-1.5">
+      <button
+        type="button"
+        onClick={() => setIsOpen(!isOpen)}
+        className="w-full flex items-center justify-between text-xs font-semibold text-slate-655 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
+      >
+        <span className="flex items-center gap-1">
+          📊 Histórico ({stats.count})
+        </span>
+        <span className="text-[10px] text-slate-500 dark:text-slate-400">
+          {stats.nights} diárias • R$ {stats.spent.toFixed(0)}
+        </span>
+        {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+      </button>
+      
+      {isOpen && (
+        <div className="mt-1.5 space-y-1 max-h-36 overflow-y-auto pr-1 scrollbar-thin">
+          {history.map((e) => {
+            const nights = calculateNights(e.dataCheckIn, e.dataCheckOut);
+            const val = nights * (e.valorDiaria || 50);
+            return (
+              <div key={e.id} className="flex justify-between items-center text-[10px] bg-slate-50 dark:bg-slate-950 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800/80">
+                <span className="font-medium text-slate-600 dark:text-slate-350">
+                  {formatDateString(e.dataCheckIn)} - {formatDateString(e.dataCheckOut)}
+                </span>
+                <span className="font-bold text-slate-600 dark:text-slate-400">
+                  {nights === 1 ? '1 dia' : `${nights} dias`} • R$ {val.toFixed(0)}
+                </span>
+                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
+                  e.status === 'concluido'
+                    ? 'bg-slate-100 dark:bg-slate-900 text-slate-500'
+                    : e.status === 'hospedado'
+                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-650 dark:text-emerald-450'
+                    : e.status === 'saindo_hoje'
+                    ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
+                    : 'bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400'
+                }`}>
+                  {e.status === 'concluido' ? 'Fim' : e.status === 'hospedado' ? 'In' : e.status === 'saindo_hoje' ? 'Out' : 'Agend'}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
+    </div>
+  );
+}
 
 function App() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -30,6 +114,11 @@ function App() {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<'todos' | 'medication' | 'isolado' | 'sociavel'>('todos');
+  const [currentView, setCurrentView] = useState<'hospedagens' | 'gatos'>('hospedagens');
+  const [gatosSearchTerm, setGatosSearchTerm] = useState('');
+  const [isEditGatoModalOpen, setIsEditGatoModalOpen] = useState(false);
+  const [selectedGato, setSelectedGato] = useState<Gato | null>(null);
+  const [preSelectedGatoId, setPreSelectedGatoId] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -46,6 +135,10 @@ function App() {
   };
 
   const hospedagens = useHospedagemStore((state) => state.hospedagens);
+  const gatos = useHospedagemStore((state) => state.gatos);
+  const estadias = useHospedagemStore((state) => state.estadias);
+  const updateGato = useHospedagemStore((state) => state.updateGato);
+  const removeGato = useHospedagemStore((state) => state.removeGato);
   const moveHospedagemStatus = useHospedagemStore((state) => state.moveHospedagemStatus);
   const addHospedagem = useHospedagemStore((state) => state.addHospedagem);
   const updateHospedagem = useHospedagemStore((state) => state.updateHospedagem);
@@ -171,9 +264,34 @@ function App() {
     }
   };
 
+  const handleUpdateGato = (updatedGato: Gato) => {
+    updateGato(updatedGato.id, updatedGato);
+    setIsEditGatoModalOpen(false);
+    setSelectedGato(null);
+  };
+
+  const handleDeleteGato = (gato: Gato) => {
+    if (confirm(`Tem certeza que deseja remover permanentemente o cadastro de ${gato.nomeGato}? Isso apagará também todo o histórico de estadias dele.`)) {
+      removeGato(gato.id);
+    }
+  };
+
+  const filteredGatos = useMemo(() => {
+    return gatos.filter((g) => {
+      return (
+        g.nomeGato.toLowerCase().includes(gatosSearchTerm.toLowerCase()) ||
+        g.nomeTutor.toLowerCase().includes(gatosSearchTerm.toLowerCase())
+      );
+    });
+  }, [gatos, gatosSearchTerm]);
+
   const handleExportJSON = () => {
     try {
-      const dataStr = JSON.stringify(hospedagens, null, 2);
+      const stateToExport = {
+        gatos: useHospedagemStore.getState().gatos,
+        estadias: useHospedagemStore.getState().estadias,
+      };
+      const dataStr = JSON.stringify(stateToExport, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
       
@@ -202,29 +320,36 @@ function App() {
         const text = event.target?.result as string;
         const importedData = JSON.parse(text);
 
-        if (!Array.isArray(importedData)) {
-          throw new Error('O backup precisa ser uma lista de hospedagens.');
-        }
+        let isValid = false;
+        let count = 0;
 
-        const isValid = importedData.every((item: any) => {
-          return (
-            typeof item === 'object' &&
-            item !== null &&
-            typeof item.id === 'string' &&
-            typeof item.nomeGato === 'string' &&
-            typeof item.nomeTutor === 'string' &&
-            typeof item.status === 'string' &&
-            typeof item.perfil === 'object' &&
-            item.perfil !== null &&
-            typeof item.perfil.sociabilidade === 'string'
-          );
-        });
+        if (Array.isArray(importedData)) {
+          count = importedData.length;
+          isValid = importedData.every((item: any) => {
+            return (
+              typeof item === 'object' &&
+              item !== null &&
+              typeof item.id === 'string' &&
+              typeof item.nomeGato === 'string' &&
+              typeof item.nomeTutor === 'string' &&
+              typeof item.status === 'string' &&
+              typeof item.perfil === 'object' &&
+              item.perfil !== null &&
+              typeof item.perfil.sociabilidade === 'string'
+            );
+          });
+        } else if (importedData && typeof importedData === 'object') {
+          const hasGatos = Array.isArray(importedData.gatos);
+          const hasEstadias = Array.isArray(importedData.estadias);
+          isValid = hasGatos && hasEstadias;
+          count = (importedData.estadias || []).length;
+        }
 
         if (!isValid) {
           throw new Error('A estrutura do arquivo JSON é inválida ou incompatível.');
         }
 
-        if (confirm(`Aviso: Isso substituirá as ${hospedagens.length} hospedagens atuais por ${importedData.length} hospedagens do backup. Deseja continuar?`)) {
+        if (confirm(`Aviso: Isso substituirá todos os registros atuais do sistema por ${count} hospedagens do backup. Deseja continuar?`)) {
           setHospedagens(importedData);
           alert('Dados importados com sucesso!');
         }
@@ -243,12 +368,50 @@ function App() {
       <Header hospedagens={hospedagens} theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="mx-auto max-w-7xl px-4 pb-10 pt-6">
+        {/* Main View Tabs selector */}
+        <div className="mb-6 flex border-b border-slate-200 dark:border-slate-800 gap-1">
+          <button
+            type="button"
+            onClick={() => setCurrentView('hospedagens')}
+            className={`px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
+              currentView === 'hospedagens'
+                ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+            }`}
+          >
+            <span>🗓️</span>
+            <span>Quadro de Hospedagens</span>
+          </button>
+          <button
+            type="button"
+            onClick={() => {
+              setCurrentView('gatos');
+              setPreSelectedGatoId(undefined);
+            }}
+            className={`px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
+              currentView === 'gatos'
+                ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+            }`}
+          >
+            <span>🐱</span>
+            <span>Hóspedes Felinos</span>
+            <span className="inline-flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 font-bold">
+              {gatos.length}
+            </span>
+          </button>
+        </div>
+
         <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-6 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Dashboard</p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">Quadro de Hospedagens</h2>
+            <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
+              {currentView === 'hospedagens' ? 'Quadro de Hospedagens' : 'Histórico & Feline Guests'}
+            </h2>
             <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-              Gerencie e acompanhe automaticamente os check-ins, estadias e saídas com base no calendário.
+              {currentView === 'hospedagens' 
+                ? 'Gerencie e acompanhe automaticamente os check-ins, estadias e saídas com base no calendário.' 
+                : 'Consulte perfis unificados dos gatos, verifique diárias acumuladas e faça agendamentos rápidos.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -282,126 +445,283 @@ function App() {
           </div>
         </div>
 
-        <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-            <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Agendados</p>
-            <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'agendado')?.items.length ?? 0}</p>
-            <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Proprietários que chegam nos próximos dias.</p>
-          </div>
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-            <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Hospedados</p>
-            <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'hospedado')?.items.length ?? 0}</p>
-            <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Gatos que estão na casa agora.</p>
-          </div>
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-            <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Entradas Hoje</p>
-            <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{entradasHoje.length}</p>
-            <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Chegadas previstas para hoje.</p>
-          </div>
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-            <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Saindo Hoje</p>
-            <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{saidasHoje.length}</p>
-            <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Finalizam hospedagem no dia atual.</p>
-          </div>
-        </div>
-
-        {/* Filtros e Busca */}
-        <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
-          {/* Campo de Busca */}
-          <div className="relative flex-1 max-w-md w-full">
-            <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-              <svg className="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-              </svg>
-            </span>
-            <input
-              type="text"
-              placeholder="Buscar por gato ou tutor..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all shadow-inner"
-            />
-          </div>
-
-          {/* Filtros Rápidos */}
-          <div className="flex flex-wrap gap-2 items-center">
-            <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Filtrar:</span>
-            {[
-              { id: 'todos', label: '🐾 Todos' },
-              { id: 'medication', label: '💊 Medicamento' },
-              { id: 'isolado', label: '🔒 Isolado' },
-              { id: 'sociavel', label: '🤝 Sociável' },
-            ].map((btn) => {
-              const isSelected = activeFilter === btn.id;
-              return (
-                <button
-                  key={btn.id}
-                  onClick={() => setActiveFilter(btn.id as any)}
-                  className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${
-                    isSelected
-                      ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                      : 'bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                  }`}
-                >
-                  {btn.label}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Mobile Tab Selector */}
-        <div className="mt-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none xl:hidden">
-          {statusOrder.map((status) => {
-            const count = grouped.find((group) => group.status === status)?.items.length ?? 0;
-            const isActive = activeTab === status;
-            return (
-              <button
-                key={status}
-                onClick={() => setActiveTab(status)}
-                className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${
-                  isActive
-                    ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                    : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                }`}
-              >
-                <span>{getStatusLabel(status)}</span>
-                <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${
-                  isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                }`}>
-                  {count}
-                </span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="mt-6 grid gap-4 xl:grid-cols-4">
-          {grouped.map((group) => (
-            <div
-              key={group.status}
-              className={group.status === activeTab ? 'block' : 'hidden xl:block'}
-            >
-              <Column
-                status={group.status}
-                items={group.items}
-                onEdit={handleEditClick}
-                onCheckOut={handleCheckOut}
-                onCheckIn={handleCheckIn}
-              />
+        {currentView === 'hospedagens' ? (
+          <>
+            <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
+              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
+                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Agendados</p>
+                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'agendado')?.items.length ?? 0}</p>
+                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Proprietários que chegam nos próximos dias.</p>
+              </div>
+              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
+                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Hospedados</p>
+                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'hospedado')?.items.length ?? 0}</p>
+                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Gatos que estão na casa agora.</p>
+              </div>
+              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
+                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Entradas Hoje</p>
+                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{entradasHoje.length}</p>
+                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Chegadas previstas para hoje.</p>
+              </div>
+              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
+                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Saindo Hoje</p>
+                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{saidasHoje.length}</p>
+                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Finalizam hospedagem no dia atual.</p>
+              </div>
             </div>
-          ))}
-        </div>
+
+            {/* Filtros e Busca */}
+            <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
+              {/* Campo de Busca */}
+              <div className="relative flex-1 max-w-md w-full">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <svg className="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </span>
+                <input
+                  type="text"
+                  placeholder="Buscar por gato ou tutor..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all shadow-inner"
+                />
+              </div>
+
+              {/* Filtros Rápidos */}
+              <div className="flex flex-wrap gap-2 items-center">
+                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Filtrar:</span>
+                {[
+                  { id: 'todos', label: '🐾 Todos' },
+                  { id: 'medication', label: '💊 Medicamento' },
+                  { id: 'isolado', label: '🔒 Isolado' },
+                  { id: 'sociavel', label: '🤝 Sociável' },
+                ].map((btn) => {
+                  const isSelected = activeFilter === btn.id;
+                  return (
+                    <button
+                      key={btn.id}
+                      type="button"
+                      onClick={() => setActiveFilter(btn.id as any)}
+                      className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${
+                        isSelected
+                          ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
+                          : 'bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                      }`}
+                    >
+                      {btn.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+
+            {/* Mobile Tab Selector */}
+            <div className="mt-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none xl:hidden">
+              {statusOrder.map((status) => {
+                const count = grouped.find((group) => group.status === status)?.items.length ?? 0;
+                const isActive = activeTab === status;
+                return (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setActiveTab(status)}
+                    className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${
+                      isActive
+                        ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                    }`}
+                  >
+                    <span>{getStatusLabel(status)}</span>
+                    <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${
+                      isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                    }`}>
+                      {count}
+                    </span>
+                  </button>
+                );
+              })}
+            </div>
+
+            <div className="mt-6 grid gap-4 xl:grid-cols-4">
+              {grouped.map((group) => (
+                <div
+                  key={group.status}
+                  className={group.status === activeTab ? 'block' : 'hidden xl:block'}
+                >
+                  <Column
+                    status={group.status}
+                    items={group.items}
+                    onEdit={handleEditClick}
+                    onCheckOut={handleCheckOut}
+                    onCheckIn={handleCheckIn}
+                  />
+                </div>
+              ))}
+            </div>
+          </>
+        ) : (
+          <div className="space-y-6">
+            {/* Campo de Busca Gatos */}
+            <div className="flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
+              <div className="relative flex-1 max-w-md w-full">
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
+                  <Search size={18} className="text-slate-400 dark:text-slate-500" />
+                </span>
+                <input
+                  type="text"
+                  placeholder="Buscar hóspede por nome ou tutor..."
+                  value={gatosSearchTerm}
+                  onChange={(e) => setGatosSearchTerm(e.target.value)}
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all shadow-inner"
+                />
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  setPreSelectedGatoId(undefined);
+                  setIsModalOpen(true);
+                }}
+                className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-500"
+              >
+                <Plus size={16} />
+                Novo Hóspede
+              </button>
+            </div>
+
+            {/* Grid de Hóspedes Felinos */}
+            {filteredGatos.length === 0 ? (
+              <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 p-12 text-center text-slate-400 dark:text-slate-500">
+                <span className="text-4xl mb-2">🐾</span>
+                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Nenhum hóspede felino encontrado</p>
+                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Crie um novo cadastro ou ajuste os termos de busca.</p>
+              </div>
+            ) : (
+              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+                {filteredGatos.map((gato) => (
+                  <div 
+                    key={gato.id} 
+                    className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
+                  >
+                    <div>
+                      {/* Informações Principais */}
+                      <div className="flex gap-4 items-start">
+                        <div className="h-16 w-16 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0 flex items-center justify-center shadow-inner">
+                          {gato.fotoUrl ? (
+                            <img src={gato.fotoUrl} alt={gato.nomeGato} className="h-full w-full object-cover" />
+                          ) : (
+                            <Cat size={32} className="text-slate-300 dark:text-slate-600" />
+                          )}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{gato.nomeGato}</h3>
+                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
+                            Tutor: <span className="font-semibold text-slate-700 dark:text-slate-300">{gato.nomeTutor}</span>
+                          </p>
+                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                            Cadastrado em {formatDateString(gato.dataCadastro)}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Badges de Perfil */}
+                      <div className="mt-3.5 flex flex-wrap gap-1.5">
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
+                          gato.perfil.sociabilidade === 'sociavel' 
+                            ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30' 
+                            : 'bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 border border-rose-100/50 dark:border-rose-900/30'
+                        }`}>
+                          {gato.perfil.sociabilidade === 'sociavel' ? 'Sociável' : 'Isolado'}
+                        </span>
+                        {gato.perfil.personalidade && (
+                          <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full border border-slate-200/50 dark:border-slate-750">
+                            {gato.perfil.personalidade}
+                          </span>
+                        )}
+                        {gato.valorDiariaPadrao && (
+                          <span className="text-[10px] font-bold bg-cyan-50 dark:bg-cyan-950/20 text-cyan-700 dark:text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-100/50 dark:border-cyan-900/30 ml-auto">
+                            R$ {gato.valorDiariaPadrao}/diária
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Prontuário / Notas rápidas */}
+                      <div className="mt-4 space-y-1.5 text-xs text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl p-3 border border-slate-100/80 dark:border-slate-800/60">
+                        {gato.perfil.dieta && (
+                          <p className="truncate"><strong className="text-slate-800 dark:text-slate-200">🍽️ Dieta:</strong> {gato.perfil.dieta}</p>
+                        )}
+                        {gato.perfil.medicamentos && gato.perfil.medicamentos.toLowerCase() !== 'nenhum' && (
+                          <p className="truncate text-red-650 dark:text-red-400 font-semibold">
+                            <strong className="text-slate-800 dark:text-slate-200">💊 Meds:</strong> {gato.perfil.medicamentos}
+                          </p>
+                        )}
+                        {gato.perfil.observacoes && (
+                          <p className="truncate"><strong className="text-slate-800 dark:text-slate-200">📝 Obs:</strong> {gato.perfil.observacoes}</p>
+                        )}
+                      </div>
+                    </div>
+
+                    {/* Histórico Desdobrável */}
+                    <div className="mt-4 pt-3 border-t border-slate-150 dark:border-slate-800/80">
+                      <GatoStayHistory gatoId={gato.id} estadias={estadias} />
+                    </div>
+
+                    {/* Ações */}
+                    <div className="mt-4 flex gap-2 pt-3 border-t border-slate-150 dark:border-slate-800/80">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setPreSelectedGatoId(gato.id);
+                          setIsModalOpen(true);
+                        }}
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-100 dark:border-cyan-900/50 py-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-950/40 transition"
+                      >
+                        <Calendar size={13} />
+                        Hospedar
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedGato(gato);
+                          setIsEditGatoModalOpen(true);
+                        }}
+                        className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                        title="Editar prontuário do gato"
+                      >
+                        <Edit2 size={13} />
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => handleDeleteGato(gato)}
+                        className="p-2 rounded-xl border border-red-100 dark:border-red-950/20 text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition"
+                        title="Remover cadastro permanentemente"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
       </main>
 
       <Modal
         isOpen={isModalOpen}
         title="Novo Hóspede"
-        onClose={() => setIsModalOpen(false)}
+        onClose={() => {
+          setIsModalOpen(false);
+          setPreSelectedGatoId(undefined);
+        }}
       >
         <FormHospedagem
           onSubmit={handleAddHospedagem}
-          onCancel={() => setIsModalOpen(false)}
+          onCancel={() => {
+            setIsModalOpen(false);
+            setPreSelectedGatoId(undefined);
+          }}
+          preSelectedGatoId={preSelectedGatoId}
         />
       </Modal>
 
@@ -434,6 +754,26 @@ function App() {
               }}
             />
           )
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={isEditGatoModalOpen}
+        title={`Editar Prontuário: ${selectedGato?.nomeGato}`}
+        onClose={() => {
+          setIsEditGatoModalOpen(false);
+          setSelectedGato(null);
+        }}
+      >
+        {selectedGato && (
+          <FormEditGato
+            gato={selectedGato}
+            onSubmit={handleUpdateGato}
+            onCancel={() => {
+              setIsEditGatoModalOpen(false);
+              setSelectedGato(null);
+            }}
+          />
         )}
       </Modal>
     </div>

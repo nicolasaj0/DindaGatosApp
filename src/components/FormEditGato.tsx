@@ -1,88 +1,27 @@
-import { useState, useEffect } from 'react';
-import { Hospedagem } from '../types';
-import { resizeImage, getLocalDateString, calculateNights } from '../utils';
-import { Camera, Upload, Link2, X, Sparkles } from 'lucide-react';
-import { useHospedagemStore } from '../store';
+import { useState } from 'react';
+import { Gato } from '../types';
+import { resizeImage } from '../utils';
+import { Camera, Upload, Link2, X } from 'lucide-react';
 
-interface FormHospedagemProps {
-  onSubmit: (hospedagem: Hospedagem) => void;
+interface FormEditGatoProps {
+  gato: Gato;
+  onSubmit: (gato: Gato) => void;
   onCancel: () => void;
-  preSelectedGatoId?: string;
 }
 
-export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHospedagemProps) {
-  const gatos = useHospedagemStore((state) => state.gatos);
-  const [selectedGatoId, setSelectedGatoId] = useState(preSelectedGatoId || '');
-
+export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
   const [formData, setFormData] = useState({
-    nomeGato: '',
-    nomeTutor: '',
-    fotoUrl: '',
-    dataCheckIn: getLocalDateString(),
-    dataCheckOut: getLocalDateString(new Date(Date.now() + 86400000)),
-    sociabilidade: 'sociavel' as 'sociavel' | 'isolado',
-    personalidade: '',
-    dieta: '',
-    observacoes: '',
-    medicamentos: '',
-    valorDiaria: '50',
+    nomeGato: gato.nomeGato,
+    nomeTutor: gato.nomeTutor,
+    fotoUrl: gato.fotoUrl || '',
+    sociabilidade: gato.perfil.sociabilidade,
+    personalidade: gato.perfil.personalidade,
+    dieta: gato.perfil.dieta,
+    observacoes: gato.perfil.observacoes,
+    medicamentos: gato.perfil.medicamentos || '',
+    valorDiariaPadrao: gato.valorDiariaPadrao?.toString() || '50',
   });
   const [isUploading, setIsUploading] = useState(false);
-
-  useEffect(() => {
-    if (preSelectedGatoId) {
-      const g = gatos.find((cat) => cat.id === preSelectedGatoId);
-      if (g) {
-        setFormData((prev) => ({
-          ...prev,
-          nomeGato: g.nomeGato,
-          nomeTutor: g.nomeTutor,
-          fotoUrl: g.fotoUrl || '',
-          sociabilidade: g.perfil.sociabilidade,
-          personalidade: g.perfil.personalidade,
-          dieta: g.perfil.dieta,
-          observacoes: g.perfil.observacoes,
-          medicamentos: g.perfil.medicamentos || '',
-          valorDiaria: g.valorDiariaPadrao?.toString() || '50',
-        }));
-      }
-    }
-  }, [preSelectedGatoId, gatos]);
-
-  const handleSelectGatoChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const val = e.target.value;
-    setSelectedGatoId(val);
-    if (val === '') {
-      setFormData((prev) => ({
-        ...prev,
-        nomeGato: '',
-        nomeTutor: '',
-        fotoUrl: '',
-        sociabilidade: 'sociavel',
-        personalidade: '',
-        dieta: '',
-        observacoes: '',
-        medicamentos: '',
-        valorDiaria: '50',
-      }));
-    } else {
-      const g = gatos.find((cat) => cat.id === val);
-      if (g) {
-        setFormData((prev) => ({
-          ...prev,
-          nomeGato: g.nomeGato,
-          nomeTutor: g.nomeTutor,
-          fotoUrl: g.fotoUrl || '',
-          sociabilidade: g.perfil.sociabilidade,
-          personalidade: g.perfil.personalidade,
-          dieta: g.perfil.dieta,
-          observacoes: g.perfil.observacoes,
-          medicamentos: g.perfil.medicamentos || '',
-          valorDiaria: g.valorDiariaPadrao?.toString() || '50',
-        }));
-      }
-    }
-  };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -117,22 +56,13 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
       return;
     }
 
-    if (formData.dataCheckOut < formData.dataCheckIn) {
-      alert('Atenção: A data de check-out não pode ser anterior à data de check-in.');
-      return;
-    }
+    const valorNum = parseFloat(formData.valorDiariaPadrao);
 
-    const valorNum = parseFloat(formData.valorDiaria);
-
-    const novahospedagem: Hospedagem = {
-      id: `${Date.now()}`,
-      gatoId: selectedGatoId || undefined,
+    onSubmit({
+      ...gato,
       nomeGato: formData.nomeGato,
       nomeTutor: formData.nomeTutor,
       fotoUrl: formData.fotoUrl || undefined,
-      dataCheckIn: formData.dataCheckIn,
-      dataCheckOut: formData.dataCheckOut,
-      status: 'agendado',
       perfil: {
         sociabilidade: formData.sociabilidade,
         personalidade: formData.personalidade,
@@ -140,38 +70,12 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         observacoes: formData.observacoes,
         medicamentos: formData.medicamentos || undefined,
       },
-      valorDiaria: isNaN(valorNum) ? undefined : valorNum,
-    };
-
-    onSubmit(novahospedagem);
+      valorDiariaPadrao: isNaN(valorNum) ? undefined : valorNum,
+    });
   };
 
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
-      {/* Seletor de Hóspede Existente */}
-      <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
-        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2 flex items-center gap-1.5">
-          <Sparkles size={14} className="text-cyan-600 dark:text-cyan-400" />
-          Hóspede
-        </label>
-        <select
-          value={selectedGatoId}
-          onChange={handleSelectGatoChange}
-          className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-        >
-          <option value="">✨ Novo Cadastro (Digitar perfil completo)</option>
-          {gatos.map((g) => (
-            <option key={g.id} value={g.id}>
-              🐱 {g.nomeGato} (Tutor: {g.nomeTutor})
-            </option>
-          ))}
-        </select>
-        {selectedGatoId && (
-          <p className="mt-1.5 text-[11px] text-emerald-600 dark:text-emerald-400 font-medium">
-            ✓ Perfil preenchido a partir do cadastro central. Qualquer edição atualizará os dados fixos do felino.
-          </p>
-        )}
-      </div>
       {/* Seção de Foto do Gato */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">Foto do Gato</label>
@@ -202,15 +106,15 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           <div className="flex-1 w-full space-y-3">
             <div className="flex flex-wrap gap-2">
               <label
-                htmlFor="foto-file-input"
+                htmlFor="foto-edit-file-input"
                 className="cursor-pointer inline-flex items-center gap-2 rounded-xl bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-700 px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition-all"
               >
                 <Upload size={14} className="text-slate-500 dark:text-slate-400" />
-                {isUploading ? 'Processando...' : 'Carregar Imagem'}
+                {isUploading ? 'Processando...' : 'Alterar Imagem'}
               </label>
               <input
                 type="file"
-                id="foto-file-input"
+                id="foto-edit-file-input"
                 accept="image/*"
                 onChange={handleFileChange}
                 className="hidden"
@@ -278,55 +182,19 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Check-In</label>
-          <input
-            type="date"
-            name="dataCheckIn"
-            value={formData.dataCheckIn}
-            onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-          />
-        </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Check-Out</label>
-          <input
-            type="date"
-            name="dataCheckOut"
-            value={formData.dataCheckOut}
-            onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-          />
-        </div>
-      </div>
-
       <div className="grid grid-cols-2 gap-3 items-end bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/80 rounded-2xl p-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Valor da Diária (R$)</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Valor da Diária Padrão (R$)</label>
           <input
             type="number"
-            name="valorDiaria"
+            name="valorDiariaPadrao"
             min="0"
-            value={formData.valorDiaria}
+            value={formData.valorDiariaPadrao}
             onChange={handleChange}
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
             placeholder="50"
           />
         </div>
-        <div className="flex flex-col gap-1 items-end justify-center text-right pr-1">
-          <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 dark:bg-cyan-950/20 text-cyan-700 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-900/50 px-2 py-0.5 text-[10px] font-semibold">
-            {calculateNights(formData.dataCheckIn, formData.dataCheckOut) === 1 ? '1 diária 🌙' : `${calculateNights(formData.dataCheckIn, formData.dataCheckOut)} diárias 🌙`}
-          </span>
-          <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-            Total: <strong className="text-cyan-600 dark:text-cyan-400 text-sm">R$ {
-              (calculateNights(formData.dataCheckIn, formData.dataCheckOut) * (parseFloat(formData.valorDiaria) || 0)).toFixed(2)
-            }</strong>
-          </span>
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Sociabilidade</label>
           <select
@@ -339,6 +207,9 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             <option value="isolado">Isolado</option>
           </select>
         </div>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Personalidade</label>
           <input
@@ -350,18 +221,17 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             placeholder="Calmo, Medroso..."
           />
         </div>
-      </div>
-
-      <div>
-        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Dieta</label>
-        <input
-          type="text"
-          name="dieta"
-          value={formData.dieta}
-          onChange={handleChange}
-          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
-          placeholder="Ração premium 60g 2x"
-        />
+        <div>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Dieta</label>
+          <input
+            type="text"
+            name="dieta"
+            value={formData.dieta}
+            onChange={handleChange}
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            placeholder="Ração premium 60g 2x"
+          />
+        </div>
       </div>
 
       <div>
@@ -400,7 +270,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           type="submit"
           className="flex-1 rounded-lg bg-cyan-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-cyan-500 transition"
         >
-          Criar Hóspede
+          Salvar
         </button>
       </div>
     </form>

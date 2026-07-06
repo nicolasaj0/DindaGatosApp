@@ -12,6 +12,7 @@ export interface HospedagemPerfil {
 
 export interface Hospedagem {
   id: string;
+  gatoId?: string; // Reference to Gato
   nomeGato: string;
   nomeTutor: string;
   fotoUrl?: string;
@@ -19,6 +20,27 @@ export interface Hospedagem {
   dataCheckOut: string;
   status: HospedagemStatus;
   perfil: HospedagemPerfil;
+  dataHoraConfirmacaoCheckIn?: string;
+  dataHoraConfirmacaoCheckOut?: string;
+  valorDiaria?: number;
+}
+
+export interface Gato {
+  id: string;
+  nomeGato: string;
+  nomeTutor: string;
+  fotoUrl?: string;
+  perfil: HospedagemPerfil;
+  valorDiariaPadrao?: number;
+  dataCadastro: string;
+}
+
+export interface Estadia {
+  id: string;
+  gatoId: string;
+  dataCheckIn: string;
+  dataCheckOut: string;
+  status: HospedagemStatus;
   dataHoraConfirmacaoCheckIn?: string;
   dataHoraConfirmacaoCheckOut?: string;
   valorDiaria?: number;
