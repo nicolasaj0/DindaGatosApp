@@ -119,6 +119,15 @@ function App() {
   const [isEditGatoModalOpen, setIsEditGatoModalOpen] = useState(false);
   const [selectedGato, setSelectedGato] = useState<Gato | null>(null);
   const [preSelectedGatoId, setPreSelectedGatoId] = useState<string | undefined>(undefined);
+  const [layoutMode, setLayoutMode] = useState<'columns' | 'rows'>(() => {
+    const saved = localStorage.getItem('layoutMode');
+    return (saved === 'columns' || saved === 'rows') ? saved : 'rows';
+  });
+
+  const handleLayoutModeChange = (mode: 'columns' | 'rows') => {
+    setLayoutMode(mode);
+    localStorage.setItem('layoutMode', mode);
+  };
 
   useEffect(() => {
     if (theme === 'dark') {
@@ -471,7 +480,7 @@ function App() {
             </div>
 
             {/* Filtros e Busca */}
-            <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
+            <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between backdrop-blur-md">
               {/* Campo de Busca */}
               <div className="relative flex-1 max-w-md w-full">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
@@ -488,66 +497,100 @@ function App() {
                 />
               </div>
 
-              {/* Filtros Rápidos */}
-              <div className="flex flex-wrap gap-2 items-center">
-                <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Filtrar:</span>
-                {[
-                  { id: 'todos', label: '🐾 Todos' },
-                  { id: 'medication', label: '💊 Medicamento' },
-                  { id: 'isolado', label: '🔒 Isolado' },
-                  { id: 'sociavel', label: '🤝 Sociável' },
-                ].map((btn) => {
-                  const isSelected = activeFilter === btn.id;
+              <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between lg:justify-end">
+                {/* Filtros Rápidos */}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Filtrar:</span>
+                  {[
+                    { id: 'todos', label: '🐾 Todos' },
+                    { id: 'medication', label: '💊 Medicamento' },
+                    { id: 'isolado', label: '🔒 Isolado' },
+                    { id: 'sociavel', label: '🤝 Sociável' },
+                  ].map((btn) => {
+                    const isSelected = activeFilter === btn.id;
+                    return (
+                      <button
+                        key={btn.id}
+                        type="button"
+                        onClick={() => setActiveFilter(btn.id as any)}
+                        className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${
+                          isSelected
+                            ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
+                            : 'bg-white dark:bg-slate-950 text-slate-650 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
+                      >
+                        {btn.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Seletor de Modo de Layout */}
+                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200/55 dark:border-slate-800/80 self-start sm:self-auto">
+                  <button
+                    type="button"
+                    onClick={() => handleLayoutModeChange('rows')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${
+                      layoutMode === 'rows'
+                        ? 'bg-white dark:bg-slate-800 text-cyan-650 dark:text-cyan-400 shadow-sm font-bold'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                    title="Visualização Horizontal"
+                  >
+                    <span>☱</span>
+                    <span>Fileiras</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => handleLayoutModeChange('columns')}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${
+                      layoutMode === 'columns'
+                        ? 'bg-white dark:bg-slate-800 text-cyan-655 dark:text-cyan-400 shadow-sm font-bold'
+                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                    }`}
+                    title="Visualização Vertical"
+                  >
+                    <span>🗓️</span>
+                    <span>Colunas</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            {/* Mobile Tab Selector (Apenas no Modo Colunas) */}
+            {layoutMode === 'columns' && (
+              <div className="mt-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none xl:hidden">
+                {statusOrder.map((status) => {
+                  const count = grouped.find((group) => group.status === status)?.items.length ?? 0;
+                  const isActive = activeTab === status;
                   return (
                     <button
-                      key={btn.id}
+                      key={status}
                       type="button"
-                      onClick={() => setActiveFilter(btn.id as any)}
-                      className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${
-                        isSelected
+                      onClick={() => setActiveTab(status)}
+                      className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${
+                        isActive
                           ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                          : 'bg-white dark:bg-slate-950 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                       }`}
                     >
-                      {btn.label}
+                      <span>{getStatusLabel(status)}</span>
+                      <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${
+                        isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      }`}>
+                        {count}
+                      </span>
                     </button>
                   );
                 })}
               </div>
-            </div>
+            )}
 
-            {/* Mobile Tab Selector */}
-            <div className="mt-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none xl:hidden">
-              {statusOrder.map((status) => {
-                const count = grouped.find((group) => group.status === status)?.items.length ?? 0;
-                const isActive = activeTab === status;
-                return (
-                  <button
-                    key={status}
-                    type="button"
-                    onClick={() => setActiveTab(status)}
-                    className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${
-                      isActive
-                        ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                    }`}
-                  >
-                    <span>{getStatusLabel(status)}</span>
-                    <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${
-                      isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                    }`}>
-                      {count}
-                    </span>
-                  </button>
-                );
-              })}
-            </div>
-
-            <div className="mt-6 grid gap-4 xl:grid-cols-4">
+            <div className={layoutMode === 'rows' ? "mt-6 space-y-6" : "mt-6 grid gap-4 xl:grid-cols-4"}>
               {grouped.map((group) => (
                 <div
                   key={group.status}
-                  className={group.status === activeTab ? 'block' : 'hidden xl:block'}
+                  className={layoutMode === 'rows' ? "block" : (group.status === activeTab ? 'block' : 'hidden xl:block')}
                 >
                   <Column
                     status={group.status}
@@ -555,6 +598,7 @@ function App() {
                     onEdit={handleEditClick}
                     onCheckOut={handleCheckOut}
                     onCheckIn={handleCheckIn}
+                    layoutMode={layoutMode}
                   />
                 </div>
               ))}
