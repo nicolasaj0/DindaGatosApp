@@ -68,7 +68,7 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
         </span>
         {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
       </button>
-      
+
       {isOpen && (
         <div className="mt-1.5 space-y-1 max-h-36 overflow-y-auto pr-1 scrollbar-thin">
           {history.map((e) => {
@@ -82,15 +82,14 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
                 <span className="font-bold text-slate-600 dark:text-slate-400">
                   {nights === 1 ? '1 dia' : `${nights} dias`} • R$ {val.toFixed(0)}
                 </span>
-                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${
-                  e.status === 'concluido'
-                    ? 'bg-slate-100 dark:bg-slate-900 text-slate-500'
-                    : e.status === 'hospedado'
+                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${e.status === 'concluido'
+                  ? 'bg-slate-100 dark:bg-slate-900 text-slate-500'
+                  : e.status === 'hospedado'
                     ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-650 dark:text-emerald-450'
                     : e.status === 'saindo_hoje'
-                    ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
-                    : 'bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400'
-                }`}>
+                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
+                      : 'bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400'
+                  }`}>
                   {e.status === 'concluido' ? 'Fim' : e.status === 'hospedado' ? 'In' : e.status === 'saindo_hoje' ? 'Out' : 'Agend'}
                 </span>
               </div>
@@ -169,15 +168,15 @@ function App() {
 
   const filteredHospedagens = useMemo(() => {
     return hospedagens.filter((item) => {
-      const matchesSearch = 
+      const matchesSearch =
         item.nomeGato.toLowerCase().includes(searchTerm.toLowerCase()) ||
         item.nomeTutor.toLowerCase().includes(searchTerm.toLowerCase());
-      
+
       if (!matchesSearch) return false;
 
       if (activeFilter === 'medication') {
-        const hasMedication = item.perfil.medicamentos && 
-          item.perfil.medicamentos.trim() !== '' && 
+        const hasMedication = item.perfil.medicamentos &&
+          item.perfil.medicamentos.trim() !== '' &&
           item.perfil.medicamentos.toLowerCase() !== 'nenhum';
         return hasMedication;
       }
@@ -187,7 +186,7 @@ function App() {
       if (activeFilter === 'sociavel') {
         return item.perfil.sociabilidade === 'sociavel';
       }
-      
+
       return true;
     });
   }, [hospedagens, searchTerm, activeFilter]);
@@ -205,7 +204,7 @@ function App() {
   useEffect(() => {
     const syncStatuses = () => {
       const hoje = getLocalDateString();
-      
+
       hospedagens.forEach((item) => {
         // Não alterar quem já foi concluído manualmente
         if (item.status === 'concluido') return;
@@ -215,7 +214,7 @@ function App() {
         // Se alcançou ou passou a data de checkout: se torna saindo_hoje
         if (hoje >= item.dataCheckOut) {
           novoStatus = 'saindo_hoje';
-        } 
+        }
         // Se a data de check-in é no futuro, mantém como agendado (caso as datas tenham mudado)
         else if (hoje < item.dataCheckIn) {
           novoStatus = 'agendado';
@@ -236,16 +235,16 @@ function App() {
   }, [hospedagens, updateHospedagem]);
 
   const handleCheckIn = (id: string) => {
-    updateHospedagem(id, { 
-      status: 'hospedado', 
-      dataHoraConfirmacaoCheckIn: getLocalTimestampString() 
+    updateHospedagem(id, {
+      status: 'hospedado',
+      dataHoraConfirmacaoCheckIn: getLocalTimestampString()
     });
   };
 
   const handleCheckOut = (id: string) => {
-    updateHospedagem(id, { 
-      status: 'concluido', 
-      dataHoraConfirmacaoCheckOut: getLocalTimestampString() 
+    updateHospedagem(id, {
+      status: 'concluido',
+      dataHoraConfirmacaoCheckOut: getLocalTimestampString()
     });
   };
 
@@ -304,14 +303,14 @@ function App() {
       const dataStr = JSON.stringify(stateToExport, null, 2);
       const dataBlob = new Blob([dataStr], { type: 'application/json' });
       const url = URL.createObjectURL(dataBlob);
-      
+
       const tempLink = document.createElement('a');
       tempLink.href = url;
       const today = new Date().toISOString().slice(0, 10);
       tempLink.setAttribute('download', `dinda-gatos-backup-${today}.json`);
       document.body.appendChild(tempLink);
       tempLink.click();
-      
+
       document.body.removeChild(tempLink);
       URL.revokeObjectURL(url);
     } catch (error) {
@@ -383,11 +382,10 @@ function App() {
           <button
             type="button"
             onClick={() => setCurrentView('hospedagens')}
-            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
-              currentView === 'hospedagens'
-                ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-            }`}
+            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'hospedagens'
+              ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+              }`}
           >
             <span>🗓️</span>
             <span>Quadro de Hospedagens</span>
@@ -398,11 +396,10 @@ function App() {
               setCurrentView('gatos');
               setPreSelectedGatoId(undefined);
             }}
-            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
-              currentView === 'gatos'
-                ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-            }`}
+            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'gatos'
+              ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+              }`}
           >
             <span>🐱</span>
             <span>Hóspedes Felinos</span>
@@ -413,11 +410,10 @@ function App() {
           <button
             type="button"
             onClick={() => setCurrentView('relatorios')}
-            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
-              currentView === 'relatorios'
-                ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
-                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-            }`}
+            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'relatorios'
+              ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+              }`}
           >
             <span>📊</span>
             <span>Relatórios</span>
@@ -431,11 +427,11 @@ function App() {
               {currentView === 'hospedagens' ? 'Quadro de Hospedagens' : currentView === 'gatos' ? 'Histórico & Hóspedes Felinos' : 'Relatório Financeiro & Desempenho'}
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
-              {currentView === 'hospedagens' 
-                ? 'Gerencie e acompanhe automaticamente os check-ins, estadias e saídas com base no calendário.' 
+              {currentView === 'hospedagens'
+                ? 'Gerencie e acompanhe automaticamente os check-ins, estadias e saídas com base no calendário.'
                 : currentView === 'gatos'
-                ? 'Consulte perfis unificados dos gatos, verifique diárias acumuladas e faça agendamentos rápidos.'
-                : 'Analise a visão geral financeira de diárias e receitas geradas por período e hóspede.'}
+                  ? 'Consulte perfis unificados dos gatos, verifique diárias acumuladas e faça agendamentos rápidos.'
+                  : 'Analise a visão geral financeira de diárias e receitas geradas por período e hóspede.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -528,11 +524,10 @@ function App() {
                         key={btn.id}
                         type="button"
                         onClick={() => setActiveFilter(btn.id as any)}
-                        className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${
-                          isSelected
-                            ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                            : 'bg-white dark:bg-slate-950 text-slate-650 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                        }`}
+                        className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${isSelected
+                          ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
+                          : 'bg-white dark:bg-slate-950 text-slate-650 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
                       >
                         {btn.label}
                       </button>
@@ -545,11 +540,10 @@ function App() {
                   <button
                     type="button"
                     onClick={() => handleLayoutModeChange('rows')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${
-                      layoutMode === 'rows'
-                        ? 'bg-white dark:bg-slate-800 text-cyan-650 dark:text-cyan-400 shadow-sm font-bold'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                    }`}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'rows'
+                      ? 'bg-white dark:bg-slate-800 text-cyan-650 dark:text-cyan-400 shadow-sm font-bold'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                      }`}
                     title="Visualização Horizontal"
                   >
                     <span>☱</span>
@@ -558,11 +552,10 @@ function App() {
                   <button
                     type="button"
                     onClick={() => handleLayoutModeChange('columns')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${
-                      layoutMode === 'columns'
-                        ? 'bg-white dark:bg-slate-800 text-cyan-655 dark:text-cyan-400 shadow-sm font-bold'
-                        : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                    }`}
+                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'columns'
+                      ? 'bg-white dark:bg-slate-800 text-cyan-655 dark:text-cyan-400 shadow-sm font-bold'
+                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                      }`}
                     title="Visualização Vertical"
                   >
                     <span>🗓️</span>
@@ -583,16 +576,14 @@ function App() {
                       key={status}
                       type="button"
                       onClick={() => setActiveTab(status)}
-                      className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${
-                        isActive
-                          ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                          : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                      }`}
+                      className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${isActive
+                        ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
+                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        }`}
                     >
                       <span>{getStatusLabel(status)}</span>
-                      <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${
-                        isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                      }`}>
+                      <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                        }`}>
                         {count}
                       </span>
                     </button>
@@ -660,8 +651,8 @@ function App() {
             ) : (
               <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredGatos.map((gato) => (
-                  <div 
-                    key={gato.id} 
+                  <div
+                    key={gato.id}
                     className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
                   >
                     <div>
@@ -687,11 +678,10 @@ function App() {
 
                       {/* Badges de Perfil */}
                       <div className="mt-3.5 flex flex-wrap gap-1.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                          gato.perfil.sociabilidade === 'sociavel' 
-                            ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30' 
-                            : 'bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 border border-rose-100/50 dark:border-rose-900/30'
-                        }`}>
+                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${gato.perfil.sociabilidade === 'sociavel'
+                          ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30'
+                          : 'bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 border border-rose-100/50 dark:border-rose-900/30'
+                          }`}>
                           {gato.perfil.sociabilidade === 'sociavel' ? 'Sociável' : 'Isolado'}
                         </span>
                         {gato.perfil.personalidade && (

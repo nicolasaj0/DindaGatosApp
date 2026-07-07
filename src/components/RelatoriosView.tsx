@@ -22,13 +22,13 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     const today = new Date();
     const day = today.getDay(); // 0 is Sunday, 1 is Monday...
     const diffToMonday = day === 0 ? -6 : 1 - day;
-    
+
     const monday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + diffToMonday);
     const sunday = new Date(today.getFullYear(), today.getMonth(), today.getDate() + diffToMonday + 6);
-    
+
     monday.setHours(0, 0, 0, 0);
     sunday.setHours(23, 59, 59, 999);
-    
+
     return { monday, sunday };
   };
 
@@ -84,7 +84,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
   const catAnalytics = useMemo(() => {
     const catsData = gatos.map((g) => {
       const catStays = estadias.filter((e) => e.gatoId === g.id);
-      
+
       const totalNights = catStays.reduce((sum, e) => sum + calculateNights(e.dataCheckIn, e.dataCheckOut), 0);
       const totalSpent = catStays.reduce((sum, e) => {
         const nights = calculateNights(e.dataCheckIn, e.dataCheckOut);
@@ -150,7 +150,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
   const maxValues = useMemo(() => {
     const { activeCats } = catAnalytics;
     if (activeCats.length === 0) return { spent: 1, nights: 1 };
-    
+
     return {
       spent: Math.max(...activeCats.map((c) => c.spent), 1),
       nights: Math.max(...activeCats.map((c) => c.nights), 1),
@@ -237,7 +237,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
               R$ {(periodStats.week.realized + periodStats.week.projected).toFixed(0)}
             </p>
-            
+
             <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
                 <span>Realizados:</span>
@@ -263,7 +263,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           {/* Progress bar */}
           <div className="mt-5 space-y-1.5">
             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-              <div 
+              <div
                 className="h-full bg-cyan-600 dark:bg-cyan-500 transition-all duration-300"
                 style={{ width: `${(periodStats.week.realized / (periodStats.week.realized + periodStats.week.projected || 1)) * 100}%` }}
               />
@@ -285,7 +285,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
               R$ {(periodStats.month.realized + periodStats.month.projected).toFixed(0)}
             </p>
-            
+
             <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
                 <span>Realizados:</span>
@@ -311,7 +311,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           {/* Progress bar */}
           <div className="mt-5 space-y-1.5">
             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-              <div 
+              <div
                 className="h-full bg-emerald-600 dark:bg-emerald-500 transition-all duration-300"
                 style={{ width: `${(periodStats.month.realized / (periodStats.month.realized + periodStats.month.projected || 1)) * 100}%` }}
               />
@@ -333,7 +333,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
               R$ {(periodStats.year.realized + periodStats.year.projected).toFixed(0)}
             </p>
-            
+
             <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
                 <span>Realizados:</span>
@@ -359,7 +359,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           {/* Progress bar */}
           <div className="mt-5 space-y-1.5">
             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
-              <div 
+              <div
                 className="h-full bg-purple-600 dark:bg-purple-500 transition-all duration-300"
                 style={{ width: `${(periodStats.year.realized / (periodStats.year.realized + periodStats.year.projected || 1)) * 100}%` }}
               />
@@ -387,11 +387,10 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             <button
               type="button"
               onClick={() => setSortBy('spent')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${
-                sortBy === 'spent'
-                  ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm font-bold'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${sortBy === 'spent'
+                ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
             >
               <span>💰</span>
               <span><span className="hidden sm:inline">Ordenar por </span>Ganhos</span>
@@ -399,11 +398,10 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             <button
               type="button"
               onClick={() => setSortBy('nights')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${
-                sortBy === 'nights'
-                  ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm font-bold'
-                  : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${sortBy === 'nights'
+                ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm font-bold'
+                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
+                }`}
             >
               <span>🌙</span>
               <span><span className="hidden sm:inline">Ordenar por </span>Diárias</span>
@@ -425,8 +423,8 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               const spentWidth = (cat.spent / maxValues.spent) * 100;
 
               return (
-                <div 
-                  key={cat.id} 
+                <div
+                  key={cat.id}
                   className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850 hover:shadow-md dark:hover:bg-slate-950/40 hover:border-cyan-500/30 transition duration-200 group"
                 >
                   {/* Cat Photo and Name */}
@@ -453,7 +451,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                         <span className="text-slate-700 dark:text-slate-350 font-bold">{cat.nights} {cat.nights === 1 ? 'diária' : 'diárias'} ({cat.staysCount} {cat.staysCount === 1 ? 'estadia' : 'estadias'})</span>
                       </div>
                       <div className="w-full h-3 bg-slate-100/80 dark:bg-slate-950 rounded-full overflow-hidden shadow-inner">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${nightsWidth}%` }}
                         />
@@ -467,7 +465,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                         <span className="text-cyan-600 dark:text-cyan-400 font-bold">R$ {cat.spent.toFixed(0)}</span>
                       </div>
                       <div className="w-full h-3 bg-slate-100/80 dark:bg-slate-950 rounded-full overflow-hidden shadow-inner">
-                        <div 
+                        <div
                           className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${spentWidth}%` }}
                         />
