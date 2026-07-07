@@ -8,7 +8,8 @@ import { FormHospedagem } from './components/FormHospedagem';
 import { FormEditHospedagem } from './components/FormEditHospedagem';
 import { FichaHospedagem } from './components/FichaHospedagem';
 import { FormEditGato } from './components/FormEditGato';
-import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, HeartPulse, ChevronDown, ChevronUp } from 'lucide-react';
+import { RelatoriosView } from './components/RelatoriosView';
+import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, HeartPulse, ChevronDown, ChevronUp, BarChart3 } from 'lucide-react';
 import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
@@ -114,7 +115,7 @@ function App() {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<'todos' | 'medication' | 'isolado' | 'sociavel'>('todos');
-  const [currentView, setCurrentView] = useState<'hospedagens' | 'gatos'>('hospedagens');
+  const [currentView, setCurrentView] = useState<'hospedagens' | 'gatos' | 'relatorios'>('hospedagens');
   const [gatosSearchTerm, setGatosSearchTerm] = useState('');
   const [isEditGatoModalOpen, setIsEditGatoModalOpen] = useState(false);
   const [selectedGato, setSelectedGato] = useState<Gato | null>(null);
@@ -373,16 +374,16 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <Header hospedagens={hospedagens} theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="mx-auto max-w-7xl px-4 pb-10 pt-6">
         {/* Main View Tabs selector */}
-        <div className="mb-6 flex border-b border-slate-200 dark:border-slate-800 gap-1">
+        <div className="mb-6 flex border-b border-slate-200 dark:border-slate-800 gap-1 overflow-x-auto whitespace-nowrap scrollbar-none">
           <button
             type="button"
             onClick={() => setCurrentView('hospedagens')}
-            className={`px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
+            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
               currentView === 'hospedagens'
                 ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -397,7 +398,7 @@ function App() {
               setCurrentView('gatos');
               setPreSelectedGatoId(undefined);
             }}
-            className={`px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
+            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
               currentView === 'gatos'
                 ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
                 : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
@@ -409,18 +410,32 @@ function App() {
               {gatos.length}
             </span>
           </button>
+          <button
+            type="button"
+            onClick={() => setCurrentView('relatorios')}
+            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${
+              currentView === 'relatorios'
+                ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+                : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
+            }`}
+          >
+            <span>📊</span>
+            <span>Relatórios</span>
+          </button>
         </div>
 
         <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-6 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Dashboard</p>
             <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
-              {currentView === 'hospedagens' ? 'Quadro de Hospedagens' : 'Histórico & Feline Guests'}
+              {currentView === 'hospedagens' ? 'Quadro de Hospedagens' : currentView === 'gatos' ? 'Histórico & Hóspedes Felinos' : 'Relatório Financeiro & Desempenho'}
             </h2>
             <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
               {currentView === 'hospedagens' 
                 ? 'Gerencie e acompanhe automaticamente os check-ins, estadias e saídas com base no calendário.' 
-                : 'Consulte perfis unificados dos gatos, verifique diárias acumuladas e faça agendamentos rápidos.'}
+                : currentView === 'gatos'
+                ? 'Consulte perfis unificados dos gatos, verifique diárias acumuladas e faça agendamentos rápidos.'
+                : 'Analise a visão geral financeira de diárias e receitas geradas por período e hóspede.'}
             </p>
           </div>
           <div className="flex flex-wrap items-center gap-3">
@@ -454,7 +469,7 @@ function App() {
           </div>
         </div>
 
-        {currentView === 'hospedagens' ? (
+        {currentView === 'hospedagens' && (
           <>
             <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
               <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
@@ -604,7 +619,9 @@ function App() {
               ))}
             </div>
           </>
-        ) : (
+        )}
+
+        {currentView === 'gatos' && (
           <div className="space-y-6">
             {/* Campo de Busca Gatos */}
             <div className="flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
@@ -748,6 +765,10 @@ function App() {
               </div>
             )}
           </div>
+        )}
+
+        {currentView === 'relatorios' && (
+          <RelatoriosView estadias={estadias} gatos={gatos} />
         )}
       </main>
 
