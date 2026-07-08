@@ -73,7 +73,7 @@ Certifique-se de ter o [Node.js](https://nodejs.org/) instalado em sua máquina.
 
 1. **Clonar o Repositório:**
    ```bash
-   git clone https://github.com/usuario/DindaGatosApp.git
+   git clone https://github.com/nicolasaj0/DindaGatosApp.git
    cd DindaGatosApp
    ```
 
