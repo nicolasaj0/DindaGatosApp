@@ -9,7 +9,7 @@ import { FormEditHospedagem } from './components/FormEditHospedagem';
 import { FichaHospedagem } from './components/FichaHospedagem';
 import { FormEditGato } from './components/FormEditGato';
 import { RelatoriosView } from './components/RelatoriosView';
-import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, HeartPulse, ChevronDown, ChevronUp, BarChart3 } from 'lucide-react';
+import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, HeartPulse, ChevronDown, ChevronUp, BarChart3, Home, ArrowRight, ArrowLeft, PawPrint } from 'lucide-react';
 import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
@@ -88,7 +88,7 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
                     ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-650 dark:text-emerald-450'
                     : e.status === 'saindo_hoje'
                       ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
-                      : 'bg-cyan-100 dark:bg-cyan-950/60 text-cyan-600 dark:text-cyan-400'
+                      : 'bg-terracota-100 dark:bg-terracota-950/60 text-terracota-600 dark:text-terracota-400'
                   }`}>
                   {e.status === 'concluido' ? 'Fim' : e.status === 'hospedado' ? 'In' : e.status === 'saindo_hoje' ? 'Out' : 'Agend'}
                 </span>
@@ -373,7 +373,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-slate-100 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-warmBg-100 dark:bg-warmBg-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
       <Header hospedagens={hospedagens} theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="mx-auto max-w-7xl px-4 pb-10 pt-6">
@@ -383,7 +383,7 @@ function App() {
             type="button"
             onClick={() => setCurrentView('hospedagens')}
             className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'hospedagens'
-              ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+              ? 'border-terracota-500 text-terracota-600 dark:text-terracota-400 dark:border-terracota-400'
               : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
           >
@@ -397,7 +397,7 @@ function App() {
               setPreSelectedGatoId(undefined);
             }}
             className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'gatos'
-              ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+              ? 'border-terracota-500 text-terracota-600 dark:text-terracota-400 dark:border-terracota-400'
               : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
           >
@@ -411,7 +411,7 @@ function App() {
             type="button"
             onClick={() => setCurrentView('relatorios')}
             className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'relatorios'
-              ? 'border-cyan-600 text-cyan-600 dark:text-cyan-400 dark:border-cyan-400'
+              ? 'border-terracota-500 text-terracota-600 dark:text-terracota-400 dark:border-terracota-400'
               : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
               }`}
           >
@@ -437,14 +437,14 @@ function App() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleExportJSON}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-350 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
               title="Salva uma cópia de segurança de todos os dados e fotos no seu computador"
             >
               <Download size={16} />
               Salvar Cópia (Backup)
             </button>
             <label
-              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-3 text-sm font-semibold text-slate-700 dark:text-slate-300 shadow-sm hover:bg-slate-50 dark:hover:bg-slate-700 transition"
+              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-350 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
               title="Restaura os dados e fotos a partir de um arquivo de cópia salvo"
             >
               <Upload size={16} />
@@ -458,7 +458,7 @@ function App() {
             </label>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center justify-center rounded-2xl bg-cyan-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-500"
+              className="inline-flex items-center justify-center rounded-2xl bg-terracota-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-terracota-500/20 transition hover:bg-terracota-600"
             >
               Novo Hóspede
             </button>
@@ -468,31 +468,50 @@ function App() {
         {currentView === 'hospedagens' && (
           <>
             <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Agendados</p>
-                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'agendado')?.items.length ?? 0}</p>
-                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Proprietários que chegam nos próximos dias.</p>
+              <div className="rounded-3xl border-l-4 border-l-mostarda-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Agendados</p>
+                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'agendado')?.items.length ?? 0}</p>
+                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Proprietários que chegam nos próximos dias.</p>
+                </div>
+                <div className="p-2 rounded-2xl bg-mostarda-50 dark:bg-mostarda-950/45 text-mostarda-600 dark:text-mostarda-400 flex-shrink-0 ml-2">
+                  <Calendar size={20} />
+                </div>
               </div>
-              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Hospedados</p>
-                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'hospedado')?.items.length ?? 0}</p>
-                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Gatos que estão na casa agora.</p>
+              <div className="rounded-3xl border-l-4 border-l-emerald-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Hospedados</p>
+                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'hospedado')?.items.length ?? 0}</p>
+                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Gatos que estão na casa agora.</p>
+                </div>
+                <div className="p-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/45 text-emerald-600 dark:text-emerald-400 flex-shrink-0 ml-2">
+                  <Cat size={20} />
+                </div>
               </div>
-              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Entradas Hoje</p>
-                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{entradasHoje.length}</p>
-                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Chegadas previstas para hoje.</p>
+              <div className="rounded-3xl border-l-4 border-l-ardosia-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Entradas Hoje</p>
+                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{entradasHoje.length}</p>
+                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Chegadas previstas para hoje.</p>
+                </div>
+                <div className="p-2 rounded-2xl bg-ardosia-50 dark:bg-ardosia-950/45 text-ardosia-600 dark:text-ardosia-400 flex-shrink-0 ml-2">
+                  <ArrowRight size={20} />
+                </div>
               </div>
-              <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 sm:p-5 shadow-sm">
-                <p className="text-xs sm:text-sm uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Saindo Hoje</p>
-                <p className="mt-2 text-2xl sm:text-3xl font-bold text-slate-900 dark:text-white">{saidasHoje.length}</p>
-                <p className="mt-1 text-[11px] sm:text-sm text-slate-600 dark:text-slate-400 leading-normal">Finalizam hospedagem no dia atual.</p>
+              <div className="rounded-3xl border-l-4 border-l-terracota-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+                <div className="min-w-0">
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Saindo Hoje</p>
+                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{saidasHoje.length}</p>
+                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Finalizam hospedagem no dia atual.</p>
+                </div>
+                <div className="p-2 rounded-2xl bg-terracota-50 dark:bg-terracota-950/45 text-terracota-600 dark:text-terracota-400 flex-shrink-0 ml-2">
+                  <ArrowLeft size={20} />
+                </div>
               </div>
             </div>
 
             {/* Filtros e Busca */}
             <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between backdrop-blur-md">
-              {/* Campo de Busca */}
               <div className="relative flex-1 max-w-md w-full">
                 <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
                   <svg className="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -504,7 +523,7 @@ function App() {
                   placeholder="Buscar por gato ou tutor..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all shadow-inner"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-warmBg-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500 transition-all shadow-inner"
                 />
               </div>
 
@@ -525,8 +544,8 @@ function App() {
                         type="button"
                         onClick={() => setActiveFilter(btn.id as any)}
                         className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${isSelected
-                          ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                          : 'bg-white dark:bg-slate-950 text-slate-650 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
+                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                           }`}
                       >
                         {btn.label}
@@ -541,7 +560,7 @@ function App() {
                     type="button"
                     onClick={() => handleLayoutModeChange('rows')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'rows'
-                      ? 'bg-white dark:bg-slate-800 text-cyan-650 dark:text-cyan-400 shadow-sm font-bold'
+                      ? 'bg-white dark:bg-warmBg-850 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                       }`}
                     title="Visualização Horizontal"
@@ -553,7 +572,7 @@ function App() {
                     type="button"
                     onClick={() => handleLayoutModeChange('columns')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'columns'
-                      ? 'bg-white dark:bg-slate-800 text-cyan-655 dark:text-cyan-400 shadow-sm font-bold'
+                      ? 'bg-white dark:bg-warmBg-850 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                       }`}
                     title="Visualização Vertical"
@@ -577,12 +596,12 @@ function App() {
                       type="button"
                       onClick={() => setActiveTab(status)}
                       className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${isActive
-                        ? 'bg-cyan-600 text-white border-cyan-600 shadow-md shadow-cyan-500/10'
-                        : 'bg-white dark:bg-slate-900 text-slate-600 dark:text-slate-300 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                        ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10'
+                        : 'bg-white dark:bg-warmBg-900 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
                         }`}
                     >
                       <span>{getStatusLabel(status)}</span>
-                      <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${isActive ? 'bg-cyan-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
+                      <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${isActive ? 'bg-terracota-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                         }`}>
                         {count}
                       </span>
@@ -625,7 +644,7 @@ function App() {
                   placeholder="Buscar hóspede por nome ou tutor..."
                   value={gatosSearchTerm}
                   onChange={(e) => setGatosSearchTerm(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500 transition-all shadow-inner"
+                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-warmBg-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500 transition-all shadow-inner"
                 />
               </div>
               <button
@@ -634,7 +653,7 @@ function App() {
                   setPreSelectedGatoId(undefined);
                   setIsModalOpen(true);
                 }}
-                className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-cyan-600 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-cyan-500/20 transition hover:bg-cyan-500"
+                className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-terracota-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-terracota-500/20 transition hover:bg-terracota-600"
               >
                 <Plus size={16} />
                 Novo Hóspede
@@ -690,7 +709,7 @@ function App() {
                           </span>
                         )}
                         {gato.valorDiariaPadrao && (
-                          <span className="text-[10px] font-bold bg-cyan-50 dark:bg-cyan-950/20 text-cyan-700 dark:text-cyan-400 px-2 py-0.5 rounded-full border border-cyan-100/50 dark:border-cyan-900/30 ml-auto">
+                          <span className="text-[10px] font-bold bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-405 px-2 py-0.5 rounded-full border border-terracota-100/50 dark:border-terracota-900/30 ml-auto">
                             R$ {gato.valorDiariaPadrao}/diária
                           </span>
                         )}
@@ -725,7 +744,7 @@ function App() {
                           setPreSelectedGatoId(gato.id);
                           setIsModalOpen(true);
                         }}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-100 dark:border-cyan-900/50 py-2 text-xs font-semibold text-cyan-600 dark:text-cyan-400 hover:bg-cyan-100 dark:hover:bg-cyan-950/40 transition"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-terracota-50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 py-2 text-xs font-semibold text-terracota-600 dark:text-terracota-450 hover:bg-terracota-100 dark:hover:bg-terracota-950/40 transition"
                       >
                         <Calendar size={13} />
                         Hospedar

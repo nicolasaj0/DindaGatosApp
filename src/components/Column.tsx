@@ -17,10 +17,10 @@ export function Column({ status, items, onEdit, onCheckOut, onCheckIn, layoutMod
   const isRowMode = layoutMode === 'rows';
 
   return (
-    <section className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm transition backdrop-blur-md">
+    <section className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-warmBg-900/80 p-5 shadow-sm transition backdrop-blur-md">
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-semibold uppercase text-slate-500 dark:text-slate-400">{getStatusLabel(status)}</p>
+          <p className="text-sm font-bold font-serif uppercase tracking-wider text-slate-650 dark:text-slate-350">{getStatusLabel(status)}</p>
           <span className="inline-flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 font-bold">
             {count}
           </span>

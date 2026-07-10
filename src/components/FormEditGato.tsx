@@ -143,11 +143,11 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
                 onChange={handleChange}
                 disabled={isUploading}
                 placeholder="Ou cole a URL de uma imagem da internet..."
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
               />
               {formData.fotoUrl.startsWith('data:') && (
                 <div className="absolute right-2 top-2 flex items-center">
-                  <span className="inline-flex items-center rounded-full bg-cyan-100 dark:bg-cyan-950/80 px-2 py-0.5 text-[9px] font-semibold text-cyan-800 dark:text-cyan-300">
+                  <span className="inline-flex items-center rounded-full bg-terracota-100 dark:bg-terracota-950/80 px-2 py-0.5 text-[9px] font-semibold text-terracota-800 dark:text-terracota-300">
                     Imagem local
                   </span>
                 </div>
@@ -165,7 +165,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
             name="nomeGato"
             value={formData.nomeGato}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="Mia"
           />
         </div>
@@ -176,7 +176,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
             name="nomeTutor"
             value={formData.nomeTutor}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="João"
           />
         </div>
@@ -191,7 +191,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
             min="0"
             value={formData.valorDiariaPadrao}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="50"
           />
         </div>
@@ -201,7 +201,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
             name="sociabilidade"
             value={formData.sociabilidade}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           >
             <option value="sociavel">Sociável</option>
             <option value="isolado">Isolado</option>
@@ -217,7 +217,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
             name="personalidade"
             value={formData.personalidade}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="Calmo, Medroso..."
           />
         </div>
@@ -228,7 +228,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
             name="dieta"
             value={formData.dieta}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="Ração premium 60g 2x"
           />
         </div>
@@ -240,7 +240,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
           name="observacoes"
           value={formData.observacoes}
           onChange={handleChange}
-          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           placeholder="Manias, brincadeiras..."
           rows={2}
         />
@@ -253,7 +253,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
           name="medicamentos"
           value={formData.medicamentos}
           onChange={handleChange}
-          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           placeholder="Antialérgico 1x"
         />
       </div>
@@ -268,7 +268,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
         </button>
         <button
           type="submit"
-          className="flex-1 rounded-lg bg-cyan-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-cyan-500 transition"
+          className="flex-1 rounded-lg bg-terracota-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-terracota-600 transition"
         >
           Salvar
         </button>

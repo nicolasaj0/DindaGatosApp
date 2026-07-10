@@ -38,7 +38,7 @@ export function FichaHospedagem({ hospedagem, onEditClick, onClose }: FichaHospe
               {hospedagem.perfil.sociabilidade === 'sociavel' ? 'Sociável' : 'Isolado'}
             </span>
             <span className={`inline-flex items-center gap-1 rounded-full px-3 py-1 text-xs font-semibold ${
-              hospedagem.status === 'agendado' ? 'bg-blue-100 dark:bg-blue-950/60 text-blue-800 dark:text-blue-400' :
+              hospedagem.status === 'agendado' ? 'bg-mostarda-100 dark:bg-mostarda-950/40 text-mostarda-800 dark:text-mostarda-400' :
               hospedagem.status === 'hospedado' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400' :
               hospedagem.status === 'saindo_hoje' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400' :
               'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-300'
@@ -65,7 +65,7 @@ export function FichaHospedagem({ hospedagem, onEditClick, onClose }: FichaHospe
               {nights === 1 ? '1 diária 🌙' : `${nights} diárias 🌙`}
             </span>
             {hospedagem.valorDiaria !== undefined && (
-              <span className="text-xs text-cyan-700 dark:text-cyan-400 font-semibold bg-cyan-50 dark:bg-cyan-950/30 border border-cyan-100/50 dark:border-cyan-900/30 rounded-lg px-2.5 py-1 inline-block">
+              <span className="text-xs text-terracota-700 dark:text-terracota-400 font-semibold bg-terracota-50/50 dark:bg-terracota-950/30 border border-terracota-100/50 dark:border-terracota-900/30 rounded-lg px-2.5 py-1 inline-block">
                 R$ {hospedagem.valorDiaria}/dia • Total: R$ {(nights * hospedagem.valorDiaria).toFixed(2)}
               </span>
             )}
@@ -105,8 +105,8 @@ export function FichaHospedagem({ hospedagem, onEditClick, onClose }: FichaHospe
                 </div>
               )}
               {hospedagem.dataHoraConfirmacaoCheckOut && (
-                <div className="flex items-center gap-2 text-cyan-800 dark:text-cyan-400 bg-cyan-50 dark:bg-cyan-950/20 border border-cyan-100/50 dark:border-cyan-900/30 rounded-xl p-2.5">
-                  <span className="flex h-2 w-2 rounded-full bg-cyan-500"></span>
+                <div className="flex items-center gap-2 text-terracota-800 dark:text-terracota-400 bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 rounded-xl p-2.5">
+                  <span className="flex h-2 w-2 rounded-full bg-terracota-500"></span>
                   <div>
                     <span className="font-semibold block">Check-out Confirmado:</span>
                     <span>{hospedagem.dataHoraConfirmacaoCheckOut}</span>
@@ -156,7 +156,7 @@ export function FichaHospedagem({ hospedagem, onEditClick, onClose }: FichaHospe
         <button
           type="button"
           onClick={onEditClick}
-          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-cyan-600 py-2.5 text-sm font-semibold text-white hover:bg-cyan-500 shadow-md shadow-cyan-500/10 transition"
+          className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-terracota-500 py-2.5 text-sm font-semibold text-white hover:bg-terracota-600 shadow-md shadow-terracota-500/10 transition"
         >
           <Edit2 size={15} />
           Editar Ficha

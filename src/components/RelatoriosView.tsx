@@ -163,11 +163,11 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       {highlights && (
         <div className="grid gap-4 md:grid-cols-3">
           {/* Card Destaque 1: Faturamento Geral */}
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
             <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
-              <TrendingUp size={120} className="text-cyan-600 dark:text-cyan-400" />
+              <TrendingUp size={120} className="text-terracota-500 dark:text-terracota-400" />
             </div>
-            <div className="rounded-2xl bg-cyan-50 dark:bg-cyan-950/40 p-3 text-cyan-650 dark:text-cyan-400">
+            <div className="rounded-2xl bg-terracota-50 dark:bg-terracota-950/40 p-3 text-terracota-600 dark:text-terracota-400">
               <DollarSign size={24} />
             </div>
             <div>
@@ -178,7 +178,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           </div>
 
           {/* Card Destaque 2: Gato VIP */}
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
             <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
               <Clock size={120} className="text-emerald-600 dark:text-emerald-400" />
             </div>
@@ -201,7 +201,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           </div>
 
           {/* Card Destaque 3: Mais Rentável */}
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
+          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
             <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
               <Sparkles size={120} className="text-purple-650 dark:text-purple-400" />
             </div>
@@ -228,7 +228,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       {/* 2. Overview Períodos (Semanal, Mensal, Anual) */}
       <div className="grid gap-6 md:grid-cols-3">
         {/* Card 1: Semanal */}
-        <div className="rounded-3xl border-t-4 border-t-cyan-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between">
+        <div className="rounded-3xl border-t-4 border-t-terracota-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex flex-col justify-between">
           <div>
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ganhos da Semana</p>
@@ -264,7 +264,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           <div className="mt-5 space-y-1.5">
             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
               <div
-                className="h-full bg-cyan-600 dark:bg-cyan-500 transition-all duration-300"
+                className="h-full bg-terracota-500 dark:bg-terracota-400 transition-all duration-300"
                 style={{ width: `${(periodStats.week.realized / (periodStats.week.realized + periodStats.week.projected || 1)) * 100}%` }}
               />
             </div>
@@ -275,8 +275,8 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           </div>
         </div>
 
-        {/* Card 2: Mensal */}
-        <div className="rounded-3xl border-t-4 border-t-emerald-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between">
+        {/* Card 2: Mês */}
+        <div className="rounded-3xl border-t-4 border-t-emerald-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex flex-col justify-between flex-shrink-0">
           <div>
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ganhos do Mês</p>
@@ -324,7 +324,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
         </div>
 
         {/* Card 3: Anual */}
-        <div className="rounded-3xl border-t-4 border-t-purple-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between">
+        <div className="rounded-3xl border-t-4 border-t-purple-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex flex-col justify-between flex-shrink-0">
           <div>
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ganhos do Ano</p>
@@ -373,7 +373,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       </div>
 
       {/* 3. Seção do Gráfico */}
-      <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-6 shadow-sm backdrop-blur-md">
+      <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-warmBg-900/80 p-6 shadow-sm backdrop-blur-md">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-150 dark:border-slate-800/60 pb-5 mb-6">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
@@ -388,7 +388,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               type="button"
               onClick={() => setSortBy('spent')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${sortBy === 'spent'
-                ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm font-bold'
+                ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
             >
@@ -399,7 +399,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               type="button"
               onClick={() => setSortBy('nights')}
               className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${sortBy === 'nights'
-                ? 'bg-white dark:bg-slate-800 text-cyan-600 dark:text-cyan-400 shadow-sm font-bold'
+                ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
                 : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                 }`}
             >
@@ -425,7 +425,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               return (
                 <div
                   key={cat.id}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850 hover:shadow-md dark:hover:bg-slate-950/40 hover:border-cyan-500/30 transition duration-200 group"
+                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-955/20 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850 hover:shadow-md dark:hover:bg-slate-955/40 hover:border-terracota-500/30 transition duration-200 group"
                 >
                   {/* Cat Photo and Name */}
                   <div className="flex items-center gap-3 w-full sm:w-56 flex-shrink-0">
@@ -437,7 +437,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-cyan-600 dark:group-hover:text-cyan-400 transition">{cat.nomeGato}</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-terracota-600 dark:group-hover:text-terracota-400 transition">{cat.nomeGato}</p>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">Tutor: <span className="font-semibold text-slate-700 dark:text-slate-350">{cat.nomeTutor}</span></p>
                     </div>
                   </div>
@@ -462,11 +462,11 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         <span>Ganhos</span>
-                        <span className="text-cyan-600 dark:text-cyan-400 font-bold">R$ {cat.spent.toFixed(0)}</span>
+                        <span className="text-terracota-600 dark:text-terracota-400 font-bold">R$ {cat.spent.toFixed(0)}</span>
                       </div>
                       <div className="w-full h-3 bg-slate-100/80 dark:bg-slate-950 rounded-full overflow-hidden shadow-inner">
                         <div
-                          className="h-full bg-gradient-to-r from-cyan-500 to-blue-500 rounded-full transition-all duration-700 ease-out"
+                          className="h-full bg-gradient-to-r from-terracota-500 to-mostarda-400 rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${spentWidth}%` }}
                         />
                       </div>

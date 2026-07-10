@@ -151,13 +151,13 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
       {/* Seletor de Hóspede Existente */}
       <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
         <label className="flex text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2 items-center gap-1.5">
-          <Sparkles size={14} className="text-cyan-600 dark:text-cyan-400" />
+          <Sparkles size={14} className="text-terracota-500 dark:text-terracota-400" />
           Hóspede
         </label>
         <select
           value={selectedGatoId}
           onChange={handleSelectGatoChange}
-          className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          className="w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
         >
           <option value="">✨ Novo Cadastro (Digitar perfil completo)</option>
           {gatos.map((g) => (
@@ -239,11 +239,11 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
                 onChange={handleChange}
                 disabled={isUploading}
                 placeholder="Ou cole a URL de uma imagem da internet..."
-                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+                className="w-full rounded-xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 pl-9 pr-3 py-2 text-xs text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
               />
               {formData.fotoUrl.startsWith('data:') && (
                 <div className="absolute right-2 top-2 flex items-center">
-                  <span className="inline-flex items-center rounded-full bg-cyan-100 dark:bg-cyan-950/80 px-2 py-0.5 text-[9px] font-semibold text-cyan-800 dark:text-cyan-300">
+                  <span className="inline-flex items-center rounded-full bg-terracota-100 dark:bg-terracota-950/80 px-2 py-0.5 text-[9px] font-semibold text-terracota-800 dark:text-terracota-300">
                     Imagem local
                   </span>
                 </div>
@@ -261,7 +261,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             name="nomeGato"
             value={formData.nomeGato}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="Mia"
           />
         </div>
@@ -272,7 +272,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             name="nomeTutor"
             value={formData.nomeTutor}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="João"
           />
         </div>
@@ -286,7 +286,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             name="dataCheckIn"
             value={formData.dataCheckIn}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           />
         </div>
         <div>
@@ -296,7 +296,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             name="dataCheckOut"
             value={formData.dataCheckOut}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           />
         </div>
       </div>
@@ -310,16 +310,16 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             min="0"
             value={formData.valorDiaria}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="50"
           />
         </div>
         <div className="flex flex-col gap-1 items-end justify-center text-right pr-1">
-          <span className="inline-flex items-center gap-1 rounded-full bg-cyan-50 dark:bg-cyan-950/20 text-cyan-700 dark:text-cyan-400 border border-cyan-100 dark:border-cyan-900/50 px-2 py-0.5 text-[10px] font-semibold">
+          <span className="inline-flex items-center gap-1 rounded-full bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-400 border border-terracota-100 dark:border-terracota-900/50 px-2 py-0.5 text-[10px] font-semibold">
             {calculateNights(formData.dataCheckIn, formData.dataCheckOut) === 1 ? '1 diária 🌙' : `${calculateNights(formData.dataCheckIn, formData.dataCheckOut)} diárias 🌙`}
           </span>
           <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
-            Total: <strong className="text-cyan-600 dark:text-cyan-400 text-sm">R$ {
+            Total: <strong className="text-terracota-600 dark:text-terracota-400 text-sm">R$ {
               (calculateNights(formData.dataCheckIn, formData.dataCheckOut) * (parseFloat(formData.valorDiaria) || 0)).toFixed(2)
             }</strong>
           </span>
@@ -333,7 +333,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             name="sociabilidade"
             value={formData.sociabilidade}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           >
             <option value="sociavel">Sociável</option>
             <option value="isolado">Isolado</option>
@@ -346,7 +346,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             name="personalidade"
             value={formData.personalidade}
             onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
             placeholder="Calmo, Medroso..."
           />
         </div>
@@ -359,7 +359,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           name="dieta"
           value={formData.dieta}
           onChange={handleChange}
-          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           placeholder="Ração premium 60g 2x"
         />
       </div>
@@ -370,7 +370,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           name="observacoes"
           value={formData.observacoes}
           onChange={handleChange}
-          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           placeholder="Manias, brincadeiras..."
           rows={2}
         />
@@ -383,7 +383,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           name="medicamentos"
           value={formData.medicamentos}
           onChange={handleChange}
-          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-cyan-500 focus:outline-none focus:ring-1 focus:ring-cyan-500"
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           placeholder="Antialérgico 1x"
         />
       </div>
@@ -398,7 +398,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         </button>
         <button
           type="submit"
-          className="flex-1 rounded-lg bg-cyan-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-cyan-500 transition"
+          className="flex-1 rounded-lg bg-terracota-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-terracota-600 transition"
         >
           Criar Hóspede
         </button>
