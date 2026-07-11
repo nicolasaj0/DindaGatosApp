@@ -10,7 +10,7 @@ import { FichaHospedagem } from './components/FichaHospedagem';
 import { FormEditGato } from './components/FormEditGato';
 import { RelatoriosView } from './components/RelatoriosView';
 import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, HeartPulse, ChevronDown, ChevronUp, BarChart3, Home, ArrowRight, ArrowLeft, PawPrint } from 'lucide-react';
-import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights } from './utils';
+import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
   'agendado',
@@ -636,10 +636,10 @@ function App() {
                       onClick={() => setActiveTab(status)}
                       className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${isActive
                         ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10'
-                        : 'bg-white dark:bg-warmBg-900 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-850'
+                        : 'bg-white dark:bg-warmBg-900 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-855'
                         }`}
                     >
-                      <span>{getStatusLabel(status)}</span>
+                      <span>{serviceFilter !== 'todos' ? labelStatus(status, serviceFilter) : getStatusLabel(status)}</span>
                       <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${isActive ? 'bg-terracota-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
                         }`}>
                         {count}
@@ -663,6 +663,7 @@ function App() {
                     onCheckOut={handleCheckOut}
                     onCheckIn={handleCheckIn}
                     layoutMode={layoutMode}
+                    serviceFilter={serviceFilter}
                   />
                 </div>
               ))}

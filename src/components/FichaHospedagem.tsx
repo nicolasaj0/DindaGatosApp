@@ -1,7 +1,7 @@
 import { Hospedagem } from '../types';
 import { Calendar, Pill, Edit2, User, AlertCircle, HeartPulse, MapPin } from 'lucide-react';
 import { useHospedagemStore } from '../store';
-import { formatDateString, calculateNights } from '../utils';
+import { formatDateString, calculateNights, labelStatus } from '../utils';
 
 interface FichaHospedagemProps {
   hospedagem: Hospedagem;
@@ -16,15 +16,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
   const nights = hospedagem.tipoServico === 'transporte' ? 1 : calculateNights(hospedagem.dataCheckIn, hospedagem.dataCheckOut);
   const totalValue = nights * (hospedagem.valorDiaria || 0);
 
-  const getStatusLabel = (status: Hospedagem['status']) => {
-    const labels = {
-      agendado: 'Agendado',
-      hospedado: 'Hospedado',
-      saindo_hoje: 'Saindo Hoje',
-      concluido: 'Concluído',
-    };
-    return labels[status];
-  };
+
 
   const getServiceLabel = () => {
     if (hospedagem.tipoServico === 'hospedagem') return '🏠 Hospedagem';
@@ -79,7 +71,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
             hospedagem.status === 'saindo_hoje' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400' :
             'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-350'
           }`}>
-            {getStatusLabel(hospedagem.status)}
+            {labelStatus(hospedagem.status, hospedagem.tipoServico)}
           </span>
         </div>
       </div>

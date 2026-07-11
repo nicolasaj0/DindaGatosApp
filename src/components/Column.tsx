@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import { Hospedagem, HospedagemStatus } from '../types';
+import { Hospedagem, HospedagemStatus, TipoServico } from '../types';
 import { Card } from './Card';
-import { getStatusLabel } from '../utils';
+import { getStatusLabel, labelStatus } from '../utils';
 
 interface ColumnProps {
   status: HospedagemStatus;
@@ -10,17 +10,25 @@ interface ColumnProps {
   onCheckOut?: (id: string) => void;
   onCheckIn?: (id: string) => void;
   layoutMode: 'columns' | 'rows';
+  serviceFilter?: TipoServico | 'todos';
 }
 
-export function Column({ status, items, onEdit, onCheckOut, onCheckIn, layoutMode }: ColumnProps) {
+export function Column({ status, items, onEdit, onCheckOut, onCheckIn, layoutMode, serviceFilter }: ColumnProps) {
   const count = useMemo(() => items.length, [items]);
   const isRowMode = layoutMode === 'rows';
+
+  const headerLabel = useMemo(() => {
+    if (serviceFilter && serviceFilter !== 'todos') {
+      return labelStatus(status, serviceFilter);
+    }
+    return getStatusLabel(status);
+  }, [status, serviceFilter]);
 
   return (
     <section className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-warmBg-900/80 p-5 shadow-sm transition backdrop-blur-md">
       <div className="mb-4 flex items-center justify-between gap-2">
         <div className="flex items-center gap-2">
-          <p className="text-sm font-bold font-serif uppercase tracking-wider text-slate-650 dark:text-slate-350">{getStatusLabel(status)}</p>
+          <p className="text-sm font-bold font-serif uppercase tracking-wider text-slate-650 dark:text-slate-350">{headerLabel}</p>
           <span className="inline-flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 font-bold">
             {count}
           </span>

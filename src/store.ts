@@ -334,8 +334,9 @@ export const useHospedagemStore = create<HospedagemState>()(
             gatosList = migrated.gatos;
             estadiasList = migrated.estadias;
           } else if (data && typeof data === 'object') {
-            gatosList = (data as any).gatos || [];
-            estadiasList = (data as any).estadias || [];
+            const migrated = migrateDataIfNeeded([], (data as any).gatos || [], (data as any).estadias || []);
+            gatosList = migrated.gatos;
+            estadiasList = migrated.estadias;
           }
 
           return {

@@ -1,4 +1,4 @@
-import { HospedagemStatus, Sociabilidade } from './types';
+import { HospedagemStatus, Sociabilidade, TipoServico } from './types';
 
 export function getStatusLabel(status: HospedagemStatus) {
   switch (status) {
@@ -13,6 +13,16 @@ export function getStatusLabel(status: HospedagemStatus) {
     default:
       return 'Status';
   }
+}
+
+export function labelStatus(status: HospedagemStatus, tipo?: TipoServico): string {
+  const labels: Record<TipoServico, Record<HospedagemStatus, string>> = {
+    hospedagem:  { agendado: 'Agendado', hospedado: 'Hospedado', saindo_hoje: 'Saindo Hoje', concluido: 'Concluído' },
+    cat_sitter:  { agendado: 'Agendado', hospedado: 'Em Atendimento', saindo_hoje: 'Última Visita Hoje', concluido: 'Concluído' },
+    transporte:  { agendado: 'Agendado', hospedado: 'Em Transporte', saindo_hoje: 'Transporte Hoje', concluido: 'Concluído' },
+  };
+  const serviceType = tipo || 'hospedagem';
+  return labels[serviceType]?.[status] || labels.hospedagem[status];
 }
 
 export function getStatusTagColor(sociabilidade: Sociabilidade) {

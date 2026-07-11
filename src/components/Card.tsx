@@ -157,13 +157,13 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
           {hospedagem.dataHoraConfirmacaoCheckIn && (
             <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
               <span className="h-1 w-1 rounded-full bg-emerald-500 flex-shrink-0"></span>
-              <span>Check-in: <strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckIn)}</strong></span>
+              <span>{hospedagem.tipoServico === 'hospedagem' ? 'Check-in: ' : 'Início: '}<strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckIn)}</strong></span>
             </div>
           )}
           {hospedagem.dataHoraConfirmacaoCheckOut && (
             <div className="flex items-center gap-1.5 text-terracota-700 dark:text-terracota-400">
               <span className="h-1 w-1 rounded-full bg-terracota-500 flex-shrink-0"></span>
-              <span>Check-out: <strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckOut)}</strong></span>
+              <span>{hospedagem.tipoServico === 'hospedagem' ? 'Check-out: ' : 'Concluído: '}<strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckOut)}</strong></span>
             </div>
           )}
         </div>
@@ -181,7 +181,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-emerald-600 py-2 text-xs font-semibold text-white shadow-md shadow-emerald-500/10 hover:bg-emerald-500 transition"
         >
           <Check size={14} />
-          Confirmar Entrada
+          {hospedagem.tipoServico === 'transporte' ? 'Iniciar Transporte' : hospedagem.tipoServico === 'cat_sitter' ? 'Iniciar Atendimento' : 'Confirmar Entrada (Check-in)'}
         </button>
       )}
 
@@ -191,7 +191,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
           className="mt-3 flex w-full items-center justify-center gap-2 rounded-2xl bg-terracota-500 py-2 text-xs font-semibold text-white shadow-md shadow-terracota-500/10 hover:bg-terracota-600 transition"
         >
           <Check size={14} />
-          Confirmar Saída
+          {hospedagem.tipoServico === 'transporte' ? 'Concluir Transporte' : hospedagem.tipoServico === 'cat_sitter' ? 'Concluir Atendimento' : 'Confirmar Saída (Check-out)'}
         </button>
       )}
 

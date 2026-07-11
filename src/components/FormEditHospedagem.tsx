@@ -257,7 +257,7 @@ export function FormEditHospedagem({
             <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Detalhes do Serviço</label>
             <input
               type="text"
-              name="detailsServico"
+              name="detalhesServico"
               value={formData.detalhesServico}
               onChange={handleChange}
               className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
