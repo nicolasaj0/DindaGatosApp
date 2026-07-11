@@ -20,6 +20,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
     observacoes: gato.perfil.observacoes,
     medicamentos: gato.perfil.medicamentos || '',
     valorDiariaPadrao: gato.valorDiariaPadrao?.toString() || '50',
+    enderecoTutor: gato.enderecoTutor || '',
   });
   const [isUploading, setIsUploading] = useState(false);
 
@@ -71,6 +72,7 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
         medicamentos: formData.medicamentos || undefined,
       },
       valorDiariaPadrao: isNaN(valorNum) ? undefined : valorNum,
+      enderecoTutor: formData.enderecoTutor || undefined,
     });
   };
 
@@ -180,6 +182,18 @@ export function FormEditGato({ gato, onSubmit, onCancel }: FormEditGatoProps) {
             placeholder="João"
           />
         </div>
+      </div>
+
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Endereço do Tutor</label>
+        <input
+          type="text"
+          name="enderecoTutor"
+          value={formData.enderecoTutor}
+          onChange={handleChange}
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+          placeholder="Residência do tutor..."
+        />
       </div>
 
       <div className="grid grid-cols-2 gap-3 items-end bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/80 rounded-2xl p-3">

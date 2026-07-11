@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Estadia, Gato } from '../types';
+import { Estadia, Gato, TipoServico } from '../types';
 import { calculateNights } from '../utils';
 import { Cat, DollarSign, Calendar, TrendingUp, Award, Clock, Sparkles } from 'lucide-react';
 
@@ -10,6 +10,7 @@ interface RelatoriosViewProps {
 
 export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
   const [sortBy, setSortBy] = useState<'spent' | 'nights'>('spent');
+  const [reportServiceFilter, setReportServiceFilter] = useState<'todos' | TipoServico>('todos');
 
   // Parse YYYY-MM-DD to local Date object
   const parseLocalDate = (dateStr: string) => {
@@ -32,6 +33,16 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     return { monday, sunday };
   };
 
+  // Filter estadias by reportServiceFilter
+  const filteredEstadiasForStats = useMemo(() => {
+    return estadias.filter((e) => {
+      if (reportServiceFilter !== 'todos' && (e.tipoServico || 'hospedagem') !== reportServiceFilter) {
+        return false;
+      }
+      return true;
+    });
+  }, [estadias, reportServiceFilter]);
+
   // 1. Calculate Period Statistics
   const periodStats = useMemo(() => {
     const today = new Date();
@@ -39,23 +50,29 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     const currentMonth = today.getMonth();
     const { monday, sunday } = getWeekRange();
 
-    const week = { realized: 0, projected: 0, nights: 0, staysCount: 0 };
-    const month = { realized: 0, projected: 0, nights: 0, staysCount: 0 };
-    const year = { realized: 0, projected: 0, nights: 0, staysCount: 0 };
+    const week = { recebido: 0, aReceber: 0, projected: 0, nights: 0, staysCount: 0 };
+    const month = { recebido: 0, aReceber: 0, projected: 0, nights: 0, staysCount: 0 };
+    const year = { recebido: 0, aReceber: 0, projected: 0, nights: 0, staysCount: 0 };
 
-    estadias.forEach((e) => {
-      const nights = calculateNights(e.dataCheckIn, e.dataCheckOut);
-      const value = nights * (e.valorDiaria || 50);
+    filteredEstadiasForStats.forEach((e) => {
+      const nights = e.tipoServico === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
+      const value = nights * (e.valorDiaria || 60);
       const checkInDate = parseLocalDate(e.dataCheckIn);
-      const isRealized = e.status !== 'agendado';
+      
+      const isConcluido = e.status === 'concluido';
+      const isPago = e.statusPagamento === 'pago';
 
       // Check if current calendar week
       const isThisWeek = checkInDate >= monday && checkInDate <= sunday;
       if (isThisWeek) {
         week.nights += nights;
         week.staysCount += 1;
-        if (isRealized) week.realized += value;
-        else week.projected += value;
+        if (isConcluido) {
+          if (isPago) week.recebido += value;
+          else week.aReceber += value;
+        } else {
+          week.projected += value;
+        }
       }
 
       // Check if current calendar month
@@ -63,8 +80,12 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       if (isThisMonth) {
         month.nights += nights;
         month.staysCount += 1;
-        if (isRealized) month.realized += value;
-        else month.projected += value;
+        if (isConcluido) {
+          if (isPago) month.recebido += value;
+          else month.aReceber += value;
+        } else {
+          month.projected += value;
+        }
       }
 
       // Check if current calendar year
@@ -72,23 +93,35 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       if (isThisYear) {
         year.nights += nights;
         year.staysCount += 1;
-        if (isRealized) year.realized += value;
-        else year.projected += value;
+        if (isConcluido) {
+          if (isPago) year.recebido += value;
+          else year.aReceber += value;
+        } else {
+          year.projected += value;
+        }
       }
     });
 
     return { week, month, year };
-  }, [estadias]);
+  }, [filteredEstadiasForStats]);
 
   // 2. Calculate Feline Guest Analytics
   const catAnalytics = useMemo(() => {
     const catsData = gatos.map((g) => {
-      const catStays = estadias.filter((e) => e.gatoId === g.id);
+      const catStays = estadias.filter((e) => {
+        const matchesCat = e.gatoId === g.id;
+        const matchesService = reportServiceFilter === 'todos' || (e.tipoServico || 'hospedagem') === reportServiceFilter;
+        return matchesCat && matchesService;
+      });
 
-      const totalNights = catStays.reduce((sum, e) => sum + calculateNights(e.dataCheckIn, e.dataCheckOut), 0);
+      const totalNights = catStays.reduce((sum, e) => {
+        const nights = e.tipoServico === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
+        return sum + nights;
+      }, 0);
+
       const totalSpent = catStays.reduce((sum, e) => {
-        const nights = calculateNights(e.dataCheckIn, e.dataCheckOut);
-        return sum + (nights * (e.valorDiaria || 50));
+        const nights = e.tipoServico === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
+        return sum + (nights * (e.valorDiaria || 60));
       }, 0);
 
       return {
@@ -102,7 +135,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     const activeCats = catsData.filter((c) => c.nights > 0);
 
     return { catsData, activeCats };
-  }, [gatos, estadias]);
+  }, [gatos, estadias, reportServiceFilter]);
 
   // 3. Highlight Metrics (KPIs)
   const highlights = useMemo(() => {
@@ -159,6 +192,34 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
 
   return (
     <div className="space-y-6">
+      {/* Filtro por Tipo de Serviço em Relatórios */}
+      <div className="flex flex-wrap items-center gap-2 bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-4 shadow-sm backdrop-blur-md">
+        <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-2 flex items-center gap-1">
+          📊 Serviço do Relatório:
+        </span>
+        {[
+          { id: 'todos', label: 'Todos os Serviços' },
+          { id: 'hospedagem', label: '🏠 Hospedagem' },
+          { id: 'cat_sitter', label: '🐾 Cat Sitter' },
+          { id: 'transporte', label: '🚗 Transporte' },
+        ].map((btn) => {
+          const isSelected = reportServiceFilter === btn.id;
+          return (
+            <button
+              key={btn.id}
+              type="button"
+              onClick={() => setReportServiceFilter(btn.id as any)}
+              className={`rounded-xl px-3 py-1.5 text-xs font-semibold border transition-all ${isSelected
+                ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
+                : 'bg-white dark:bg-warmBg-955 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                }`}
+            >
+              {btn.label}
+            </button>
+          );
+        })}
+      </div>
+
       {/* 1. KPIs / Destaques Gerais */}
       {highlights && (
         <div className="grid gap-4 md:grid-cols-3">
@@ -171,9 +232,9 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <DollarSign size={24} />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Receita Total Acumulada</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Receita Total Gerada</p>
               <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">R$ {highlights.totalSpentAll.toFixed(0)}</p>
-              <p className="text-[11px] text-slate-450 dark:text-slate-500 mt-0.5">{highlights.totalNightsAll} diárias registradas</p>
+              <p className="text-[11px] text-slate-450 dark:text-slate-500 mt-0.5">{highlights.totalNightsAll} diárias/visitas registradas</p>
             </div>
           </div>
 
@@ -191,7 +252,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                 <>
                   <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 truncate">{highlights.vipCat.nomeGato}</p>
                   <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate">
-                    {highlights.vipCat.nights} diárias • Tutor: {highlights.vipCat.nomeTutor}
+                    {highlights.vipCat.nights} diárias/visitas • Tutor: {highlights.vipCat.nomeTutor}
                   </p>
                 </>
               ) : (
@@ -235,27 +296,29 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
             </div>
             <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
-              R$ {(periodStats.week.realized + periodStats.week.projected).toFixed(0)}
+              R$ {(periodStats.week.recebido + periodStats.week.aReceber).toFixed(0)}
             </p>
 
             <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
-                <span>Realizados:</span>
-                <span className="font-bold text-slate-900 dark:text-white">R$ {periodStats.week.realized.toFixed(0)}</span>
+                <span className="flex items-center gap-1 font-semibold text-sucesso-600 dark:text-sucesso-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sucesso-500"></span> Recebido:
+                </span>
+                <span className="font-bold text-sucesso-600 dark:text-sucesso-400">R$ {periodStats.week.recebido.toFixed(0)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Projetados (Reservas):</span>
+                <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 animate-pulse"></span> A Receber:
+                </span>
+                <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.week.aReceber.toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/85 pt-2">
+                <span>Previsto (Não concluído):</span>
                 <span className="font-semibold text-slate-500">R$ {periodStats.week.projected.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/80 pt-2">
-                <span>Diárias Ocupadas:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-350">{periodStats.week.nights} {periodStats.week.nights === 1 ? 'noite' : 'noites'}</span>
-              </div>
               <div className="flex justify-between">
-                <span>Valor Médio da Diária:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-350">
-                  R$ {periodStats.week.nights > 0 ? ((periodStats.week.realized + periodStats.week.projected) / periodStats.week.nights).toFixed(0) : '0'}
-                </span>
+                <span>Diárias/Visitas:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-300">{periodStats.week.nights}</span>
               </div>
             </div>
           </div>
@@ -264,13 +327,13 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           <div className="mt-5 space-y-1.5">
             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
               <div
-                className="h-full bg-terracota-500 dark:bg-terracota-400 transition-all duration-300"
-                style={{ width: `${(periodStats.week.realized / (periodStats.week.realized + periodStats.week.projected || 1)) * 100}%` }}
+                className="h-full bg-sucesso-500 transition-all duration-300"
+                style={{ width: `${(periodStats.week.recebido / (periodStats.week.recebido + periodStats.week.aReceber || 1)) * 100}%` }}
               />
             </div>
             <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-              <span>Realizado</span>
-              <span>Projetado</span>
+              <span>Recebido</span>
+              <span>A Receber</span>
             </div>
           </div>
         </div>
@@ -283,27 +346,29 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <TrendingUp size={14} className="text-slate-400 dark:text-slate-505" />
             </div>
             <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
-              R$ {(periodStats.month.realized + periodStats.month.projected).toFixed(0)}
+              R$ {(periodStats.month.recebido + periodStats.month.aReceber).toFixed(0)}
             </p>
 
             <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
-                <span>Realizados:</span>
-                <span className="font-bold text-slate-900 dark:text-white">R$ {periodStats.month.realized.toFixed(0)}</span>
+                <span className="flex items-center gap-1 font-semibold text-sucesso-600 dark:text-sucesso-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sucesso-500"></span> Recebido:
+                </span>
+                <span className="font-bold text-sucesso-600 dark:text-sucesso-400">R$ {periodStats.month.recebido.toFixed(0)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Projetados (Reservas):</span>
+                <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 animate-pulse"></span> A Receber:
+                </span>
+                <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.month.aReceber.toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/85 pt-2">
+                <span>Previsto (Não concluído):</span>
                 <span className="font-semibold text-slate-500">R$ {periodStats.month.projected.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/80 pt-2">
-                <span>Diárias Ocupadas:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-350">{periodStats.month.nights} {periodStats.month.nights === 1 ? 'noite' : 'noites'}</span>
-              </div>
               <div className="flex justify-between">
-                <span>Valor Médio da Diária:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-350">
-                  R$ {periodStats.month.nights > 0 ? ((periodStats.month.realized + periodStats.month.projected) / periodStats.month.nights).toFixed(0) : '0'}
-                </span>
+                <span>Diárias/Visitas:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-300">{periodStats.month.nights}</span>
               </div>
             </div>
           </div>
@@ -312,13 +377,13 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           <div className="mt-5 space-y-1.5">
             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
               <div
-                className="h-full bg-emerald-600 dark:bg-emerald-500 transition-all duration-300"
-                style={{ width: `${(periodStats.month.realized / (periodStats.month.realized + periodStats.month.projected || 1)) * 100}%` }}
+                className="h-full bg-sucesso-500 transition-all duration-300"
+                style={{ width: `${(periodStats.month.recebido / (periodStats.month.recebido + periodStats.month.aReceber || 1)) * 100}%` }}
               />
             </div>
             <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-              <span>Realizado</span>
-              <span>Projetado</span>
+              <span>Recebido</span>
+              <span>A Receber</span>
             </div>
           </div>
         </div>
@@ -331,27 +396,29 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <Sparkles size={14} className="text-slate-400 dark:text-slate-500" />
             </div>
             <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
-              R$ {(periodStats.year.realized + periodStats.year.projected).toFixed(0)}
+              R$ {(periodStats.year.recebido + periodStats.year.aReceber).toFixed(0)}
             </p>
 
             <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
               <div className="flex justify-between">
-                <span>Realizados:</span>
-                <span className="font-bold text-slate-900 dark:text-white">R$ {periodStats.year.realized.toFixed(0)}</span>
+                <span className="flex items-center gap-1 font-semibold text-sucesso-600 dark:text-sucesso-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-sucesso-500"></span> Recebido:
+                </span>
+                <span className="font-bold text-sucesso-600 dark:text-sucesso-400">R$ {periodStats.year.recebido.toFixed(0)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Projetados (Reservas):</span>
+                <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 animate-pulse"></span> A Receber:
+                </span>
+                <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.year.aReceber.toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/85 pt-2">
+                <span>Previsto (Não concluído):</span>
                 <span className="font-semibold text-slate-500">R$ {periodStats.year.projected.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/80 pt-2">
-                <span>Diárias Ocupadas:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-350">{periodStats.year.nights} {periodStats.year.nights === 1 ? 'noite' : 'noites'}</span>
-              </div>
               <div className="flex justify-between">
-                <span>Valor Médio da Diária:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-350">
-                  R$ {periodStats.year.nights > 0 ? ((periodStats.year.realized + periodStats.year.projected) / periodStats.year.nights).toFixed(0) : '0'}
-                </span>
+                <span>Diárias/Visitas:</span>
+                <span className="font-semibold text-slate-800 dark:text-slate-300">{periodStats.year.nights}</span>
               </div>
             </div>
           </div>
@@ -360,13 +427,13 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           <div className="mt-5 space-y-1.5">
             <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
               <div
-                className="h-full bg-purple-600 dark:bg-purple-500 transition-all duration-300"
-                style={{ width: `${(periodStats.year.realized / (periodStats.year.realized + periodStats.year.projected || 1)) * 100}%` }}
+                className="h-full bg-sucesso-500 transition-all duration-300"
+                style={{ width: `${(periodStats.year.recebido / (periodStats.year.recebido + periodStats.year.aReceber || 1)) * 100}%` }}
               />
             </div>
             <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
-              <span>Realizado</span>
-              <span>Projetado</span>
+              <span>Recebido</span>
+              <span>A Receber</span>
             </div>
           </div>
         </div>
@@ -413,8 +480,8 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
         {sortedCats.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400 dark:text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white/50 dark:bg-slate-900/40">
             <span className="text-4xl mb-2">📊</span>
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Nenhum hóspede felino com diárias registradas</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Hospede um felino no hotel para visualizar os dados consolidados do gráfico.</p>
+            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Nenhum registro com diárias para este filtro</p>
+            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Hospede um felino ou registre um serviço para visualizar os dados consolidados no gráfico.</p>
           </div>
         ) : (
           <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1 scrollbar-thin">
@@ -425,7 +492,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               return (
                 <div
                   key={cat.id}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-955/20 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850 hover:shadow-md dark:hover:bg-slate-955/40 hover:border-terracota-500/30 transition duration-200 group"
+                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850 hover:shadow-md dark:hover:bg-slate-900/40 hover:border-terracota-500/30 transition duration-200 group"
                 >
                   {/* Cat Photo and Name */}
                   <div className="flex items-center gap-3 w-full sm:w-56 flex-shrink-0">
@@ -437,7 +504,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-terracota-600 dark:group-hover:text-terracota-400 transition">{cat.nomeGato}</p>
+                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-terracota-600 dark:group-hover:text-terracota-400 transition font-serif">{cat.nomeGato}</p>
                       <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">Tutor: <span className="font-semibold text-slate-700 dark:text-slate-350">{cat.nomeTutor}</span></p>
                     </div>
                   </div>
@@ -447,12 +514,12 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                     {/* Diárias Bar */}
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        <span>Diárias</span>
-                        <span className="text-slate-700 dark:text-slate-350 font-bold">{cat.nights} {cat.nights === 1 ? 'diária' : 'diárias'} ({cat.staysCount} {cat.staysCount === 1 ? 'estadia' : 'estadias'})</span>
+                        <span>Diárias/Visitas</span>
+                        <span className="text-slate-700 dark:text-slate-350 font-bold">{cat.nights} {cat.nights === 1 ? 'dia/visita' : 'dias/visitas'} ({cat.staysCount} {cat.staysCount === 1 ? 'serviço' : 'serviços'})</span>
                       </div>
                       <div className="w-full h-3 bg-slate-100/80 dark:bg-slate-950 rounded-full overflow-hidden shadow-inner">
                         <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-teal-400 rounded-full transition-all duration-700 ease-out"
+                          className="h-full bg-gradient-to-r from-emerald-500 to-ardosia-400 rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${nightsWidth}%` }}
                         />
                       </div>

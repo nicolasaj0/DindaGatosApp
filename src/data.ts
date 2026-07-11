@@ -16,6 +16,8 @@ export const hospedagensMock: Hospedagem[] = [
       observacoes: 'Gosta de brinquedos com penas',
       medicamentos: 'Nenhum',
     },
+    statusPagamento: 'pendente',
+    tipoServico: 'hospedagem',
   },
   {
     id: '2',
@@ -31,6 +33,8 @@ export const hospedagensMock: Hospedagem[] = [
       observacoes: 'Prefere ficar em isolamento inicial',
       medicamentos: 'Nenhum',
     },
+    statusPagamento: 'pendente',
+    tipoServico: 'hospedagem',
   },
   {
     id: '3',
@@ -47,5 +51,7 @@ export const hospedagensMock: Hospedagem[] = [
       observacoes: 'Tomar cuidado com barulhos altos',
       medicamentos: 'Antialérgico 1x ao dia',
     },
+    statusPagamento: 'pendente',
+    tipoServico: 'hospedagem',
   },
 ];

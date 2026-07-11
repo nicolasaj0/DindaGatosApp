@@ -1,6 +1,6 @@
 import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
-import { Hospedagem, Gato, Estadia } from './types';
+import { Hospedagem, Gato, Estadia, StatusPagamento, TipoServico } from './types';
 import { hospedagensMock } from './data';
 
 interface HospedagemState {
@@ -20,6 +20,7 @@ interface HospedagemState {
   updateHospedagem: (id: string, partial: Partial<Hospedagem>) => void;
   removeHospedagem: (id: string) => void;
   moveHospedagemStatus: (id: string, status: Hospedagem['status']) => void;
+  togglePagamento: (estadiaId: string) => void;
   setHospedagens: (items: Hospedagem[] | { gatos: Gato[]; estadias: Estadia[] }) => void;
   
   // Internal helper for migration
@@ -47,13 +48,24 @@ const resolveHospedagens = (gatos: Gato[], estadias: Estadia[]): Hospedagem[] =>
       dataHoraConfirmacaoCheckIn: estadia.dataHoraConfirmacaoCheckIn,
       dataHoraConfirmacaoCheckOut: estadia.dataHoraConfirmacaoCheckOut,
       valorDiaria: estadia.valorDiaria,
+      statusPagamento: estadia.statusPagamento || 'pendente',
+      dataHoraConfirmacaoPagamento: estadia.dataHoraConfirmacaoPagamento,
+      tipoServico: estadia.tipoServico || 'hospedagem',
+      enderecoServico: estadia.enderecoServico,
+      detalhesServico: estadia.detalhesServico,
+      enderecoTutor: gato?.enderecoTutor,
     };
   });
 };
 
 const migrateDataIfNeeded = (hospedagens: any[], gatos: Gato[], estadias: Estadia[]) => {
   if ((gatos && gatos.length > 0) || (estadias && estadias.length > 0)) {
-    return { gatos: gatos || [], estadias: estadias || [] };
+    const migratedEstadias = (estadias || []).map((e) => ({
+      ...e,
+      statusPagamento: e.statusPagamento || 'pendente',
+      tipoServico: e.tipoServico || 'hospedagem',
+    }));
+    return { gatos: gatos || [], estadias: migratedEstadias };
   }
 
   const newGatos: Gato[] = [];
@@ -82,6 +94,7 @@ const migrateDataIfNeeded = (hospedagens: any[], gatos: Gato[], estadias: Estadi
         },
         valorDiariaPadrao: h.valorDiaria,
         dataCadastro: h.dataCheckIn || new Date().toISOString().split('T')[0],
+        enderecoTutor: h.enderecoTutor,
       });
     }
 
@@ -94,6 +107,11 @@ const migrateDataIfNeeded = (hospedagens: any[], gatos: Gato[], estadias: Estadi
       dataHoraConfirmacaoCheckIn: h.dataHoraConfirmacaoCheckIn,
       dataHoraConfirmacaoCheckOut: h.dataHoraConfirmacaoCheckOut,
       valorDiaria: h.valorDiaria,
+      statusPagamento: h.statusPagamento || 'pendente',
+      dataHoraConfirmacaoPagamento: h.dataHoraConfirmacaoPagamento,
+      tipoServico: h.tipoServico || 'hospedagem',
+      enderecoServico: h.enderecoServico,
+      detalhesServico: h.detalhesServico,
     });
   });
 
@@ -161,6 +179,7 @@ export const useHospedagemStore = create<HospedagemState>()(
                       fotoUrl: item.fotoUrl || g.fotoUrl,
                       perfil: item.perfil,
                       valorDiariaPadrao: item.valorDiaria || g.valorDiariaPadrao,
+                      enderecoTutor: item.enderecoTutor || g.enderecoTutor,
                     }
                   : g
               );
@@ -174,6 +193,7 @@ export const useHospedagemStore = create<HospedagemState>()(
                 perfil: item.perfil,
                 valorDiariaPadrao: item.valorDiaria,
                 dataCadastro: item.dataCheckIn,
+                enderecoTutor: item.enderecoTutor,
               });
             }
           } else {
@@ -186,6 +206,7 @@ export const useHospedagemStore = create<HospedagemState>()(
                     fotoUrl: item.fotoUrl || g.fotoUrl,
                     perfil: item.perfil,
                     valorDiariaPadrao: item.valorDiaria || g.valorDiariaPadrao,
+                    enderecoTutor: item.enderecoTutor || g.enderecoTutor,
                   }
                 : g
             );
@@ -200,6 +221,11 @@ export const useHospedagemStore = create<HospedagemState>()(
             dataHoraConfirmacaoCheckIn: item.dataHoraConfirmacaoCheckIn,
             dataHoraConfirmacaoCheckOut: item.dataHoraConfirmacaoCheckOut,
             valorDiaria: item.valorDiaria,
+            statusPagamento: item.statusPagamento || 'pendente',
+            dataHoraConfirmacaoPagamento: item.dataHoraConfirmacaoPagamento,
+            tipoServico: item.tipoServico || 'hospedagem',
+            enderecoServico: item.enderecoServico,
+            detalhesServico: item.detalhesServico,
           };
 
           const newEstadias = [newEstadia, ...state.estadias];
@@ -261,9 +287,37 @@ export const useHospedagemStore = create<HospedagemState>()(
 
       moveHospedagemStatus: (id, status) =>
         set((state) => {
-          const newEstadias = state.estadias.map((e) =>
-            e.id === id ? { ...e, status } : e
-          );
+          const newEstadias = state.estadias.map((e) => {
+            if (e.id === id) {
+              const updated = { ...e, status };
+              if (status === 'concluido') {
+                updated.statusPagamento = updated.statusPagamento || 'pendente';
+              }
+              return updated;
+            }
+            return e;
+          });
+          return {
+            estadias: newEstadias,
+            hospedagens: resolveHospedagens(state.gatos, newEstadias),
+          };
+        }),
+
+      togglePagamento: (estadiaId) =>
+        set((state) => {
+          const newEstadias = state.estadias.map((e) => {
+            if (e.id === estadiaId) {
+              const nextPagamento: StatusPagamento = e.statusPagamento === 'pago' ? 'pendente' : 'pago';
+              return {
+                ...e,
+                statusPagamento: nextPagamento,
+                dataHoraConfirmacaoPagamento: nextPagamento === 'pago'
+                  ? new Date().toLocaleString('pt-BR')
+                  : undefined
+              };
+            }
+            return e;
+          });
           return {
             estadias: newEstadias,
             hospedagens: resolveHospedagens(state.gatos, newEstadias),

@@ -27,7 +27,10 @@ export function FormEditHospedagem({
     dieta: initialData.perfil.dieta,
     observacoes: initialData.perfil.observacoes,
     medicamentos: initialData.perfil.medicamentos || '',
-    valorDiaria: String(initialData.valorDiaria ?? 50),
+    valorDiaria: String(initialData.valorDiaria ?? 60),
+    enderecoTutor: initialData.enderecoTutor || '',
+    enderecoServico: initialData.enderecoServico || '',
+    detalhesServico: initialData.detalhesServico || '',
   });
   const [isUploading, setIsUploading] = useState(false);
 
@@ -64,12 +67,18 @@ export function FormEditHospedagem({
       return;
     }
 
-    if (formData.dataCheckOut < formData.dataCheckIn) {
-      alert('Atenção: A data de check-out não pode ser anterior à data de check-in.');
+    if (initialData.tipoServico !== 'transporte' && formData.dataCheckOut < formData.dataCheckIn) {
+      alert('Atenção: A data de término/check-out não pode ser anterior à data de início/check-in.');
+      return;
+    }
+
+    if (initialData.tipoServico !== 'hospedagem' && !formData.enderecoServico.trim()) {
+      alert('O endereço do serviço é obrigatório.');
       return;
     }
 
     const valorNum = parseFloat(formData.valorDiaria);
+    const finalCheckOut = initialData.tipoServico === 'transporte' ? formData.dataCheckIn : formData.dataCheckOut;
 
     const updated: Hospedagem = {
       ...initialData,
@@ -77,7 +86,7 @@ export function FormEditHospedagem({
       nomeTutor: formData.nomeTutor,
       fotoUrl: formData.fotoUrl || undefined,
       dataCheckIn: formData.dataCheckIn,
-      dataCheckOut: formData.dataCheckOut,
+      dataCheckOut: finalCheckOut,
       perfil: {
         sociabilidade: formData.sociabilidade as 'sociavel' | 'isolado',
         personalidade: formData.personalidade,
@@ -86,13 +95,29 @@ export function FormEditHospedagem({
         medicamentos: formData.medicamentos || undefined,
       },
       valorDiaria: isNaN(valorNum) ? undefined : valorNum,
+      enderecoServico: initialData.tipoServico !== 'hospedagem' ? formData.enderecoServico : undefined,
+      detalhesServico: initialData.tipoServico !== 'hospedagem' ? formData.detalhesServico : undefined,
+      enderecoTutor: formData.enderecoTutor || undefined,
     };
 
     onSubmit(updated);
   };
 
+  const getServiceLabel = () => {
+    if (initialData.tipoServico === 'hospedagem') return 'Hospedagem 🏠';
+    if (initialData.tipoServico === 'cat_sitter') return 'Cat Sitter 🐾';
+    return 'Transporte 🚗';
+  };
+
+  const totalNights = initialData.tipoServico === 'transporte' ? 1 : calculateNights(formData.dataCheckIn, formData.dataCheckOut);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Banner Informativo do Tipo de Serviço */}
+      <div className="bg-slate-100 dark:bg-slate-900/60 border border-slate-200 dark:border-slate-800 rounded-xl px-3 py-2 text-center text-xs font-bold text-slate-700 dark:text-slate-300">
+        Serviço em Edição: <span className="font-serif text-sm text-terracota-500">{getServiceLabel()}</span>
+      </div>
+
       {/* Seção de Foto do Gato */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">Foto do Gato</label>
@@ -174,6 +199,7 @@ export function FormEditHospedagem({
         </div>
       </div>
 
+      {/* Dados Principais */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Gato *</label>
@@ -199,9 +225,54 @@ export function FormEditHospedagem({
         </div>
       </div>
 
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Endereço do Tutor</label>
+        <input
+          type="text"
+          name="enderecoTutor"
+          value={formData.enderecoTutor}
+          onChange={handleChange}
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+          placeholder="Residência do tutor..."
+        />
+      </div>
+
+      {/* Condicionais de Cat Sitter e Transporte */}
+      {initialData.tipoServico !== 'hospedagem' && (
+        <div className="space-y-3 p-3 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/20 dark:bg-slate-900/10">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+              {initialData.tipoServico === 'transporte' ? 'Endereço de Destino *' : 'Endereço do Atendimento *'}
+            </label>
+            <input
+              type="text"
+              name="enderecoServico"
+              value={formData.enderecoServico}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+              placeholder="Endereço do serviço..."
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Detalhes do Serviço</label>
+            <input
+              type="text"
+              name="detailsServico"
+              value={formData.detalhesServico}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+              placeholder="Ex: visitas por dia, horários..."
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Datas */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Check-In</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+            {initialData.tipoServico === 'transporte' ? 'Data do Serviço' : 'Início / Check-In'}
+          </label>
           <input
             type="date"
             name="dataCheckIn"
@@ -210,21 +281,30 @@ export function FormEditHospedagem({
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           />
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Check-Out</label>
-          <input
-            type="date"
-            name="dataCheckOut"
-            value={formData.dataCheckOut}
-            onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
-          />
-        </div>
+        {initialData.tipoServico !== 'transporte' ? (
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Término / Check-Out</label>
+            <input
+              type="date"
+              name="dataCheckOut"
+              value={formData.dataCheckOut}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center pt-5">
+            <span className="text-[11px] text-slate-400 italic">Serviço de data única</span>
+          </div>
+        )}
       </div>
 
+      {/* Valor */}
       <div className="grid grid-cols-2 gap-3 items-end bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/80 rounded-2xl p-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Valor da Diária (R$)</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+            {initialData.tipoServico === 'hospedagem' ? 'Valor da Diária (R$)' : initialData.tipoServico === 'cat_sitter' ? 'Valor por Visita (R$)' : 'Valor do Serviço (R$)'}
+          </label>
           <input
             type="number"
             name="valorDiaria"
@@ -237,11 +317,11 @@ export function FormEditHospedagem({
         </div>
         <div className="flex flex-col gap-1 items-end justify-center text-right pr-1">
           <span className="inline-flex items-center gap-1 rounded-full bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-400 border border-terracota-100 dark:border-terracota-900/50 px-2 py-0.5 text-[10px] font-semibold">
-            {calculateNights(formData.dataCheckIn, formData.dataCheckOut) === 1 ? '1 diária 🌙' : `${calculateNights(formData.dataCheckIn, formData.dataCheckOut)} diárias 🌙`}
+            {initialData.tipoServico === 'transporte' ? 'transporte' : totalNights === 1 ? '1 dia/visita' : `${totalNights} dias/visitas`}
           </span>
           <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
             Total: <strong className="text-terracota-600 dark:text-terracota-400 text-sm">R$ {
-              (calculateNights(formData.dataCheckIn, formData.dataCheckOut) * (parseFloat(formData.valorDiaria) || 0)).toFixed(2)
+              (totalNights * (parseFloat(formData.valorDiaria) || 0)).toFixed(2)
             }</strong>
           </span>
         </div>
@@ -315,18 +395,18 @@ export function FormEditHospedagem({
           onClick={onCancel}
           className="flex-1 rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
         >
-          Voltar
+          Cancelar
         </button>
         <button
           type="submit"
           className="flex-1 rounded-lg bg-terracota-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-terracota-600 transition"
         >
-          Atualizar
+          Salvar
         </button>
         <button
           type="button"
           onClick={onDelete}
-          className="flex-1 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-500 transition"
+          className="flex-1 rounded-lg bg-red-650 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-500 transition"
         >
           Deletar
         </button>

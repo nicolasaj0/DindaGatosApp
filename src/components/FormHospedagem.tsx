@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { Hospedagem } from '../types';
+import { Hospedagem, TipoServico } from '../types';
 import { resizeImage, getLocalDateString, calculateNights } from '../utils';
-import { Camera, Upload, Link2, X, Sparkles } from 'lucide-react';
+import { Camera, Upload, Link2, X, Sparkles, Home, PawPrint, Car, ArrowLeft } from 'lucide-react';
 import { useHospedagemStore } from '../store';
 
 interface FormHospedagemProps {
@@ -13,6 +13,8 @@ interface FormHospedagemProps {
 export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHospedagemProps) {
   const gatos = useHospedagemStore((state) => state.gatos);
   const [selectedGatoId, setSelectedGatoId] = useState(preSelectedGatoId || '');
+  const [step, setStep] = useState(1);
+  const [tipoServico, setTipoServico] = useState<TipoServico>('hospedagem');
 
   const [formData, setFormData] = useState({
     nomeGato: '',
@@ -25,7 +27,10 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
     dieta: '',
     observacoes: '',
     medicamentos: '',
-    valorDiaria: '50',
+    valorDiaria: '60',
+    enderecoTutor: '',
+    enderecoServico: '',
+    detalhesServico: '',
   });
   const [isUploading, setIsUploading] = useState(false);
 
@@ -43,8 +48,11 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           dieta: g.perfil.dieta,
           observacoes: g.perfil.observacoes,
           medicamentos: g.perfil.medicamentos || '',
-          valorDiaria: g.valorDiariaPadrao?.toString() || '50',
+          valorDiaria: g.valorDiariaPadrao?.toString() || '60',
+          enderecoTutor: g.enderecoTutor || '',
+          enderecoServico: g.enderecoTutor || '',
         }));
+        // Se já está pré-selecionado, pula para o formulário após escolher
       }
     }
   }, [preSelectedGatoId, gatos]);
@@ -63,7 +71,9 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         dieta: '',
         observacoes: '',
         medicamentos: '',
-        valorDiaria: '50',
+        valorDiaria: '60',
+        enderecoTutor: '',
+        enderecoServico: '',
       }));
     } else {
       const g = gatos.find((cat) => cat.id === val);
@@ -78,7 +88,9 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           dieta: g.perfil.dieta,
           observacoes: g.perfil.observacoes,
           medicamentos: g.perfil.medicamentos || '',
-          valorDiaria: g.valorDiariaPadrao?.toString() || '50',
+          valorDiaria: g.valorDiariaPadrao?.toString() || '60',
+          enderecoTutor: g.enderecoTutor || '',
+          enderecoServico: g.enderecoTutor || '',
         }));
       }
     }
@@ -86,7 +98,14 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+    setFormData((prev) => {
+      const updated = { ...prev, [name]: value };
+      // Se mudar o endereço do tutor e o do serviço estiver vazio, copia automaticamente
+      if (name === 'enderecoTutor' && !prev.enderecoServico) {
+        updated.enderecoServico = value;
+      }
+      return updated;
+    });
   };
 
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -109,6 +128,15 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
     setFormData((prev) => ({ ...prev, fotoUrl: '' }));
   };
 
+  const selectService = (type: TipoServico) => {
+    setTipoServico(type);
+    // Se for transporte, inicializa dataCheckOut com a mesma data de checkIn
+    if (type === 'transporte') {
+      setFormData((prev) => ({ ...prev, dataCheckOut: prev.dataCheckIn }));
+    }
+    setStep(2);
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -117,12 +145,18 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
       return;
     }
 
-    if (formData.dataCheckOut < formData.dataCheckIn) {
-      alert('Atenção: A data de check-out não pode ser anterior à data de check-in.');
+    if (tipoServico !== 'transporte' && formData.dataCheckOut < formData.dataCheckIn) {
+      alert('Atenção: A data de término/check-out não pode ser anterior à data de início/check-in.');
+      return;
+    }
+
+    if (tipoServico !== 'hospedagem' && !formData.enderecoServico.trim()) {
+      alert('O endereço do serviço é obrigatório para este serviço.');
       return;
     }
 
     const valorNum = parseFloat(formData.valorDiaria);
+    const finalCheckOut = tipoServico === 'transporte' ? formData.dataCheckIn : formData.dataCheckOut;
 
     const novahospedagem: Hospedagem = {
       id: `${Date.now()}`,
@@ -131,7 +165,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
       nomeTutor: formData.nomeTutor,
       fotoUrl: formData.fotoUrl || undefined,
       dataCheckIn: formData.dataCheckIn,
-      dataCheckOut: formData.dataCheckOut,
+      dataCheckOut: finalCheckOut,
       status: 'agendado',
       perfil: {
         sociabilidade: formData.sociabilidade,
@@ -141,13 +175,110 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         medicamentos: formData.medicamentos || undefined,
       },
       valorDiaria: isNaN(valorNum) ? undefined : valorNum,
+      
+      // Novos campos
+      tipoServico,
+      statusPagamento: 'pendente',
+      enderecoServico: tipoServico !== 'hospedagem' ? formData.enderecoServico : undefined,
+      detalhesServico: tipoServico !== 'hospedagem' ? formData.detalhesServico : undefined,
+      enderecoTutor: formData.enderecoTutor || undefined,
     };
 
     onSubmit(novahospedagem);
   };
 
+  if (step === 1) {
+    return (
+      <div className="space-y-4 py-2">
+        <div className="text-center">
+          <h3 className="text-lg font-bold text-slate-800 dark:text-white font-serif">Escolha o Tipo de Serviço</h3>
+          <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Selecione o serviço que deseja agendar</p>
+        </div>
+
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+          {/* Card Hospedagem */}
+          <button
+            type="button"
+            onClick={() => selectService('hospedagem')}
+            className="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:border-terracota-500 dark:hover:border-terracota-500 hover:shadow-md transition text-slate-700 dark:text-slate-300"
+          >
+            <div className="rounded-full p-3 bg-terracota-50 dark:bg-terracota-950/40 text-terracota-600 dark:text-terracota-400 mb-3">
+              <Home size={28} />
+            </div>
+            <span className="font-bold text-sm font-serif">Hospedagem</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center mt-1">Estadia tradicional no hotelzinho</span>
+          </button>
+
+          {/* Card Cat Sitter */}
+          <button
+            type="button"
+            onClick={() => selectService('cat_sitter')}
+            className="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:border-terracota-500 dark:hover:border-terracota-500 hover:shadow-md transition text-slate-700 dark:text-slate-300"
+          >
+            <div className="rounded-full p-3 bg-mostarda-50 dark:bg-mostarda-950/40 text-mostarda-600 dark:text-mostarda-400 mb-3">
+              <PawPrint size={28} />
+            </div>
+            <span className="font-bold text-sm font-serif">Cat Sitter</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center mt-1">Cuidados e visitas na casa do tutor</span>
+          </button>
+
+          {/* Card Transporte */}
+          <button
+            type="button"
+            onClick={() => selectService('transporte')}
+            className="flex flex-col items-center justify-center p-5 rounded-2xl border-2 border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900/40 hover:border-terracota-500 dark:hover:border-terracota-500 hover:shadow-md transition text-slate-700 dark:text-slate-300"
+          >
+            <div className="rounded-full p-3 bg-ardosia-50 dark:bg-ardosia-950/40 text-ardosia-600 dark:text-ardosia-400 mb-3">
+              <Car size={28} />
+            </div>
+            <span className="font-bold text-sm font-serif">Transporte</span>
+            <span className="text-[10px] text-slate-500 dark:text-slate-400 text-center mt-1">Táxi dog/cat de ida ou volta</span>
+          </button>
+        </div>
+
+        <div className="flex pt-2 justify-center">
+          <button
+            type="button"
+            onClick={onCancel}
+            className="w-1/2 rounded-lg border border-slate-300 dark:border-slate-700 px-3 py-1.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+          >
+            Cancelar
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const getServiceLabel = () => {
+    if (tipoServico === 'hospedagem') return 'Hospedagem 🏠';
+    if (tipoServico === 'cat_sitter') return 'Cat Sitter 🐾';
+    return 'Transporte 🚗';
+  };
+
+  const getServicePlaceholder = () => {
+    return tipoServico === 'cat_sitter' 
+      ? 'Ex: 2 visitas diárias, reposição de água e sachê' 
+      : 'Ex: Levar da casa do tutor até a clínica veterinária';
+  };
+
+  const totalNights = tipoServico === 'transporte' ? 1 : calculateNights(formData.dataCheckIn, formData.dataCheckOut);
+
   return (
     <form onSubmit={handleSubmit} className="space-y-3">
+      {/* Top Banner de tipo de serviço selecionado */}
+      <div className="flex items-center justify-between bg-terracota-50 dark:bg-terracota-950/20 border border-terracota-100 dark:border-terracota-900/50 rounded-xl px-3 py-2">
+        <span className="text-xs font-bold text-terracota-800 dark:text-terracota-400">
+          Serviço: <strong className="font-serif text-sm">{getServiceLabel()}</strong>
+        </span>
+        <button
+          type="button"
+          onClick={() => setStep(1)}
+          className="inline-flex items-center gap-1 text-[11px] font-semibold text-slate-500 hover:text-terracota-600 dark:hover:text-terracota-400 transition"
+        >
+          <ArrowLeft size={12} /> Alterar
+        </button>
+      </div>
+
       {/* Seletor de Hóspede Existente */}
       <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
         <label className="flex text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2 items-center gap-1.5">
@@ -172,6 +303,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           </p>
         )}
       </div>
+
       {/* Seção de Foto do Gato */}
       <div className="rounded-2xl border border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/40 p-4">
         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">Foto do Gato</label>
@@ -253,6 +385,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         </div>
       </div>
 
+      {/* Cadastro Básico (Gato, Tutor, Endereço do Tutor) */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Gato *</label>
@@ -278,9 +411,54 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         </div>
       </div>
 
+      <div>
+        <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Endereço do Tutor</label>
+        <input
+          type="text"
+          name="enderecoTutor"
+          value={formData.enderecoTutor}
+          onChange={handleChange}
+          className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+          placeholder="Residência do tutor..."
+        />
+      </div>
+
+      {/* Campos condicionais de Cat Sitter e Transporte */}
+      {tipoServico !== 'hospedagem' && (
+        <div className="space-y-3 p-3 rounded-2xl border border-slate-200 dark:border-slate-800/80 bg-slate-50/20 dark:bg-slate-900/10">
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+              {tipoServico === 'transporte' ? 'Endereço de Destino *' : 'Endereço do Atendimento *'}
+            </label>
+            <input
+              type="text"
+              name="enderecoServico"
+              value={formData.enderecoServico}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+              placeholder="Digite o endereço completo..."
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Detalhes do Serviço</label>
+            <input
+              type="text"
+              name="detalhesServico"
+              value={formData.detalhesServico}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+              placeholder={getServicePlaceholder()}
+            />
+          </div>
+        </div>
+      )}
+
+      {/* Datas */}
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Check-In</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+            {tipoServico === 'transporte' ? 'Data do Serviço' : 'Início / Check-In'}
+          </label>
           <input
             type="date"
             name="dataCheckIn"
@@ -289,21 +467,30 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
           />
         </div>
-        <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Check-Out</label>
-          <input
-            type="date"
-            name="dataCheckOut"
-            value={formData.dataCheckOut}
-            onChange={handleChange}
-            className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
-          />
-        </div>
+        {tipoServico !== 'transporte' ? (
+          <div>
+            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Término / Check-Out</label>
+            <input
+              type="date"
+              name="dataCheckOut"
+              value={formData.dataCheckOut}
+              onChange={handleChange}
+              className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+            />
+          </div>
+        ) : (
+          <div className="flex items-center justify-center pt-5">
+            <span className="text-[11px] text-slate-450 italic">Serviço de data única</span>
+          </div>
+        )}
       </div>
 
+      {/* Financeiro */}
       <div className="grid grid-cols-2 gap-3 items-end bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/80 rounded-2xl p-3">
         <div>
-          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Valor da Diária (R$)</label>
+          <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">
+            {tipoServico === 'hospedagem' ? 'Valor da Diária (R$)' : tipoServico === 'cat_sitter' ? 'Valor por Visita (R$)' : 'Valor Total (R$)'}
+          </label>
           <input
             type="number"
             name="valorDiaria"
@@ -311,21 +498,22 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             value={formData.valorDiaria}
             onChange={handleChange}
             className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-sm text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
-            placeholder="50"
+            placeholder="60"
           />
         </div>
         <div className="flex flex-col gap-1 items-end justify-center text-right pr-1">
           <span className="inline-flex items-center gap-1 rounded-full bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-400 border border-terracota-100 dark:border-terracota-900/50 px-2 py-0.5 text-[10px] font-semibold">
-            {calculateNights(formData.dataCheckIn, formData.dataCheckOut) === 1 ? '1 diária 🌙' : `${calculateNights(formData.dataCheckIn, formData.dataCheckOut)} diárias 🌙`}
+            {tipoServico === 'transporte' ? 'transporte' : totalNights === 1 ? '1 dia/visita' : `${totalNights} dias/visitas`}
           </span>
           <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
             Total: <strong className="text-terracota-600 dark:text-terracota-400 text-sm">R$ {
-              (calculateNights(formData.dataCheckIn, formData.dataCheckOut) * (parseFloat(formData.valorDiaria) || 0)).toFixed(2)
+              (totalNights * (parseFloat(formData.valorDiaria) || 0)).toFixed(2)
             }</strong>
           </span>
         </div>
       </div>
 
+      {/* Perfil comportamental */}
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide">Sociabilidade</label>
@@ -400,7 +588,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           type="submit"
           className="flex-1 rounded-lg bg-terracota-500 px-3 py-1.5 text-sm font-semibold text-white hover:bg-terracota-600 transition"
         >
-          Criar Hóspede
+          Criar Serviço
         </button>
       </div>
     </form>

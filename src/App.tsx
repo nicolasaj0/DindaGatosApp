@@ -114,6 +114,7 @@ function App() {
   });
   const [searchTerm, setSearchTerm] = useState('');
   const [activeFilter, setActiveFilter] = useState<'todos' | 'medication' | 'isolado' | 'sociavel'>('todos');
+  const [serviceFilter, setServiceFilter] = useState<'todos' | 'hospedagem' | 'cat_sitter' | 'transporte'>('todos');
   const [currentView, setCurrentView] = useState<'hospedagens' | 'gatos' | 'relatorios'>('hospedagens');
   const [gatosSearchTerm, setGatosSearchTerm] = useState('');
   const [isEditGatoModalOpen, setIsEditGatoModalOpen] = useState(false);
@@ -157,13 +158,21 @@ function App() {
   const hoje = getLocalDateString();
 
   const entradasHoje = useMemo(
-    () => hospedagens.filter((item) => item.dataCheckIn === hoje && item.status === 'agendado'),
-    [hospedagens, hoje],
+    () => hospedagens.filter((item) => {
+      const matchesDate = item.dataCheckIn === hoje && item.status === 'agendado';
+      const matchesService = serviceFilter === 'todos' || item.tipoServico === serviceFilter;
+      return matchesDate && matchesService;
+    }),
+    [hospedagens, hoje, serviceFilter],
   );
 
   const saidasHoje = useMemo(
-    () => hospedagens.filter((item) => item.dataCheckOut === hoje && item.status !== 'concluido'),
-    [hospedagens, hoje],
+    () => hospedagens.filter((item) => {
+      const matchesDate = item.dataCheckOut === hoje && item.status !== 'concluido';
+      const matchesService = serviceFilter === 'todos' || item.tipoServico === serviceFilter;
+      return matchesDate && matchesService;
+    }),
+    [hospedagens, hoje, serviceFilter],
   );
 
   const filteredHospedagens = useMemo(() => {
@@ -173,6 +182,10 @@ function App() {
         item.nomeTutor.toLowerCase().includes(searchTerm.toLowerCase());
 
       if (!matchesSearch) return false;
+
+      if (serviceFilter !== 'todos' && item.tipoServico !== serviceFilter) {
+        return false;
+      }
 
       if (activeFilter === 'medication') {
         const hasMedication = item.perfil.medicamentos &&
@@ -189,7 +202,7 @@ function App() {
 
       return true;
     });
-  }, [hospedagens, searchTerm, activeFilter]);
+  }, [hospedagens, searchTerm, activeFilter, serviceFilter]);
 
   const grouped = useMemo(
     () =>
@@ -528,6 +541,32 @@ function App() {
               </div>
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between lg:justify-end">
+                {/* Filtro por Tipo de Serviço */}
+                <div className="flex flex-wrap gap-2 items-center">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Serviço:</span>
+                  {[
+                    { id: 'todos', label: 'Todos' },
+                    { id: 'hospedagem', label: '🏠 Hospedagem' },
+                    { id: 'cat_sitter', label: '🐾 Cat Sitter' },
+                    { id: 'transporte', label: '🚗 Transporte' },
+                  ].map((btn) => {
+                    const isSelected = serviceFilter === btn.id;
+                    return (
+                      <button
+                        key={btn.id}
+                        type="button"
+                        onClick={() => setServiceFilter(btn.id as any)}
+                        className={`rounded-xl px-3 py-1.5 text-xs font-semibold border transition-all ${isSelected
+                          ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
+                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          }`}
+                      >
+                        {btn.label}
+                      </button>
+                    );
+                  })}
+                </div>
+
                 {/* Filtros Rápidos */}
                 <div className="flex flex-wrap gap-2 items-center">
                   <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Filtrar:</span>
