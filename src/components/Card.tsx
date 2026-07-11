@@ -34,7 +34,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
     ? { 
         label: hospedagem.perfil.medicamentos!, 
         color: showActiveMedicationAlert 
-          ? 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50 animate-pulse'
+          ? 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50 motion-safe:animate-pulse'
           : 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400' 
       }
     : { label: 'Sem medicação', color: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-350' };
@@ -90,7 +90,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
     >
       <div className="flex justify-between items-start mb-3">
         {isDelayed && (
-          <div className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-950 px-2.5 py-0.5 text-[9px] font-bold text-red-800 dark:text-red-300 uppercase tracking-wider animate-pulse">
+          <div className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-950 px-2.5 py-0.5 text-[9px] font-bold text-red-800 dark:text-red-300 uppercase tracking-wider motion-safe:animate-pulse">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>

@@ -312,7 +312,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               </div>
               <div className="flex justify-between">
                 <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 animate-pulse"></span> A Receber:
+                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 motion-safe:animate-pulse"></span> A Receber:
                 </span>
                 <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.week.aReceber.toFixed(0)}</span>
               </div>
@@ -362,7 +362,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               </div>
               <div className="flex justify-between">
                 <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 animate-pulse"></span> A Receber:
+                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 motion-safe:animate-pulse"></span> A Receber:
                 </span>
                 <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.month.aReceber.toFixed(0)}</span>
               </div>
@@ -412,7 +412,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               </div>
               <div className="flex justify-between">
                 <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 animate-pulse"></span> A Receber:
+                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 motion-safe:animate-pulse"></span> A Receber:
                 </span>
                 <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.year.aReceber.toFixed(0)}</span>
               </div>

@@ -45,7 +45,7 @@ export function Column({ status, items, onEdit, onCheckOut, onCheckIn, layoutMod
         {count === 0 ? (
           <div className={`flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-950/20 p-6 text-center text-slate-400 dark:text-slate-500 ${isRowMode ? 'min-w-[280px] py-12' : 'w-full'}`}>
             <span className="text-2xl mb-1">🐾</span>
-            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">Nenhum hóspede nesta lista</p>
+            <p className="text-xs font-semibold text-slate-400 dark:text-slate-500">Nenhum serviço nesta lista</p>
           </div>
         ) : (
           items.map((item) => (

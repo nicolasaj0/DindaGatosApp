@@ -146,7 +146,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
             </h4>
             <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-850 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800">
               <div className="flex items-center gap-2">
-                <span className={`h-2.5 w-2.5 rounded-full ${hospedagem.statusPagamento === 'pago' ? 'bg-sucesso-500 animate-pulse' : 'bg-mostarda-500 animate-pulse'}`}></span>
+                <span className={`h-2.5 w-2.5 rounded-full ${hospedagem.statusPagamento === 'pago' ? 'bg-sucesso-500 motion-safe:animate-pulse' : 'bg-mostarda-500 motion-safe:animate-pulse'}`}></span>
                 <div>
                   <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">
                     Pagamento: <strong className={hospedagem.statusPagamento === 'pago' ? 'text-sucesso-600 dark:text-sucesso-400' : 'text-mostarda-600 dark:text-mostarda-400'}>
