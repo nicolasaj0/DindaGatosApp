@@ -55,12 +55,14 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     const year = { recebido: 0, aReceber: 0, projected: 0, nights: 0, staysCount: 0 };
 
     filteredEstadiasForStats.forEach((e) => {
-      const nights = e.tipoServico === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
+      const tipo = e.tipoServico || 'hospedagem';
+      const statusPag = e.statusPagamento || 'pendente';
+      const nights = tipo === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
       const value = nights * (e.valorDiaria || 60);
       const checkInDate = parseLocalDate(e.dataCheckIn);
       
       const isConcluido = e.status === 'concluido';
-      const isPago = e.statusPagamento === 'pago';
+      const isPago = statusPag === 'pago';
 
       // Check if current calendar week
       const isThisWeek = checkInDate >= monday && checkInDate <= sunday;
@@ -115,12 +117,14 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       });
 
       const totalNights = catStays.reduce((sum, e) => {
-        const nights = e.tipoServico === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
+        const tipo = e.tipoServico || 'hospedagem';
+        const nights = tipo === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
         return sum + nights;
       }, 0);
 
       const totalSpent = catStays.reduce((sum, e) => {
-        const nights = e.tipoServico === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
+        const tipo = e.tipoServico || 'hospedagem';
+        const nights = tipo === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
         return sum + (nights * (e.valorDiaria || 60));
       }, 0);
 
