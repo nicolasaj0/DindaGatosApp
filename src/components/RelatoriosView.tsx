@@ -251,7 +251,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <Award size={24} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Hóspede VIP (Mais Noites)</p>
+              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cliente Mais Frequente</p>
               {highlights.vipCat ? (
                 <>
                   <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 truncate">{highlights.vipCat.nomeGato}</p>

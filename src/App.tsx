@@ -750,13 +750,13 @@ function App() {
                         )}
                         {gato.valorDiariaPadrao && (
                           <span className="text-[10px] font-bold bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-405 px-2 py-0.5 rounded-full border border-terracota-100/50 dark:border-terracota-900/30 ml-auto">
-                            R$ {gato.valorDiariaPadrao}/diária
+                            R$ {gato.valorDiariaPadrao} (valor de referência)
                           </span>
                         )}
                       </div>
 
                       {/* Prontuário / Notas rápidas */}
-                      <div className="mt-4 space-y-1.5 text-xs text-slate-600 dark:text-slate-300 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl p-3 border border-slate-100/80 dark:border-slate-800/60">
+                      <div className="mt-4 space-y-1.5 text-xs text-slate-600 dark:text-slate-350 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl p-3 border border-slate-100/80 dark:border-slate-800/60">
                         {gato.perfil.dieta && (
                           <p className="truncate"><strong className="text-slate-800 dark:text-slate-200">🍽️ Dieta:</strong> {gato.perfil.dieta}</p>
                         )}
@@ -787,7 +787,7 @@ function App() {
                         className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-terracota-50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 py-2 text-xs font-semibold text-terracota-600 dark:text-terracota-450 hover:bg-terracota-100 dark:hover:bg-terracota-950/40 transition"
                       >
                         <Calendar size={13} />
-                        Hospedar
+                        Agendar Serviço
                       </button>
                       <button
                         type="button"
