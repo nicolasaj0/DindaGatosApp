@@ -50,6 +50,7 @@ const resolveHospedagens = (gatos: Gato[], estadias: Estadia[]): Hospedagem[] =>
       valorDiaria: estadia.valorDiaria,
       statusPagamento: estadia.statusPagamento || 'pendente',
       dataHoraConfirmacaoPagamento: estadia.dataHoraConfirmacaoPagamento,
+      dataHoraReversaoPagamento: estadia.dataHoraReversaoPagamento,
       tipoServico: estadia.tipoServico || 'hospedagem',
       enderecoServico: estadia.enderecoServico,
       detalhesServico: estadia.detalhesServico,
@@ -223,6 +224,7 @@ export const useHospedagemStore = create<HospedagemState>()(
             valorDiaria: item.valorDiaria,
             statusPagamento: item.statusPagamento || 'pendente',
             dataHoraConfirmacaoPagamento: item.dataHoraConfirmacaoPagamento,
+            dataHoraReversaoPagamento: item.dataHoraReversaoPagamento,
             tipoServico: item.tipoServico || 'hospedagem',
             enderecoServico: item.enderecoServico,
             detalhesServico: item.detalhesServico,
@@ -252,7 +254,8 @@ export const useHospedagemStore = create<HospedagemState>()(
             partial.nomeTutor !== undefined ||
             partial.fotoUrl !== undefined ||
             partial.perfil !== undefined ||
-            partial.valorDiaria !== undefined;
+            partial.valorDiaria !== undefined ||
+            partial.enderecoTutor !== undefined;
 
           if (hasCatUpdates) {
             newGatos = state.gatos.map((g) =>
@@ -264,6 +267,7 @@ export const useHospedagemStore = create<HospedagemState>()(
                     fotoUrl: partial.fotoUrl !== undefined ? partial.fotoUrl : g.fotoUrl,
                     perfil: partial.perfil !== undefined ? partial.perfil : g.perfil,
                     valorDiariaPadrao: partial.valorDiaria !== undefined ? partial.valorDiaria : g.valorDiariaPadrao,
+                    enderecoTutor: partial.enderecoTutor !== undefined ? partial.enderecoTutor : g.enderecoTutor,
                   }
                 : g
             );
@@ -308,11 +312,15 @@ export const useHospedagemStore = create<HospedagemState>()(
           const newEstadias = state.estadias.map((e) => {
             if (e.id === estadiaId) {
               const nextPagamento: StatusPagamento = e.statusPagamento === 'pago' ? 'pendente' : 'pago';
+              const nowStr = new Date().toLocaleString('pt-BR');
               return {
                 ...e,
                 statusPagamento: nextPagamento,
                 dataHoraConfirmacaoPagamento: nextPagamento === 'pago'
-                  ? new Date().toLocaleString('pt-BR')
+                  ? nowStr
+                  : undefined,
+                dataHoraReversaoPagamento: nextPagamento === 'pendente'
+                  ? nowStr
                   : undefined
               };
             }

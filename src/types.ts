@@ -31,6 +31,7 @@ export interface Hospedagem {
   // Novos campos de pagamento e serviços
   statusPagamento: StatusPagamento;
   dataHoraConfirmacaoPagamento?: string;
+  dataHoraReversaoPagamento?: string;
   tipoServico: TipoServico;
   enderecoServico?: string;
   detalhesServico?: string;
@@ -61,6 +62,7 @@ export interface Estadia {
   // Novos campos de pagamento e serviços
   statusPagamento: StatusPagamento;
   dataHoraConfirmacaoPagamento?: string;
+  dataHoraReversaoPagamento?: string;
   tipoServico: TipoServico;
   enderecoServico?: string;
   detalhesServico?: string;

@@ -473,7 +473,7 @@ function App() {
               onClick={() => setIsModalOpen(true)}
               className="inline-flex items-center justify-center rounded-2xl bg-terracota-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-terracota-500/20 transition hover:bg-terracota-600"
             >
-              Novo Hóspede
+              Novo Serviço
             </button>
           </div>
         </div>
@@ -696,7 +696,7 @@ function App() {
                 className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-terracota-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-terracota-500/20 transition hover:bg-terracota-600"
               >
                 <Plus size={16} />
-                Novo Hóspede
+                Novo Serviço
               </button>
             </div>
 
@@ -823,7 +823,7 @@ function App() {
 
       <Modal
         isOpen={isModalOpen}
-        title="Novo Hóspede"
+        title="Novo Serviço"
         onClose={() => {
           setIsModalOpen(false);
           setPreSelectedGatoId(undefined);

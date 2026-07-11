@@ -5,9 +5,9 @@ export function getStatusLabel(status: HospedagemStatus) {
     case 'agendado':
       return 'Agendados';
     case 'hospedado':
-      return 'Hospedados';
+      return 'Em Andamento';
     case 'saindo_hoje':
-      return 'Saindo Hoje';
+      return 'Finalizando Hoje';
     case 'concluido':
       return 'Concluídos';
     default:

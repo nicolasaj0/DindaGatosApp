@@ -76,33 +76,44 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
   const showCheckInButton = hospedagem.status === 'agendado' && hoje >= hospedagem.dataCheckIn;
   const isCheckInToday = hospedagem.dataCheckIn === hoje && hospedagem.status === 'agendado';
   const isCheckOutToday = hospedagem.dataCheckOut === hoje && hospedagem.status === 'saindo_hoje';
+  const isDelayed = hospedagem.status !== 'concluido' && hoje > hospedagem.dataCheckOut;
 
   return (
     <div
       onClick={handleClick}
       className={`cursor-pointer rounded-3xl border p-4 shadow-sm transition hover:shadow-md ${
+        isDelayed ? 'border-red-300 dark:border-red-700 ring-2 ring-red-100/50 dark:ring-red-950/30 bg-red-50/5 dark:bg-red-950/10 hover:border-red-400' :
         isCheckInToday ? 'border-emerald-300 dark:border-emerald-700 ring-2 ring-emerald-100/50 dark:ring-emerald-950/30 bg-emerald-50/5 dark:bg-emerald-950/10 hover:border-emerald-400' :
         isCheckOutToday ? 'border-terracota-300 dark:border-terracota-700 ring-2 ring-terracota-100/50 dark:ring-terracota-950/30 bg-terracota-50/5 dark:bg-terracota-950/10 hover:border-terracota-400' :
         'border-slate-200 dark:border-slate-750 hover:border-terracota-300 dark:hover:border-terracota-500 bg-white dark:bg-warmBg-900'
       }`}
     >
       <div className="flex justify-between items-start mb-3">
-        {isCheckInToday && (
+        {isDelayed && (
+          <div className="inline-flex items-center gap-1 rounded-full bg-red-100 dark:bg-red-950 px-2.5 py-0.5 text-[9px] font-bold text-red-800 dark:text-red-300 uppercase tracking-wider animate-pulse">
+            <span className="relative flex h-1.5 w-1.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-red-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-red-500"></span>
+            </span>
+            <span>Atrasado</span>
+          </div>
+        )}
+        {!isDelayed && isCheckInToday && (
           <div className="inline-flex items-center gap-1 rounded-full bg-emerald-100 dark:bg-emerald-950 px-2.5 py-0.5 text-[9px] font-bold text-emerald-800 dark:text-emerald-300 uppercase tracking-wider">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-emerald-500"></span>
             </span>
-            <span>Chega Hoje</span>
+            <span>Começa Hoje</span>
           </div>
         )}
-        {isCheckOutToday && (
+        {!isDelayed && isCheckOutToday && (
           <div className="inline-flex items-center gap-1 rounded-full bg-terracota-100 dark:bg-terracota-950 px-2.5 py-0.5 text-[9px] font-bold text-terracota-800 dark:text-terracota-300 uppercase tracking-wider">
             <span className="relative flex h-1.5 w-1.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-terracota-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-terracota-500"></span>
             </span>
-            <span>Saída Hoje</span>
+            <span>Termina Hoje</span>
           </div>
         )}
         <span className="text-[10px] font-semibold text-slate-400 dark:text-slate-500 bg-slate-50 dark:bg-slate-900 border border-slate-200/50 dark:border-slate-800 px-2 py-0.5 rounded-lg flex items-center gap-1 ml-auto">
@@ -152,7 +163,10 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
       </div>
 
       {/* Registro de Confirmações no Card */}
-      {(hospedagem.dataHoraConfirmacaoCheckIn || hospedagem.dataHoraConfirmacaoCheckOut) && (
+      {(hospedagem.dataHoraConfirmacaoCheckIn || 
+        hospedagem.dataHoraConfirmacaoCheckOut || 
+        (hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento) || 
+        (hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento)) && (
         <div className="mt-3 flex flex-col gap-1 text-[10px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-2.5">
           {hospedagem.dataHoraConfirmacaoCheckIn && (
             <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
@@ -164,6 +178,18 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
             <div className="flex items-center gap-1.5 text-terracota-700 dark:text-terracota-400">
               <span className="h-1 w-1 rounded-full bg-terracota-500 flex-shrink-0"></span>
               <span>{hospedagem.tipoServico === 'hospedagem' ? 'Check-out: ' : 'Concluído: '}<strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckOut)}</strong></span>
+            </div>
+          )}
+          {hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento && (
+            <div className="flex items-center gap-1.5 text-sucesso-700 dark:text-sucesso-400">
+              <span className="h-1 w-1 rounded-full bg-sucesso-500 flex-shrink-0"></span>
+              <span>Pago: <strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoPagamento)}</strong></span>
+            </div>
+          )}
+          {hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento && (
+            <div className="flex items-center gap-1.5 text-mostarda-650 dark:text-mostarda-400">
+              <span className="h-1 w-1 rounded-full bg-mostarda-500 flex-shrink-0"></span>
+              <span>Revertido: <strong>{formatTimestampShort(hospedagem.dataHoraReversaoPagamento)}</strong></span>
             </div>
           )}
         </div>

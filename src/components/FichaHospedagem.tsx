@@ -187,17 +187,20 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
         )}
 
         {/* Confirmações de Entrada e Saída */}
-        {(hospedagem.dataHoraConfirmacaoCheckIn || hospedagem.dataHoraConfirmacaoCheckOut) && (
+        {(hospedagem.dataHoraConfirmacaoCheckIn || 
+          hospedagem.dataHoraConfirmacaoCheckOut || 
+          (hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento) || 
+          (hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento)) && (
           <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-100 dark:border-slate-800/80 sm:col-span-2">
             <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1">
               Registro de Operações
             </h4>
-            <div className="grid gap-2 sm:grid-cols-2 text-xs">
+            <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 text-xs">
               {hospedagem.dataHoraConfirmacaoCheckIn && (
                 <div className="flex items-center gap-2 text-emerald-850 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 rounded-xl p-2.5">
                   <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
                   <div>
-                    <span className="font-semibold block">Check-in Confirmado:</span>
+                    <span className="font-semibold block">{hospedagem.tipoServico === 'hospedagem' ? 'Check-in Confirmado:' : 'Início Confirmado:'}</span>
                     <span>{hospedagem.dataHoraConfirmacaoCheckIn}</span>
                   </div>
                 </div>
@@ -206,8 +209,26 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
                 <div className="flex items-center gap-2 text-terracota-800 dark:text-terracota-400 bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 rounded-xl p-2.5">
                   <span className="flex h-2 w-2 rounded-full bg-terracota-500"></span>
                   <div>
-                    <span className="font-semibold block">Check-out Confirmado:</span>
+                    <span className="font-semibold block">{hospedagem.tipoServico === 'hospedagem' ? 'Check-out Confirmado:' : 'Conclusão Confirmada:'}</span>
                     <span>{hospedagem.dataHoraConfirmacaoCheckOut}</span>
+                  </div>
+                </div>
+              )}
+              {hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento && (
+                <div className="flex items-center gap-2 text-sucesso-800 dark:text-sucesso-400 bg-sucesso-50/50 dark:bg-sucesso-950/20 border border-sucesso-100/50 dark:border-sucesso-900/30 rounded-xl p-2.5">
+                  <span className="flex h-2 w-2 rounded-full bg-sucesso-500"></span>
+                  <div>
+                    <span className="font-semibold block">Pagamento Recebido:</span>
+                    <span>{hospedagem.dataHoraConfirmacaoPagamento}</span>
+                  </div>
+                </div>
+              )}
+              {hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento && (
+                <div className="flex items-center gap-2 text-mostarda-800 dark:text-mostarda-400 bg-mostarda-50/50 dark:bg-mostarda-950/20 border border-mostarda-100/50 dark:border-mostarda-900/30 rounded-xl p-2.5">
+                  <span className="flex h-2 w-2 rounded-full bg-mostarda-500"></span>
+                  <div>
+                    <span className="font-semibold block">Recebimento Desfeito:</span>
+                    <span>{hospedagem.dataHoraReversaoPagamento}</span>
                   </div>
                 </div>
               )}
