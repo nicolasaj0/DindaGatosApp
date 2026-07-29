@@ -1,6 +1,6 @@
 # 🐾 DindaGatos App
 
-O **DindaGatos App** é um sistema web moderno, fluido e intuitivo desenvolvido para gerenciar e organizar hospedagens de gatos. Projetado com foco em usabilidade para usuários leigos, o aplicativo simplifica a gestão de rotinas de hotelaria felina, acompanhamento de estadias, controle de medicações e faturamento.
+O **DindaGatos App** é uma ferramenta web moderno, fluido e intuitivo desenvolvido para gerenciar e organizar hospedagens de gatos. Projetado com foco em usabilidade para usuários leigos, o aplicativo simplifica a gestão de rotinas de hotelaria felina, acompanhamento de estadias, controle de medicações e faturamento.
 
 ---
 
