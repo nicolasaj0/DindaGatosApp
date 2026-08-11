@@ -9,7 +9,8 @@ import { FormEditHospedagem } from './components/FormEditHospedagem';
 import { FichaHospedagem } from './components/FichaHospedagem';
 import { FormEditGato } from './components/FormEditGato';
 import { RelatoriosView } from './components/RelatoriosView';
-import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, HeartPulse, ChevronDown, ChevronUp, BarChart3, Home, ArrowRight, ArrowLeft, PawPrint } from 'lucide-react';
+import { ModalRegistrarPagamento } from './components/ModalRegistrarPagamento';
+import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft } from 'lucide-react';
 import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
@@ -18,6 +19,7 @@ const statusOrder: HospedagemStatus[] = [
   'saindo_hoje',
   'concluido',
 ];
+
 
 interface GatoStayHistoryProps {
   gatoId: string;
@@ -120,6 +122,7 @@ function App() {
   const [isEditGatoModalOpen, setIsEditGatoModalOpen] = useState(false);
   const [selectedGato, setSelectedGato] = useState<Gato | null>(null);
   const [preSelectedGatoId, setPreSelectedGatoId] = useState<string | undefined>(undefined);
+  const [pagamentoModalHospedagem, setPagamentoModalHospedagem] = useState<Hospedagem | null>(null);
   const [layoutMode, setLayoutMode] = useState<'columns' | 'rows'>(() => {
     const saved = localStorage.getItem('layoutMode');
     return (saved === 'columns' || saved === 'rows') ? saved : 'rows';
@@ -153,7 +156,18 @@ function App() {
   const addHospedagem = useHospedagemStore((state) => state.addHospedagem);
   const updateHospedagem = useHospedagemStore((state) => state.updateHospedagem);
   const removeHospedagem = useHospedagemStore((state) => state.removeHospedagem);
+  const registrarPagamento = useHospedagemStore((state) => state.registrarPagamento);
   const setHospedagens = useHospedagemStore((state) => state.setHospedagens);
+
+  const handleOpenPagamentoModal = (hospedagem: Hospedagem) => {
+    setPagamentoModalHospedagem(hospedagem);
+  };
+
+  const handleConfirmPagamento = (estadiaId: string, valor: number) => {
+    registrarPagamento(estadiaId, valor);
+    setPagamentoModalHospedagem(null);
+  };
+
 
   const hoje = getLocalDateString();
 
@@ -662,6 +676,7 @@ function App() {
                     onEdit={handleEditClick}
                     onCheckOut={handleCheckOut}
                     onCheckIn={handleCheckIn}
+                    onOpenPagamentoModal={handleOpenPagamentoModal}
                     layoutMode={layoutMode}
                     serviceFilter={serviceFilter}
                   />
@@ -866,6 +881,7 @@ function App() {
                 setIsEditModalOpen(false);
                 setSelectedHospedagem(null);
               }}
+              onOpenPagamentoModal={handleOpenPagamentoModal}
             />
           )
         )}
@@ -890,8 +906,16 @@ function App() {
           />
         )}
       </Modal>
+
+      <ModalRegistrarPagamento
+        isOpen={!!pagamentoModalHospedagem}
+        hospedagem={pagamentoModalHospedagem}
+        onClose={() => setPagamentoModalHospedagem(null)}
+        onConfirm={handleConfirmPagamento}
+      />
     </div>
   );
 }
+
 
 export default App;

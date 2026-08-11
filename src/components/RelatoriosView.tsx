@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Estadia, Gato, TipoServico } from '../types';
-import { calculateNights } from '../utils';
+import { calculateNights, calculateEstadiaTotals } from '../utils';
 import { Cat, DollarSign, Calendar, TrendingUp, Award, Clock, Sparkles } from 'lucide-react';
 
 interface RelatoriosViewProps {
@@ -33,15 +33,47 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     return { monday, sunday };
   };
 
-  // Filter estadias by reportServiceFilter
-  const filteredEstadiasForStats = useMemo(() => {
-    return estadias.filter((e) => {
-      if (reportServiceFilter !== 'todos' && (e.tipoServico || 'hospedagem') !== reportServiceFilter) {
-        return false;
+  // Helper to extract stay target values based on active report service filter
+  const getStayReportValues = (e: Estadia, filter: 'todos' | TipoServico) => {
+    const totals = calculateEstadiaTotals(e);
+    const tipo = e.tipoServico || 'hospedagem';
+
+    let targetValue = 0;
+    let isRelevant = false;
+
+    if (filter === 'todos') {
+      targetValue = totals.valorTotal;
+      isRelevant = true;
+    } else if (filter === 'transporte') {
+      if (tipo === 'transporte') {
+        targetValue = totals.valorTotal;
+        isRelevant = true;
+      } else if (totals.valorTransporte > 0) {
+        targetValue = totals.valorTransporte;
+        isRelevant = true;
       }
-      return true;
-    });
-  }, [estadias, reportServiceFilter]);
+    } else if (filter === tipo) {
+      targetValue = totals.valorServico;
+      isRelevant = true;
+    }
+
+    if (!isRelevant) {
+      return { isRelevant: false, targetValue: 0, paidPortion: 0, unpaidPortion: 0, nights: 0 };
+    }
+
+    const paidTotal = e.valorPago || 0;
+    const ratio = totals.valorTotal > 0 ? Math.min(1, paidTotal / totals.valorTotal) : 1;
+    const paidPortion = targetValue * ratio;
+    const unpaidPortion = targetValue * (1 - ratio);
+
+    return {
+      isRelevant: true,
+      targetValue,
+      paidPortion,
+      unpaidPortion,
+      nights: totals.nights,
+    };
+  };
 
   // 1. Calculate Period Statistics
   const periodStats = useMemo(() => {
@@ -54,92 +86,87 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     const month = { recebido: 0, aReceber: 0, projected: 0, nights: 0, staysCount: 0 };
     const year = { recebido: 0, aReceber: 0, projected: 0, nights: 0, staysCount: 0 };
 
-    filteredEstadiasForStats.forEach((e) => {
-      const tipo = e.tipoServico || 'hospedagem';
-      const statusPag = e.statusPagamento || 'pendente';
-      const nights = tipo === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
-      const value = nights * (e.valorDiaria || 60);
+    estadias.forEach((e) => {
+      const rep = getStayReportValues(e, reportServiceFilter);
+      if (!rep.isRelevant) return;
+
       const checkInDate = parseLocalDate(e.dataCheckIn);
-      
       const isConcluido = e.status === 'concluido';
-      const isPago = statusPag === 'pago';
 
       // Check if current calendar week
       const isThisWeek = checkInDate >= monday && checkInDate <= sunday;
       if (isThisWeek) {
-        week.nights += nights;
+        week.nights += rep.nights;
         week.staysCount += 1;
+        week.recebido += rep.paidPortion;
         if (isConcluido) {
-          if (isPago) week.recebido += value;
-          else week.aReceber += value;
+          week.aReceber += rep.unpaidPortion;
         } else {
-          week.projected += value;
+          week.projected += rep.unpaidPortion;
         }
       }
 
       // Check if current calendar month
       const isThisMonth = checkInDate.getFullYear() === currentYear && checkInDate.getMonth() === currentMonth;
       if (isThisMonth) {
-        month.nights += nights;
+        month.nights += rep.nights;
         month.staysCount += 1;
+        month.recebido += rep.paidPortion;
         if (isConcluido) {
-          if (isPago) month.recebido += value;
-          else month.aReceber += value;
+          month.aReceber += rep.unpaidPortion;
         } else {
-          month.projected += value;
+          month.projected += rep.unpaidPortion;
         }
       }
 
       // Check if current calendar year
       const isThisYear = checkInDate.getFullYear() === currentYear;
       if (isThisYear) {
-        year.nights += nights;
+        year.nights += rep.nights;
         year.staysCount += 1;
+        year.recebido += rep.paidPortion;
         if (isConcluido) {
-          if (isPago) year.recebido += value;
-          else year.aReceber += value;
+          year.aReceber += rep.unpaidPortion;
         } else {
-          year.projected += value;
+          year.projected += rep.unpaidPortion;
         }
       }
     });
 
     return { week, month, year };
-  }, [filteredEstadiasForStats]);
+  }, [estadias, reportServiceFilter]);
 
   // 2. Calculate Feline Guest Analytics
   const catAnalytics = useMemo(() => {
     const catsData = gatos.map((g) => {
-      const catStays = estadias.filter((e) => {
-        const matchesCat = e.gatoId === g.id;
-        const matchesService = reportServiceFilter === 'todos' || (e.tipoServico || 'hospedagem') === reportServiceFilter;
-        return matchesCat && matchesService;
+      const catStays = estadias.filter((e) => e.gatoId === g.id);
+
+      let totalNights = 0;
+      let totalSpent = 0;
+      let relevantStaysCount = 0;
+
+      catStays.forEach((e) => {
+        const rep = getStayReportValues(e, reportServiceFilter);
+        if (rep.isRelevant) {
+          totalNights += rep.nights;
+          totalSpent += rep.targetValue;
+          relevantStaysCount += 1;
+        }
       });
-
-      const totalNights = catStays.reduce((sum, e) => {
-        const tipo = e.tipoServico || 'hospedagem';
-        const nights = tipo === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
-        return sum + nights;
-      }, 0);
-
-      const totalSpent = catStays.reduce((sum, e) => {
-        const tipo = e.tipoServico || 'hospedagem';
-        const nights = tipo === 'transporte' ? 1 : calculateNights(e.dataCheckIn, e.dataCheckOut);
-        return sum + (nights * (e.valorDiaria || 60));
-      }, 0);
 
       return {
         ...g,
         nights: totalNights,
         spent: totalSpent,
-        staysCount: catStays.length,
+        staysCount: relevantStaysCount,
       };
     });
 
-    const activeCats = catsData.filter((c) => c.nights > 0);
+    const activeCats = catsData.filter((c) => c.nights > 0 || c.spent > 0);
 
     return { catsData, activeCats };
   }, [gatos, estadias, reportServiceFilter]);
+
 
   // 3. Highlight Metrics (KPIs)
   const highlights = useMemo(() => {

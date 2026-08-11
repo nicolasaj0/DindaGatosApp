@@ -1,13 +1,14 @@
-import { Camera, Pill, HeartPulse, Check, DollarSign, Home, PawPrint, Car } from 'lucide-react';
+import { Camera, Pill, Check, DollarSign, Home, PawPrint, Car, Undo2 } from 'lucide-react';
 import { Hospedagem } from '../types';
 import { useHospedagemStore } from '../store';
-import { getStatusTagColor, getLocalDateString, formatDateString, calculateNights } from '../utils';
+import { getStatusTagColor, getLocalDateString, formatDateString, calculateEstadiaTotals } from '../utils';
 
 interface CardProps {
   hospedagem: Hospedagem;
   onEdit: (hospedagem: Hospedagem) => void;
   onCheckOut?: (id: string) => void;
   onCheckIn?: (id: string) => void;
+  onOpenPagamentoModal?: (hospedagem: Hospedagem) => void;
 }
 
 const formatTimestampShort = (ts?: string) => {
@@ -20,8 +21,8 @@ const formatTimestampShort = (ts?: string) => {
   return `${dateParts[0]}/${dateParts[1]} às ${timeParts[0]}:${timeParts[1]}`;
 };
 
-export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
-  const togglePagamento = useHospedagemStore((state) => state.togglePagamento);
+export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagamentoModal }: CardProps) {
+  const reverterUltimoPagamento = useHospedagemStore((state) => state.reverterUltimoPagamento);
 
   const hasMedication = hospedagem.perfil.medicamentos && 
     hospedagem.perfil.medicamentos.trim() !== '' && 
@@ -39,8 +40,9 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
       }
     : { label: 'Sem medicação', color: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-350' };
 
-  const nights = hospedagem.tipoServico === 'transporte' ? 1 : calculateNights(hospedagem.dataCheckIn, hospedagem.dataCheckOut);
-  const totalValue = hospedagem.valorDiaria ? nights * hospedagem.valorDiaria : null;
+  const totals = calculateEstadiaTotals(hospedagem);
+  const valorPago = hospedagem.valorPago || 0;
+  const progressPercent = Math.min(100, Math.max(0, (valorPago / (totals.valorTotal || 1)) * 100));
 
   const handleClick = () => {
     onEdit(hospedagem);
@@ -55,6 +57,10 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
 
   const handleCheckInClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (valorPago === 0) {
+      const proceed = confirm('Nenhum valor de entrada registrado. Confirmar check-in mesmo assim?');
+      if (!proceed) return;
+    }
     if (onCheckIn) {
       onCheckIn(hospedagem.id);
     }
@@ -149,17 +155,24 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
           <Pill size={13} className="flex-shrink-0" />
           <span className="truncate max-w-[120px]">{medicationTag.label}</span>
         </span>
+        {hospedagem.transporteAdicional && (
+          <span
+            className="inline-flex items-center gap-1 rounded-full bg-ardosia-50 dark:bg-ardosia-950/40 text-ardosia-700 dark:text-ardosia-300 border border-ardosia-200/60 dark:border-ardosia-800 px-2.5 py-1 text-xs font-semibold"
+            title={hospedagem.transporteAdicional.detalhes || `Transporte Adicional: R$ ${hospedagem.transporteAdicional.valor}`}
+          >
+            <Car size={13} />
+            + Transporte
+          </span>
+        )}
         <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 dark:bg-slate-900 px-2.5 py-1 text-slate-600 dark:text-slate-305 border border-slate-200/50 dark:border-slate-800">
           {hospedagem.tipoServico === 'transporte' ? 'Pontual ' : 'Saída '}{formatDateString(hospedagem.dataCheckOut)}
         </span>
-        {totalValue !== null && (
-          <span 
-            className="inline-flex items-center gap-1 rounded-full bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100 dark:border-terracota-900/30 px-2.5 py-1 text-xs font-bold text-terracota-700 dark:text-terracota-400 ml-auto" 
-            title={hospedagem.tipoServico === 'transporte' ? `Valor Total: R$ ${hospedagem.valorDiaria}` : `Valor: R$ ${hospedagem.valorDiaria}/dia`}
-          >
-            R$ {totalValue.toFixed(0)}
-          </span>
-        )}
+        <span 
+          className="inline-flex items-center gap-1 rounded-full bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100 dark:border-terracota-900/30 px-2.5 py-1 text-xs font-bold text-terracota-700 dark:text-terracota-400 ml-auto" 
+          title={`Total da reserva: R$ ${totals.valorTotal.toFixed(2)}`}
+        >
+          R$ {totals.valorTotal.toFixed(0)}
+        </span>
       </div>
 
       {/* Registro de Confirmações no Card */}
@@ -221,35 +234,65 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn }: CardProps) {
         </button>
       )}
 
-      {/* Seção Financeira para concluded stays */}
-      {hospedagem.status === 'concluido' && (
-        <div className="mt-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-2.5">
+      {/* Seção Financeira Flexível (Disponível em qualquer status) */}
+      <div className="mt-3 flex items-center justify-between border-t border-slate-100 dark:border-slate-800 pt-2.5">
+        <div className="flex flex-col">
           <span className="text-[10px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wide">Pagamento</span>
+          {hospedagem.statusPagamento === 'parcial' && (
+            <div className="mt-1 w-28 space-y-0.5">
+              <div className="h-1.5 w-full bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+                <div
+                  className="h-full bg-mostarda-500 transition-all duration-300"
+                  style={{ width: `${progressPercent}%` }}
+                />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-1.5">
+          {hospedagem.statusPagamento !== 'pendente' && (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                if (confirm('Deseja desfazer o último recebimento desta reserva?')) {
+                  reverterUltimoPagamento(hospedagem.id);
+                }
+              }}
+              className="p-1 rounded-lg border border-slate-200 dark:border-slate-800 text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 transition"
+              title="Desfazer último recebimento"
+            >
+              <Undo2 size={12} />
+            </button>
+          )}
+
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
-              if (hospedagem.statusPagamento === 'pago') {
-                if (confirm('Deseja realmente reverter este pagamento para Pendente?')) {
-                  togglePagamento(hospedagem.id);
-                }
-              } else {
-                if (confirm(`Confirmar recebimento de R$ ${totalValue?.toFixed(2)} para este serviço?`)) {
-                  togglePagamento(hospedagem.id);
-                }
+              if (onOpenPagamentoModal) {
+                onOpenPagamentoModal(hospedagem);
               }
             }}
             className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-bold transition border ${
               hospedagem.statusPagamento === 'pago'
-                ? 'bg-sucesso-50/80 border-sucesso-200 text-sucesso-700 dark:bg-sucesso-950/20 dark:border-sucesso-900/40 dark:text-sucesso-400 hover:bg-slate-100 dark:hover:bg-slate-800'
-                : 'bg-mostarda-50 border-mostarda-200 text-mostarda-800 dark:bg-mostarda-950/20 dark:border-mostarda-900/40 dark:text-mostarda-400 hover:bg-mostarda-100 dark:hover:bg-mostarda-900/40'
+                ? 'bg-sucesso-50/80 border-sucesso-200 text-sucesso-700 dark:bg-sucesso-950/20 dark:border-sucesso-900/40 dark:text-sucesso-400 hover:bg-sucesso-100'
+                : hospedagem.statusPagamento === 'parcial'
+                ? 'bg-mostarda-50 border-mostarda-200 text-mostarda-800 dark:bg-mostarda-950/20 dark:border-mostarda-900/40 dark:text-mostarda-400 hover:bg-mostarda-100'
+                : 'bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
             }`}
           >
             <DollarSign size={12} />
-            {hospedagem.statusPagamento === 'pago' ? 'Pago' : 'Pendente'}
+            {hospedagem.statusPagamento === 'pago'
+              ? 'Pago'
+              : hospedagem.statusPagamento === 'parcial'
+              ? `Parcial (R$ ${valorPago.toFixed(0)} / R$ ${totals.valorTotal.toFixed(0)})`
+              : 'Registrar Pagamento'}
           </button>
         </div>
-      )}
+      </div>
     </div>
   );
 }
+

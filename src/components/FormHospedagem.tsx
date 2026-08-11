@@ -31,8 +31,12 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
     enderecoTutor: '',
     enderecoServico: '',
     detalhesServico: '',
+    incluirTransporte: false,
+    valorTransporte: '',
+    detalhesTransporte: '',
   });
   const [isUploading, setIsUploading] = useState(false);
+
 
   useEffect(() => {
     if (preSelectedGatoId) {
@@ -97,12 +101,18 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
+    const target = e.target as HTMLInputElement;
+    const { name, value, type } = target;
+    const val = type === 'checkbox' ? target.checked : value;
+    
     setFormData((prev) => {
-      const updated = { ...prev, [name]: value };
-      // Se mudar o endereço do tutor e o do serviço estiver vazio, copia automaticamente
+      const updated = { ...prev, [name]: val };
       if (name === 'enderecoTutor' && !prev.enderecoServico) {
         updated.enderecoServico = value;
+      }
+      if (name === 'incluirTransporte' && !target.checked) {
+        updated.valorTransporte = '';
+        updated.detalhesTransporte = '';
       }
       return updated;
     });
@@ -130,9 +140,8 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
 
   const selectService = (type: TipoServico) => {
     setTipoServico(type);
-    // Se for transporte, inicializa dataCheckOut com a mesma data de checkIn
     if (type === 'transporte') {
-      setFormData((prev) => ({ ...prev, dataCheckOut: prev.dataCheckIn }));
+      setFormData((prev) => ({ ...prev, dataCheckOut: prev.dataCheckIn, incluirTransporte: false }));
     }
     setStep(2);
   };
@@ -155,8 +164,25 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
       return;
     }
 
+    if (tipoServico !== 'transporte' && formData.incluirTransporte) {
+      const vTransp = parseFloat(formData.valorTransporte);
+      if (isNaN(vTransp) || vTransp <= 0) {
+        alert('Por favor, informe o valor do transporte adicional.');
+        return;
+      }
+    }
+
     const valorNum = parseFloat(formData.valorDiaria);
     const finalCheckOut = tipoServico === 'transporte' ? formData.dataCheckIn : formData.dataCheckOut;
+
+    let transporteAdicional = undefined;
+    if (tipoServico !== 'transporte' && formData.incluirTransporte) {
+      const vTransp = parseFloat(formData.valorTransporte);
+      transporteAdicional = {
+        valor: isNaN(vTransp) ? 0 : vTransp,
+        detalhes: formData.detalhesTransporte.trim() || undefined,
+      };
+    }
 
     const novahospedagem: Hospedagem = {
       id: `${Date.now()}`,
@@ -175,10 +201,13 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         medicamentos: formData.medicamentos || undefined,
       },
       valorDiaria: isNaN(valorNum) ? undefined : valorNum,
+      transporteAdicional,
       
-      // Novos campos
-      tipoServico,
+      // Novos campos de pagamento
+      valorPago: 0,
       statusPagamento: 'pendente',
+      historicoPagamentos: [],
+      tipoServico,
       enderecoServico: tipoServico !== 'hospedagem' ? formData.enderecoServico : undefined,
       detalhesServico: tipoServico !== 'hospedagem' ? formData.detalhesServico : undefined,
       enderecoTutor: formData.enderecoTutor || undefined,
@@ -186,6 +215,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
 
     onSubmit(novahospedagem);
   };
+
 
   if (step === 1) {
     return (
@@ -485,6 +515,50 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         )}
       </div>
 
+      {/* Transporte Adicional (Apenas Hospedagem ou Cat Sitter) */}
+      {tipoServico !== 'transporte' && (
+        <div className="rounded-2xl border border-slate-200/80 dark:border-slate-800/80 bg-slate-50/50 dark:bg-slate-900/20 p-3 space-y-3">
+          <label className="flex items-center gap-2 cursor-pointer text-xs font-bold text-slate-700 dark:text-slate-300">
+            <input
+              type="checkbox"
+              name="incluirTransporte"
+              checked={formData.incluirTransporte}
+              onChange={handleChange}
+              className="h-4 w-4 rounded border-slate-300 text-terracota-500 focus:ring-terracota-500"
+            />
+            <span>🚗 {tipoServico === 'hospedagem' ? 'Incluir transporte do gato?' : 'Incluir deslocamento da cuidadora?'}</span>
+          </label>
+
+          {formData.incluirTransporte && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 border-t border-slate-200/60 dark:border-slate-800">
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Valor do Transporte (R$) *</label>
+                <input
+                  type="number"
+                  name="valorTransporte"
+                  min="0"
+                  value={formData.valorTransporte}
+                  onChange={handleChange}
+                  placeholder="Ex: 30"
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+                />
+              </div>
+              <div>
+                <label className="block text-[11px] font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Detalhes (Opcional)</label>
+                <input
+                  type="text"
+                  name="detalhesTransporte"
+                  value={formData.detalhesTransporte}
+                  onChange={handleChange}
+                  placeholder="Ex: Buscar às 8h, levar às 18h"
+                  className="mt-1 w-full rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-1.5 text-xs text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+                />
+              </div>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Financeiro */}
       <div className="grid grid-cols-2 gap-3 items-end bg-slate-50/50 dark:bg-slate-900/20 border border-slate-200/50 dark:border-slate-800/80 rounded-2xl p-3">
         <div>
@@ -507,11 +581,17 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           </span>
           <span className="text-[11px] font-bold text-slate-500 dark:text-slate-400">
             Total: <strong className="text-terracota-600 dark:text-terracota-400 text-sm">R$ {
-              (totalNights * (parseFloat(formData.valorDiaria) || 0)).toFixed(2)
+              ((totalNights * (parseFloat(formData.valorDiaria) || 0)) + (formData.incluirTransporte ? (parseFloat(formData.valorTransporte) || 0) : 0)).toFixed(2)
             }</strong>
           </span>
+          {formData.incluirTransporte && (parseFloat(formData.valorTransporte) || 0) > 0 && (
+            <span className="text-[9px] text-slate-400 dark:text-slate-500">
+              (Serviço R$ {(totalNights * (parseFloat(formData.valorDiaria) || 0)).toFixed(0)} + Transp. R$ {(parseFloat(formData.valorTransporte) || 0).toFixed(0)})
+            </span>
+          )}
         </div>
       </div>
+
 
       {/* Perfil comportamental */}
       <div className="grid grid-cols-2 gap-3">

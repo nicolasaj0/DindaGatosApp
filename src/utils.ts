@@ -1,4 +1,5 @@
-import { HospedagemStatus, Sociabilidade, TipoServico } from './types';
+import { HospedagemStatus, Sociabilidade, TipoServico, StatusPagamento } from './types';
+
 
 export function getStatusLabel(status: HospedagemStatus) {
   switch (status) {
@@ -119,4 +120,36 @@ export function getLocalTimestampString(date = new Date()): string {
   return `${day}/${month}/${year} ${hours}:${minutes}:${seconds}`;
 }
 
+export function calculateEstadiaTotals(item: {
+  dataCheckIn: string;
+  dataCheckOut: string;
+  valorDiaria?: number;
+  tipoServico?: TipoServico;
+  transporteAdicional?: { valor: number; detalhes?: string };
+}) {
+  const tipo = item.tipoServico || 'hospedagem';
+  const nights = tipo === 'transporte' ? 1 : calculateNights(item.dataCheckIn, item.dataCheckOut);
+  const valorServico = nights * (item.valorDiaria || 0);
+  const valorTransporte = (tipo !== 'transporte' && item.transporteAdicional?.valor) ? item.transporteAdicional.valor : 0;
+  const valorTotal = valorServico + valorTransporte;
 
+  return {
+    nights,
+    valorServico,
+    valorTransporte,
+    valorTotal,
+  };
+}
+
+export function deriveStatusPagamento(valorPago: number, valorTotal: number): StatusPagamento {
+  const paid = valorPago || 0;
+  const total = valorTotal || 0;
+
+  if (paid <= 0) {
+    return 'pendente';
+  }
+  if (paid >= total - 0.01) {
+    return 'pago';
+  }
+  return 'parcial';
+}

@@ -1,22 +1,22 @@
 import { Hospedagem } from '../types';
-import { Calendar, Pill, Edit2, User, AlertCircle, HeartPulse, MapPin } from 'lucide-react';
+import { Calendar, Pill, Edit2, User, AlertCircle, HeartPulse, MapPin, DollarSign, Car, Undo2 } from 'lucide-react';
 import { useHospedagemStore } from '../store';
-import { formatDateString, calculateNights, labelStatus } from '../utils';
+import { formatDateString, calculateEstadiaTotals, labelStatus } from '../utils';
 
 interface FichaHospedagemProps {
   hospedagem: Hospedagem;
   onClose: () => void;
   onEditClick: () => void;
+  onOpenPagamentoModal?: (hospedagem: Hospedagem) => void;
 }
 
-export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospedagemProps) {
-  const togglePagamento = useHospedagemStore((state) => state.togglePagamento);
+export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagamentoModal }: FichaHospedagemProps) {
+  const reverterUltimoPagamento = useHospedagemStore((state) => state.reverterUltimoPagamento);
 
   const hasMedication = !!hospedagem.perfil.medicamentos?.trim();
-  const nights = hospedagem.tipoServico === 'transporte' ? 1 : calculateNights(hospedagem.dataCheckIn, hospedagem.dataCheckOut);
-  const totalValue = nights * (hospedagem.valorDiaria || 0);
-
-
+  const totals = calculateEstadiaTotals(hospedagem);
+  const valorPago = hospedagem.valorPago || 0;
+  const saldoRestante = Math.max(0, totals.valorTotal - valorPago);
 
   const getServiceLabel = () => {
     if (hospedagem.tipoServico === 'hospedagem') return '🏠 Hospedagem';
@@ -95,13 +95,13 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
           )}
           <div className="mt-2.5 flex flex-wrap gap-2 items-center">
             <span className="text-xs text-slate-500 dark:text-slate-400 font-medium bg-white dark:bg-slate-800 border border-slate-200/80 dark:border-slate-700 rounded-lg px-2.5 py-1 inline-block">
-              {hospedagem.tipoServico === 'transporte' ? 'serviço' : nights === 1 ? '1 dia/visita 🌙' : `${nights} dias/visitas 🌙`}
+              {hospedagem.tipoServico === 'transporte' ? 'serviço' : totals.nights === 1 ? '1 dia/visita 🌙' : `${totals.nights} dias/visitas 🌙`}
             </span>
-            {hospedagem.valorDiaria !== undefined && (
-              <span className="text-xs text-terracota-700 dark:text-terracota-400 font-semibold bg-terracota-50/50 dark:bg-terracota-950/30 border border-terracota-100/50 dark:border-terracota-900/30 rounded-lg px-2.5 py-1 inline-block">
-                R$ {hospedagem.valorDiaria} • Total: R$ {totalValue.toFixed(2)}
-              </span>
-            )}
+            <span className="text-xs text-terracota-700 dark:text-terracota-400 font-semibold bg-terracota-50/50 dark:bg-terracota-950/30 border border-terracota-100/50 dark:border-terracota-900/30 rounded-lg px-2.5 py-1 inline-block">
+              {totals.valorTransporte > 0
+                ? `Serviço: R$ ${totals.valorServico.toFixed(0)} + Transporte: R$ ${totals.valorTransporte.toFixed(0)} = Total: R$ ${totals.valorTotal.toFixed(2)}`
+                : `R$ ${hospedagem.valorDiaria || 0} • Total: R$ ${totals.valorTotal.toFixed(2)}`}
+            </span>
           </div>
         </div>
 
@@ -138,83 +138,122 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
           </div>
         )}
 
-        {/* Controle Financeiro de Pagamento (Apenas se concluído) */}
-        {hospedagem.status === 'concluido' && (
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-100 dark:border-slate-800/80 sm:col-span-2">
-            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5">
-              Controle Financeiro
+        {/* Detalhes de Transporte Embutido se houver */}
+        {hospedagem.transporteAdicional && hospedagem.tipoServico !== 'transporte' && (
+          <div className="rounded-2xl bg-ardosia-50/50 dark:bg-ardosia-950/20 p-4 border border-ardosia-150/60 dark:border-ardosia-900/30 sm:col-span-2">
+            <h4 className="text-xs font-bold text-ardosia-700 dark:text-ardosia-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
+              <Car size={14} /> Transporte Embutido
             </h4>
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-850 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800">
-              <div className="flex items-center gap-2">
-                <span className={`h-2.5 w-2.5 rounded-full ${hospedagem.statusPagamento === 'pago' ? 'bg-sucesso-500 motion-safe:animate-pulse' : 'bg-mostarda-500 motion-safe:animate-pulse'}`}></span>
-                <div>
-                  <span className="text-sm font-semibold text-slate-700 dark:text-slate-350">
-                    Pagamento: <strong className={hospedagem.statusPagamento === 'pago' ? 'text-sucesso-600 dark:text-sucesso-400' : 'text-mostarda-600 dark:text-mostarda-400'}>
-                      {hospedagem.statusPagamento === 'pago' ? 'Pago' : 'Pendente'}
-                    </strong>
-                  </span>
-                  {hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento && (
-                    <span className="block text-[10px] text-slate-400 dark:text-slate-500 mt-0.5">
-                      Confirmado em: {hospedagem.dataHoraConfirmacaoPagamento}
-                    </span>
-                  )}
-                </div>
-              </div>
-              
-              <button
-                type="button"
-                onClick={() => {
-                  if (hospedagem.statusPagamento === 'pago') {
-                    if (confirm('Deseja realmente reverter este pagamento para Pendente?')) {
-                      togglePagamento(hospedagem.id);
-                    }
-                  } else {
-                    if (confirm(`Confirmar recebimento de R$ ${totalValue.toFixed(2)} para este serviço?`)) {
-                      togglePagamento(hospedagem.id);
-                    }
-                  }
-                }}
-                className={`rounded-lg px-3 py-1.5 text-xs font-bold transition shadow-sm ${
-                  hospedagem.statusPagamento === 'pago'
-                    ? 'bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-                    : 'bg-sucesso-500 text-white hover:bg-sucesso-600 shadow-sucesso-500/10'
-                }`}
-              >
-                {hospedagem.statusPagamento === 'pago' ? 'Desfazer Recebimento' : 'Marcar como Pago'}
-              </button>
-            </div>
+            <p className="text-xs text-slate-700 dark:text-slate-300">
+              Valor adicional: <strong>R$ {hospedagem.transporteAdicional.valor.toFixed(2)}</strong>
+              {hospedagem.transporteAdicional.detalhes && (
+                <span className="block mt-0.5 text-slate-500 dark:text-slate-400">
+                  Instruções: {hospedagem.transporteAdicional.detalhes}
+                </span>
+              )}
+            </p>
           </div>
         )}
 
-        {/* Confirmações de Entrada e Saída */}
-        {(hospedagem.dataHoraConfirmacaoCheckIn || 
-          hospedagem.dataHoraConfirmacaoCheckOut || 
-          (hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento) || 
-          (hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento)) && (
-          <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-100 dark:border-slate-800/80 sm:col-span-2">
-            <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1">
-              Registro de Operações
-            </h4>
-            <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 text-xs">
-              {hospedagem.dataHoraConfirmacaoCheckIn && (
-                <div className="flex items-center gap-2 text-emerald-850 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 rounded-xl p-2.5">
-                  <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+        {/* Controle Financeiro de Pagamento (Disponível em qualquer fase) */}
+        <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-100 dark:border-slate-800/80 sm:col-span-2">
+          <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5 flex items-center justify-between">
+            <span>Controle Financeiro</span>
+            <span className="text-[11px] font-normal text-slate-500">Total: R$ {totals.valorTotal.toFixed(2)}</span>
+          </h4>
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-850 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800">
+            <div className="flex items-center gap-3">
+              <span className={`h-3 w-3 rounded-full ${
+                hospedagem.statusPagamento === 'pago' ? 'bg-sucesso-500' :
+                hospedagem.statusPagamento === 'parcial' ? 'bg-mostarda-500 motion-safe:animate-pulse' :
+                'bg-slate-300 dark:bg-slate-700'
+              }`}></span>
+              <div>
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-350">
+                  Status: <strong className={
+                    hospedagem.statusPagamento === 'pago' ? 'text-sucesso-600 dark:text-sucesso-400' :
+                    hospedagem.statusPagamento === 'parcial' ? 'text-mostarda-600 dark:text-mostarda-400' :
+                    'text-slate-600 dark:text-slate-400'
+                  }>
+                    {hospedagem.statusPagamento === 'pago' ? 'Pago (100%)' :
+                     hospedagem.statusPagamento === 'parcial' ? `Parcial (R$ ${valorPago.toFixed(2)} / R$ ${totals.valorTotal.toFixed(2)})` :
+                     'Pendente'}
+                  </strong>
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                  Recebido: <strong className="text-sucesso-600 dark:text-sucesso-400">R$ {valorPago.toFixed(2)}</strong> • A Receber: <strong className="text-mostarda-700 dark:text-mostarda-400">R$ {saldoRestante.toFixed(2)}</strong>
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2">
+              {valorPago > 0 && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (confirm('Deseja realmente desfazer o último recebimento registrado?')) {
+                      reverterUltimoPagamento(hospedagem.id);
+                    }
+                  }}
+                  className="rounded-lg px-2.5 py-1.5 text-xs font-semibold border border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 transition flex items-center gap-1"
+                  title="Reverter último pagamento"
+                >
+                  <Undo2 size={13} />
+                  <span>Desfazer</span>
+                </button>
+              )}
+              {saldoRestante > 0 && onOpenPagamentoModal && (
+                <button
+                  type="button"
+                  onClick={() => onOpenPagamentoModal(hospedagem)}
+                  className="rounded-lg px-3 py-1.5 text-xs font-bold transition shadow-sm bg-sucesso-500 text-white hover:bg-sucesso-600 shadow-sucesso-500/10 flex items-center gap-1"
+                >
+                  <DollarSign size={13} />
+                  <span>Registrar Pagamento</span>
+                </button>
+              )}
+            </div>
+          </div>
+        </div>
+
+        {/* Confirmações e Histórico no Registro de Operações */}
+        <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-100 dark:border-slate-800/80 sm:col-span-2">
+          <h4 className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-2.5 flex items-center gap-1">
+            Registro de Operações
+          </h4>
+          <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 text-xs">
+            {hospedagem.dataHoraConfirmacaoCheckIn && (
+              <div className="flex items-center gap-2 text-emerald-850 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 rounded-xl p-2.5">
+                <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
+                <div>
+                  <span className="font-semibold block">{hospedagem.tipoServico === 'hospedagem' ? 'Check-in Confirmado:' : 'Início Confirmado:'}</span>
+                  <span>{hospedagem.dataHoraConfirmacaoCheckIn}</span>
+                </div>
+              </div>
+            )}
+            {hospedagem.dataHoraConfirmacaoCheckOut && (
+              <div className="flex items-center gap-2 text-terracota-800 dark:text-terracota-400 bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 rounded-xl p-2.5">
+                <span className="flex h-2 w-2 rounded-full bg-terracota-500"></span>
+                <div>
+                  <span className="font-semibold block">{hospedagem.tipoServico === 'hospedagem' ? 'Check-out Confirmado:' : 'Conclusão Confirmada:'}</span>
+                  <span>{hospedagem.dataHoraConfirmacaoCheckOut}</span>
+                </div>
+              </div>
+            )}
+            {hospedagem.historicoPagamentos && hospedagem.historicoPagamentos.length > 0 ? (
+              hospedagem.historicoPagamentos.map((pag, idx) => (
+                <div key={pag.id || idx} className="flex items-center gap-2 text-sucesso-800 dark:text-sucesso-400 bg-sucesso-50/50 dark:bg-sucesso-950/20 border border-sucesso-100/50 dark:border-sucesso-900/30 rounded-xl p-2.5">
+                  <span className="flex h-2 w-2 rounded-full bg-sucesso-500"></span>
                   <div>
-                    <span className="font-semibold block">{hospedagem.tipoServico === 'hospedagem' ? 'Check-in Confirmado:' : 'Início Confirmado:'}</span>
-                    <span>{hospedagem.dataHoraConfirmacaoCheckIn}</span>
+                    <span className="font-semibold block">
+                      Recebido R$ {pag.valor.toFixed(2)} ({pag.tipo === 'entrada' ? 'Entrada' : pag.tipo === 'saldo' ? 'Quitação Saldo' : 'Pagamento Único'}):
+                    </span>
+                    <span>{pag.dataHora}</span>
                   </div>
                 </div>
-              )}
-              {hospedagem.dataHoraConfirmacaoCheckOut && (
-                <div className="flex items-center gap-2 text-terracota-800 dark:text-terracota-400 bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 rounded-xl p-2.5">
-                  <span className="flex h-2 w-2 rounded-full bg-terracota-500"></span>
-                  <div>
-                    <span className="font-semibold block">{hospedagem.tipoServico === 'hospedagem' ? 'Check-out Confirmado:' : 'Conclusão Confirmada:'}</span>
-                    <span>{hospedagem.dataHoraConfirmacaoCheckOut}</span>
-                  </div>
-                </div>
-              )}
-              {hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento && (
+              ))
+            ) : (
+              hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento && (
                 <div className="flex items-center gap-2 text-sucesso-800 dark:text-sucesso-400 bg-sucesso-50/50 dark:bg-sucesso-950/20 border border-sucesso-100/50 dark:border-sucesso-900/30 rounded-xl p-2.5">
                   <span className="flex h-2 w-2 rounded-full bg-sucesso-500"></span>
                   <div>
@@ -222,19 +261,19 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
                     <span>{hospedagem.dataHoraConfirmacaoPagamento}</span>
                   </div>
                 </div>
-              )}
-              {hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento && (
-                <div className="flex items-center gap-2 text-mostarda-800 dark:text-mostarda-400 bg-mostarda-50/50 dark:bg-mostarda-950/20 border border-mostarda-100/50 dark:border-mostarda-900/30 rounded-xl p-2.5">
-                  <span className="flex h-2 w-2 rounded-full bg-mostarda-500"></span>
-                  <div>
-                    <span className="font-semibold block">Recebimento Desfeito:</span>
-                    <span>{hospedagem.dataHoraReversaoPagamento}</span>
-                  </div>
+              )
+            )}
+            {hospedagem.dataHoraReversaoPagamento && (
+              <div className="flex items-center gap-2 text-mostarda-800 dark:text-mostarda-400 bg-mostarda-50/50 dark:bg-mostarda-950/20 border border-mostarda-100/50 dark:border-mostarda-900/30 rounded-xl p-2.5">
+                <span className="flex h-2 w-2 rounded-full bg-mostarda-500"></span>
+                <div>
+                  <span className="font-semibold block">Recebimento Desfeito:</span>
+                  <span>{hospedagem.dataHoraReversaoPagamento}</span>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
-        )}
+        </div>
 
         {/* Dieta */}
         <div className="rounded-2xl bg-slate-50 dark:bg-slate-900/60 p-4 border border-slate-100 dark:border-slate-800/80 sm:col-span-2">
@@ -284,3 +323,4 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick }: FichaHospe
     </div>
   );
 }
+

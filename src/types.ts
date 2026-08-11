@@ -2,9 +2,21 @@ export type HospedagemStatus = 'agendado' | 'hospedado' | 'saindo_hoje' | 'concl
 
 export type Sociabilidade = 'sociavel' | 'isolado';
 
-export type StatusPagamento = 'pendente' | 'pago';
+export type StatusPagamento = 'pendente' | 'parcial' | 'pago';
 
 export type TipoServico = 'hospedagem' | 'cat_sitter' | 'transporte';
+
+export interface TransporteAdicional {
+  valor: number;
+  detalhes?: string;
+}
+
+export interface HistoricoPagamento {
+  id: string;
+  valor: number;
+  dataHora: string;
+  tipo: 'entrada' | 'saldo' | 'pagamento_unico';
+}
 
 export interface HospedagemPerfil {
   sociabilidade: Sociabilidade;
@@ -30,6 +42,9 @@ export interface Hospedagem {
   
   // Novos campos de pagamento e serviços
   statusPagamento: StatusPagamento;
+  valorPago?: number;
+  historicoPagamentos?: HistoricoPagamento[];
+  transporteAdicional?: TransporteAdicional;
   dataHoraConfirmacaoPagamento?: string;
   dataHoraReversaoPagamento?: string;
   tipoServico: TipoServico;
@@ -61,6 +76,9 @@ export interface Estadia {
   
   // Novos campos de pagamento e serviços
   statusPagamento: StatusPagamento;
+  valorPago?: number;
+  historicoPagamentos?: HistoricoPagamento[];
+  transporteAdicional?: TransporteAdicional;
   dataHoraConfirmacaoPagamento?: string;
   dataHoraReversaoPagamento?: string;
   tipoServico: TipoServico;

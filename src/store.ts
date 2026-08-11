@@ -1,7 +1,8 @@
 import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
-import { Hospedagem, Gato, Estadia, StatusPagamento, TipoServico } from './types';
+import { Hospedagem, Gato, Estadia, StatusPagamento, TipoServico, HistoricoPagamento, TransporteAdicional } from './types';
 import { hospedagensMock } from './data';
+import { calculateEstadiaTotals, deriveStatusPagamento, getLocalTimestampString } from './utils';
 
 interface HospedagemState {
   gatos: Gato[];
@@ -21,6 +22,8 @@ interface HospedagemState {
   removeHospedagem: (id: string) => void;
   moveHospedagemStatus: (id: string, status: Hospedagem['status']) => void;
   togglePagamento: (estadiaId: string) => void;
+  registrarPagamento: (estadiaId: string, valor: number) => void;
+  reverterUltimoPagamento: (estadiaId: string) => void;
   setHospedagens: (items: Hospedagem[] | { gatos: Gato[]; estadias: Estadia[] }) => void;
   
   // Internal helper for migration
@@ -30,6 +33,10 @@ interface HospedagemState {
 const resolveHospedagens = (gatos: Gato[], estadias: Estadia[]): Hospedagem[] => {
   return estadias.map((estadia) => {
     const gato = gatos.find((g) => g.id === estadia.gatoId);
+    const { valorTotal } = calculateEstadiaTotals(estadia);
+    const valorPago = estadia.valorPago ?? (estadia.statusPagamento === 'pago' ? valorTotal : 0);
+    const derivedStatus = deriveStatusPagamento(valorPago, valorTotal);
+
     return {
       id: estadia.id,
       gatoId: estadia.gatoId,
@@ -48,7 +55,10 @@ const resolveHospedagens = (gatos: Gato[], estadias: Estadia[]): Hospedagem[] =>
       dataHoraConfirmacaoCheckIn: estadia.dataHoraConfirmacaoCheckIn,
       dataHoraConfirmacaoCheckOut: estadia.dataHoraConfirmacaoCheckOut,
       valorDiaria: estadia.valorDiaria,
-      statusPagamento: estadia.statusPagamento || 'pendente',
+      transporteAdicional: estadia.transporteAdicional,
+      valorPago,
+      statusPagamento: derivedStatus,
+      historicoPagamentos: estadia.historicoPagamentos || [],
       dataHoraConfirmacaoPagamento: estadia.dataHoraConfirmacaoPagamento,
       dataHoraReversaoPagamento: estadia.dataHoraReversaoPagamento,
       tipoServico: estadia.tipoServico || 'hospedagem',
@@ -61,11 +71,19 @@ const resolveHospedagens = (gatos: Gato[], estadias: Estadia[]): Hospedagem[] =>
 
 const migrateDataIfNeeded = (hospedagens: any[], gatos: Gato[], estadias: Estadia[]) => {
   if ((gatos && gatos.length > 0) || (estadias && estadias.length > 0)) {
-    const migratedEstadias = (estadias || []).map((e) => ({
-      ...e,
-      statusPagamento: e.statusPagamento || 'pendente',
-      tipoServico: e.tipoServico || 'hospedagem',
-    }));
+    const migratedEstadias = (estadias || []).map((e) => {
+      const { valorTotal } = calculateEstadiaTotals(e);
+      const valorPago = e.valorPago ?? (e.statusPagamento === 'pago' ? valorTotal : 0);
+      const statusPagamento = deriveStatusPagamento(valorPago, valorTotal);
+
+      return {
+        ...e,
+        valorPago,
+        statusPagamento,
+        historicoPagamentos: e.historicoPagamentos || [],
+        tipoServico: e.tipoServico || 'hospedagem',
+      };
+    });
     return { gatos: gatos || [], estadias: migratedEstadias };
   }
 
@@ -99,6 +117,10 @@ const migrateDataIfNeeded = (hospedagens: any[], gatos: Gato[], estadias: Estadi
       });
     }
 
+    const { valorTotal } = calculateEstadiaTotals(h);
+    const valorPago = h.valorPago ?? (h.statusPagamento === 'pago' ? valorTotal : 0);
+    const statusPagamento = deriveStatusPagamento(valorPago, valorTotal);
+
     newEstadias.push({
       id: h.id,
       gatoId,
@@ -108,7 +130,10 @@ const migrateDataIfNeeded = (hospedagens: any[], gatos: Gato[], estadias: Estadi
       dataHoraConfirmacaoCheckIn: h.dataHoraConfirmacaoCheckIn,
       dataHoraConfirmacaoCheckOut: h.dataHoraConfirmacaoCheckOut,
       valorDiaria: h.valorDiaria,
-      statusPagamento: h.statusPagamento || 'pendente',
+      transporteAdicional: h.transporteAdicional,
+      valorPago,
+      statusPagamento,
+      historicoPagamentos: h.historicoPagamentos || [],
       dataHoraConfirmacaoPagamento: h.dataHoraConfirmacaoPagamento,
       tipoServico: h.tipoServico || 'hospedagem',
       enderecoServico: h.enderecoServico,
@@ -213,6 +238,10 @@ export const useHospedagemStore = create<HospedagemState>()(
             );
           }
 
+          const { valorTotal } = calculateEstadiaTotals(item);
+          const valorPago = item.valorPago || 0;
+          const statusPagamento = deriveStatusPagamento(valorPago, valorTotal);
+
           const newEstadia: Estadia = {
             id: item.id,
             gatoId,
@@ -222,7 +251,10 @@ export const useHospedagemStore = create<HospedagemState>()(
             dataHoraConfirmacaoCheckIn: item.dataHoraConfirmacaoCheckIn,
             dataHoraConfirmacaoCheckOut: item.dataHoraConfirmacaoCheckOut,
             valorDiaria: item.valorDiaria,
-            statusPagamento: item.statusPagamento || 'pendente',
+            transporteAdicional: item.transporteAdicional,
+            valorPago,
+            statusPagamento,
+            historicoPagamentos: item.historicoPagamentos || [],
             dataHoraConfirmacaoPagamento: item.dataHoraConfirmacaoPagamento,
             dataHoraReversaoPagamento: item.dataHoraReversaoPagamento,
             tipoServico: item.tipoServico || 'hospedagem',
@@ -245,9 +277,16 @@ export const useHospedagemStore = create<HospedagemState>()(
           if (!targetEstadia) return {};
 
           let newGatos = [...state.gatos];
-          const newEstadias = state.estadias.map((e) =>
-            e.id === id ? { ...e, ...partial } : e
-          );
+          const newEstadias = state.estadias.map((e) => {
+            if (e.id === id) {
+              const merged = { ...e, ...partial };
+              const { valorTotal } = calculateEstadiaTotals(merged);
+              const valorPago = merged.valorPago ?? 0;
+              merged.statusPagamento = deriveStatusPagamento(valorPago, valorTotal);
+              return merged;
+            }
+            return e;
+          });
 
           const hasCatUpdates =
             partial.nomeGato !== undefined ||
@@ -293,11 +332,7 @@ export const useHospedagemStore = create<HospedagemState>()(
         set((state) => {
           const newEstadias = state.estadias.map((e) => {
             if (e.id === id) {
-              const updated = { ...e, status };
-              if (status === 'concluido') {
-                updated.statusPagamento = updated.statusPagamento || 'pendente';
-              }
-              return updated;
+              return { ...e, status };
             }
             return e;
           });
@@ -307,29 +342,140 @@ export const useHospedagemStore = create<HospedagemState>()(
           };
         }),
 
-      togglePagamento: (estadiaId) =>
+      registrarPagamento: (estadiaId, valor) =>
         set((state) => {
+          const nowStr = getLocalTimestampString();
           const newEstadias = state.estadias.map((e) => {
             if (e.id === estadiaId) {
-              const nextPagamento: StatusPagamento = e.statusPagamento === 'pago' ? 'pendente' : 'pago';
-              const nowStr = new Date().toLocaleString('pt-BR');
+              const { valorTotal } = calculateEstadiaTotals(e);
+              const currentPaid = e.valorPago || 0;
+              const newPaid = currentPaid + valor;
+              const nextStatus = deriveStatusPagamento(newPaid, valorTotal);
+
+              let tipo: HistoricoPagamento['tipo'] = 'entrada';
+              if (currentPaid === 0 && newPaid >= valorTotal - 0.01) {
+                tipo = 'pagamento_unico';
+              } else if (newPaid >= valorTotal - 0.01) {
+                tipo = 'saldo';
+              } else if (currentPaid > 0) {
+                tipo = 'entrada';
+              }
+
+              const newEntry: HistoricoPagamento = {
+                id: `pag-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+                valor,
+                dataHora: nowStr,
+                tipo,
+              };
+
+              const newHistory = [...(e.historicoPagamentos || []), newEntry];
+
               return {
                 ...e,
-                statusPagamento: nextPagamento,
-                dataHoraConfirmacaoPagamento: nextPagamento === 'pago'
-                  ? nowStr
-                  : undefined,
-                dataHoraReversaoPagamento: nextPagamento === 'pendente'
-                  ? nowStr
-                  : undefined
+                valorPago: newPaid,
+                statusPagamento: nextStatus,
+                historicoPagamentos: newHistory,
+                dataHoraConfirmacaoPagamento: nowStr,
               };
             }
             return e;
           });
+
           return {
             estadias: newEstadias,
             hospedagens: resolveHospedagens(state.gatos, newEstadias),
           };
+        }),
+
+      reverterUltimoPagamento: (estadiaId) =>
+        set((state) => {
+          const nowStr = getLocalTimestampString();
+          const newEstadias = state.estadias.map((e) => {
+            if (e.id === estadiaId) {
+              const history = [...(e.historicoPagamentos || [])];
+              if (history.length === 0) {
+                // Se não havia histórico formal, mas valorPago > 0, reseta para 0
+                const { valorTotal } = calculateEstadiaTotals(e);
+                return {
+                  ...e,
+                  valorPago: 0,
+                  statusPagamento: 'pendente' as StatusPagamento,
+                  dataHoraReversaoPagamento: nowStr,
+                };
+              }
+
+              const lastEntry = history.pop();
+              const newPaid = Math.max(0, (e.valorPago || 0) - (lastEntry?.valor || 0));
+              const { valorTotal } = calculateEstadiaTotals(e);
+              const nextStatus = deriveStatusPagamento(newPaid, valorTotal);
+
+              return {
+                ...e,
+                valorPago: newPaid,
+                statusPagamento: nextStatus,
+                historicoPagamentos: history,
+                dataHoraReversaoPagamento: nowStr,
+              };
+            }
+            return e;
+          });
+
+          return {
+            estadias: newEstadias,
+            hospedagens: resolveHospedagens(state.gatos, newEstadias),
+          };
+        }),
+
+      togglePagamento: (estadiaId) =>
+        set((state) => {
+          const target = state.estadias.find((e) => e.id === estadiaId);
+          if (!target) return {};
+
+          const { valorTotal } = calculateEstadiaTotals(target);
+          if (target.statusPagamento === 'pago') {
+            // Reverte tudo para pendente
+            const nowStr = getLocalTimestampString();
+            const newEstadias = state.estadias.map((e) =>
+              e.id === estadiaId
+                ? {
+                    ...e,
+                    valorPago: 0,
+                    statusPagamento: 'pendente' as StatusPagamento,
+                    historicoPagamentos: [],
+                    dataHoraReversaoPagamento: nowStr,
+                  }
+                : e
+            );
+            return {
+              estadias: newEstadias,
+              hospedagens: resolveHospedagens(state.gatos, newEstadias),
+            };
+          } else {
+            // Paga o saldo restante de uma vez
+            const saldoRestante = Math.max(0, valorTotal - (target.valorPago || 0));
+            const nowStr = getLocalTimestampString();
+            const newEntry: HistoricoPagamento = {
+              id: `pag-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
+              valor: saldoRestante,
+              dataHora: nowStr,
+              tipo: (target.valorPago || 0) > 0 ? 'saldo' : 'pagamento_unico',
+            };
+            const newEstadias = state.estadias.map((e) =>
+              e.id === estadiaId
+                ? {
+                    ...e,
+                    valorPago: valorTotal,
+                    statusPagamento: 'pago' as StatusPagamento,
+                    historicoPagamentos: [...(e.historicoPagamentos || []), newEntry],
+                    dataHoraConfirmacaoPagamento: nowStr,
+                  }
+                : e
+            );
+            return {
+              estadias: newEstadias,
+              hospedagens: resolveHospedagens(state.gatos, newEstadias),
+            };
+          }
         }),
 
       setHospedagens: (data) =>
@@ -373,3 +519,4 @@ export const useHospedagemStore = create<HospedagemState>()(
     },
   ),
 );
+
