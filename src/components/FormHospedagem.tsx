@@ -21,7 +21,11 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
     nomeTutor: '',
     fotoUrl: '',
     dataCheckIn: getLocalDateString(),
-    dataCheckOut: getLocalDateString(new Date(Date.now() + 86400000)),
+    dataCheckOut: (() => {
+      const tomorrow = new Date();
+      tomorrow.setDate(tomorrow.getDate() + 1);
+      return getLocalDateString(tomorrow);
+    })(),
     sociabilidade: 'sociavel' as 'sociavel' | 'isolado',
     personalidade: '',
     dieta: '',
@@ -339,7 +343,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
         <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-2">Foto do Gato</label>
         <div className="flex flex-col sm:flex-row gap-4 items-center">
           {/* Preview Container */}
-          <div className="relative h-24 w-24 overflow-hidden rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-850 shadow-inner flex items-center justify-center flex-shrink-0 group">
+          <div className="relative h-24 w-24 overflow-hidden rounded-3xl border-2 border-dashed border-slate-300 dark:border-slate-700 bg-slate-100 dark:bg-slate-800 shadow-inner flex items-center justify-center flex-shrink-0 group">
             {formData.fotoUrl ? (
               <>
                 <img src={formData.fotoUrl} alt="Preview do gato" className="h-full w-full object-cover" />
@@ -510,7 +514,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           </div>
         ) : (
           <div className="flex items-center justify-center pt-5">
-            <span className="text-[11px] text-slate-450 italic">Serviço de data única</span>
+            <span className="text-[11px] text-slate-400 italic">Serviço de data única</span>
           </div>
         )}
       </div>

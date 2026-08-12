@@ -2,7 +2,7 @@ import { persist } from 'zustand/middleware';
 import { create } from 'zustand';
 import { Hospedagem, Gato, Estadia, StatusPagamento, TipoServico, HistoricoPagamento, TransporteAdicional } from './types';
 import { hospedagensMock } from './data';
-import { calculateEstadiaTotals, deriveStatusPagamento, getLocalTimestampString } from './utils';
+import { calculateEstadiaTotals, deriveStatusPagamento, getLocalTimestampString, getLocalDateString } from './utils';
 
 interface HospedagemState {
   gatos: Gato[];
@@ -112,7 +112,7 @@ const migrateDataIfNeeded = (hospedagens: any[], gatos: Gato[], estadias: Estadi
           observacoes: '',
         },
         valorDiariaPadrao: h.valorDiaria,
-        dataCadastro: h.dataCheckIn || new Date().toISOString().split('T')[0],
+        dataCadastro: h.dataCheckIn || getLocalDateString(),
         enderecoTutor: h.enderecoTutor,
       });
     }

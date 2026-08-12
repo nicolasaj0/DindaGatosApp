@@ -8,9 +8,10 @@ import { FormHospedagem } from './components/FormHospedagem';
 import { FormEditHospedagem } from './components/FormEditHospedagem';
 import { FichaHospedagem } from './components/FichaHospedagem';
 import { FormEditGato } from './components/FormEditGato';
+import { FichaGato } from './components/FichaGato';
 import { RelatoriosView } from './components/RelatoriosView';
 import { ModalRegistrarPagamento } from './components/ModalRegistrarPagamento';
-import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft } from 'lucide-react';
+import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Eye } from 'lucide-react';
 import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
@@ -60,7 +61,7 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between text-xs font-semibold text-slate-655 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
+        className="w-full flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
       >
         <span className="flex items-center gap-1">
           📊 Histórico ({stats.count})
@@ -78,7 +79,7 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
             const val = nights * (e.valorDiaria || 50);
             return (
               <div key={e.id} className="flex justify-between items-center text-[10px] bg-slate-50 dark:bg-slate-950 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800/80">
-                <span className="font-medium text-slate-600 dark:text-slate-350">
+                <span className="font-medium text-slate-600 dark:text-slate-400">
                   {formatDateString(e.dataCheckIn)} - {formatDateString(e.dataCheckOut)}
                 </span>
                 <span className="font-bold text-slate-600 dark:text-slate-400">
@@ -87,7 +88,7 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
                 <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${e.status === 'concluido'
                   ? 'bg-slate-100 dark:bg-slate-900 text-slate-500'
                   : e.status === 'hospedado'
-                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-650 dark:text-emerald-450'
+                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
                     : e.status === 'saindo_hoje'
                       ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
                       : 'bg-terracota-100 dark:bg-terracota-950/60 text-terracota-600 dark:text-terracota-400'
@@ -120,7 +121,9 @@ function App() {
   const [currentView, setCurrentView] = useState<'hospedagens' | 'gatos' | 'relatorios'>('hospedagens');
   const [gatosSearchTerm, setGatosSearchTerm] = useState('');
   const [isEditGatoModalOpen, setIsEditGatoModalOpen] = useState(false);
+  const [isViewGatoModalOpen, setIsViewGatoModalOpen] = useState(false);
   const [selectedGato, setSelectedGato] = useState<Gato | null>(null);
+  const [viewingGato, setViewingGato] = useState<Gato | null>(null);
   const [preSelectedGatoId, setPreSelectedGatoId] = useState<string | undefined>(undefined);
   const [pagamentoModalHospedagem, setPagamentoModalHospedagem] = useState<Hospedagem | null>(null);
   const [layoutMode, setLayoutMode] = useState<'columns' | 'rows'>(() => {
@@ -333,7 +336,7 @@ function App() {
 
       const tempLink = document.createElement('a');
       tempLink.href = url;
-      const today = new Date().toISOString().slice(0, 10);
+      const today = getLocalDateString();
       tempLink.setAttribute('download', `dinda-gatos-backup-${today}.json`);
       document.body.appendChild(tempLink);
       tempLink.click();
@@ -382,7 +385,7 @@ function App() {
         }
 
         if (!isValid) {
-          throw new Error('A estrutura do arquivo JSON é inválida ou incompatível.');
+          throw new Error('O arquivo selecionado não é uma cópia de segurança válida do sistema.');
         }
 
         if (confirm(`Aviso: Isso substituirá todos os registros atuais do sistema por ${count} hospedagens do backup. Deseja continuar?`)) {
@@ -464,14 +467,14 @@ function App() {
           <div className="flex flex-wrap items-center gap-3">
             <button
               onClick={handleExportJSON}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-350 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
+              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-300 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
               title="Salva uma cópia de segurança de todos os dados e fotos no seu computador"
             >
               <Download size={16} />
               Salvar Cópia (Backup)
             </button>
             <label
-              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-350 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
+              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-300 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
               title="Restaura os dados e fotos a partir de um arquivo de cópia salvo"
             >
               <Upload size={16} />
@@ -572,7 +575,7 @@ function App() {
                         onClick={() => setServiceFilter(btn.id as any)}
                         className={`rounded-xl px-3 py-1.5 text-xs font-semibold border transition-all ${isSelected
                           ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
-                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                           }`}
                       >
                         {btn.label}
@@ -598,7 +601,7 @@ function App() {
                         onClick={() => setActiveFilter(btn.id as any)}
                         className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${isSelected
                           ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
-                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                           }`}
                       >
                         {btn.label}
@@ -613,7 +616,7 @@ function App() {
                     type="button"
                     onClick={() => handleLayoutModeChange('rows')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'rows'
-                      ? 'bg-white dark:bg-warmBg-850 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
+                      ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                       }`}
                     title="Visualização Horizontal"
@@ -625,7 +628,7 @@ function App() {
                     type="button"
                     onClick={() => handleLayoutModeChange('columns')}
                     className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'columns'
-                      ? 'bg-white dark:bg-warmBg-850 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
+                      ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
                       : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
                       }`}
                     title="Visualização Vertical"
@@ -650,7 +653,7 @@ function App() {
                       onClick={() => setActiveTab(status)}
                       className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${isActive
                         ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10'
-                        : 'bg-white dark:bg-warmBg-900 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-855'
+                        : 'bg-white dark:bg-warmBg-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                         }`}
                     >
                       <span>{serviceFilter !== 'todos' ? labelStatus(status, serviceFilter) : getStatusLabel(status)}</span>
@@ -727,7 +730,11 @@ function App() {
                 {filteredGatos.map((gato) => (
                   <div
                     key={gato.id}
-                    className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
+                    onClick={() => {
+                      setViewingGato(gato);
+                      setIsViewGatoModalOpen(true);
+                    }}
+                    className="cursor-pointer rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
                   >
                     <div>
                       {/* Informações Principais */}
@@ -759,24 +766,24 @@ function App() {
                           {gato.perfil.sociabilidade === 'sociavel' ? 'Sociável' : 'Isolado'}
                         </span>
                         {gato.perfil.personalidade && (
-                          <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full border border-slate-200/50 dark:border-slate-750">
+                          <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full border border-slate-200/50 dark:border-slate-700">
                             {gato.perfil.personalidade}
                           </span>
                         )}
                         {gato.valorDiariaPadrao && (
-                          <span className="text-[10px] font-bold bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-405 px-2 py-0.5 rounded-full border border-terracota-100/50 dark:border-terracota-900/30 ml-auto">
+                          <span className="text-[10px] font-bold bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-400 px-2 py-0.5 rounded-full border border-terracota-100/50 dark:border-terracota-900/30 ml-auto">
                             R$ {gato.valorDiariaPadrao} (valor de referência)
                           </span>
                         )}
                       </div>
 
                       {/* Prontuário / Notas rápidas */}
-                      <div className="mt-4 space-y-1.5 text-xs text-slate-600 dark:text-slate-350 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl p-3 border border-slate-100/80 dark:border-slate-800/60">
+                      <div className="mt-4 space-y-1.5 text-xs text-slate-600 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl p-3 border border-slate-100/80 dark:border-slate-800/60">
                         {gato.perfil.dieta && (
                           <p className="truncate"><strong className="text-slate-800 dark:text-slate-200">🍽️ Dieta:</strong> {gato.perfil.dieta}</p>
                         )}
                         {gato.perfil.medicamentos && gato.perfil.medicamentos.toLowerCase() !== 'nenhum' && (
-                          <p className="truncate text-red-650 dark:text-red-400 font-semibold">
+                          <p className="truncate text-red-600 dark:text-red-400 font-semibold">
                             <strong className="text-slate-800 dark:text-slate-200">💊 Meds:</strong> {gato.perfil.medicamentos}
                           </p>
                         )}
@@ -787,19 +794,19 @@ function App() {
                     </div>
 
                     {/* Histórico Desdobrável */}
-                    <div className="mt-4 pt-3 border-t border-slate-150 dark:border-slate-800/80">
+                    <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80" onClick={(e) => e.stopPropagation()}>
                       <GatoStayHistory gatoId={gato.id} estadias={estadias} />
                     </div>
 
                     {/* Ações */}
-                    <div className="mt-4 flex gap-2 pt-3 border-t border-slate-150 dark:border-slate-800/80">
+                    <div className="mt-4 flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-800/80" onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
                         onClick={() => {
                           setPreSelectedGatoId(gato.id);
                           setIsModalOpen(true);
                         }}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-terracota-50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 py-2 text-xs font-semibold text-terracota-600 dark:text-terracota-450 hover:bg-terracota-100 dark:hover:bg-terracota-950/40 transition"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-terracota-50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 py-2 text-xs font-semibold text-terracota-600 dark:text-terracota-400 hover:bg-terracota-100 dark:hover:bg-terracota-950/40 transition"
                       >
                         <Calendar size={13} />
                         Agendar Serviço
@@ -818,7 +825,7 @@ function App() {
                       <button
                         type="button"
                         onClick={() => handleDeleteGato(gato)}
-                        className="p-2 rounded-xl border border-red-100 dark:border-red-950/20 text-red-650 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition"
+                        className="p-2 rounded-xl border border-red-100 dark:border-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition"
                         title="Remover cadastro permanentemente"
                       >
                         <Trash2 size={13} />
@@ -902,6 +909,36 @@ function App() {
             onCancel={() => {
               setIsEditGatoModalOpen(false);
               setSelectedGato(null);
+            }}
+          />
+        )}
+      </Modal>
+
+      <Modal
+        isOpen={isViewGatoModalOpen}
+        title={`Prontuário: ${viewingGato?.nomeGato}`}
+        onClose={() => {
+          setIsViewGatoModalOpen(false);
+          setViewingGato(null);
+        }}
+      >
+        {viewingGato && (
+          <FichaGato
+            gato={viewingGato}
+            estadias={estadias}
+            onClose={() => {
+              setIsViewGatoModalOpen(false);
+              setViewingGato(null);
+            }}
+            onAgendarClick={() => {
+              setIsViewGatoModalOpen(false);
+              setPreSelectedGatoId(viewingGato.id);
+              setIsModalOpen(true);
+            }}
+            onEditClick={() => {
+              setIsViewGatoModalOpen(false);
+              setSelectedGato(viewingGato);
+              setIsEditGatoModalOpen(true);
             }}
           />
         )}
