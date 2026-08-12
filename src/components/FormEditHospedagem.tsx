@@ -488,7 +488,7 @@ export function FormEditHospedagem({
         <button
           type="button"
           onClick={onDelete}
-          className="flex-1 rounded-lg bg-red-650 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-500 transition"
+          className="flex-1 rounded-lg bg-red-600 px-3 py-1.5 text-sm font-semibold text-white hover:bg-red-500 transition"
         >
           Deletar
         </button>

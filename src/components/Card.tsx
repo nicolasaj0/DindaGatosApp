@@ -38,7 +38,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
           ? 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50 motion-safe:animate-pulse'
           : 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400' 
       }
-    : { label: 'Sem medicação', color: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-350' };
+    : { label: 'Sem medicação', color: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400' };
 
   const totals = calculateEstadiaTotals(hospedagem);
   const valorPago = hospedagem.valorPago || 0;
@@ -91,7 +91,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         isDelayed ? 'border-red-300 dark:border-red-700 ring-2 ring-red-100/50 dark:ring-red-950/30 bg-red-50/5 dark:bg-red-950/10 hover:border-red-400' :
         isCheckInToday ? 'border-emerald-300 dark:border-emerald-700 ring-2 ring-emerald-100/50 dark:ring-emerald-950/30 bg-emerald-50/5 dark:bg-emerald-950/10 hover:border-emerald-400' :
         isCheckOutToday ? 'border-terracota-300 dark:border-terracota-700 ring-2 ring-terracota-100/50 dark:ring-terracota-950/30 bg-terracota-50/5 dark:bg-terracota-950/10 hover:border-terracota-400' :
-        'border-slate-200 dark:border-slate-750 hover:border-terracota-300 dark:hover:border-terracota-500 bg-white dark:bg-warmBg-900'
+        'border-slate-200 dark:border-slate-700 hover:border-terracota-300 dark:hover:border-terracota-500 bg-white dark:bg-warmBg-900'
       }`}
     >
       <div className="flex justify-between items-start mb-3">
@@ -133,7 +133,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
           {hospedagem.fotoUrl ? (
             <img src={hospedagem.fotoUrl} alt={hospedagem.nomeGato} className="h-full w-full object-cover" draggable="false" />
           ) : (
-            <div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-150 dark:bg-slate-800">
+            <div className="flex h-full items-center justify-center text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800">
               <Camera size={22} />
             </div>
           )}
@@ -141,7 +141,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         <div className="min-w-0 flex-1">
           <p className="truncate text-lg font-bold text-slate-900 dark:text-white font-serif">{hospedagem.nomeGato}</p>
           <p className="text-xs text-slate-500 dark:text-slate-400">Tutor: {hospedagem.nomeTutor}</p>
-          <p className="mt-1 text-xs text-slate-650 dark:text-slate-350 truncate">
+          <p className="mt-1 text-xs text-slate-600 dark:text-slate-400 truncate">
             {hospedagem.perfil.personalidade || 'Sem personalidade'} • {hospedagem.perfil.dieta || 'Sem dieta'}
           </p>
         </div>
@@ -164,7 +164,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
             + Transporte
           </span>
         )}
-        <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 dark:bg-slate-900 px-2.5 py-1 text-slate-600 dark:text-slate-305 border border-slate-200/50 dark:border-slate-800">
+        <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 dark:bg-slate-900 px-2.5 py-1 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800">
           {hospedagem.tipoServico === 'transporte' ? 'Pontual ' : 'Saída '}{formatDateString(hospedagem.dataCheckOut)}
         </span>
         <span 
@@ -200,7 +200,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
             </div>
           )}
           {hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento && (
-            <div className="flex items-center gap-1.5 text-mostarda-650 dark:text-mostarda-400">
+            <div className="flex items-center gap-1.5 text-mostarda-700 dark:text-mostarda-400">
               <span className="h-1 w-1 rounded-full bg-mostarda-500 flex-shrink-0"></span>
               <span>Revertido: <strong>{formatTimestampShort(hospedagem.dataHoraReversaoPagamento)}</strong></span>
             </div>
@@ -209,7 +209,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
       )}
 
       {/* Observações */}
-      <div className="mt-3 rounded-2xl bg-slate-50/60 dark:bg-slate-900/30 border border-slate-150/40 dark:border-slate-800/60 p-3 text-xs text-slate-700 dark:text-slate-350">
+      <div className="mt-3 rounded-2xl bg-slate-50/60 dark:bg-slate-900/30 border border-slate-200/40 dark:border-slate-800/60 p-3 text-xs text-slate-700 dark:text-slate-300">
         <p className="font-semibold text-slate-900 dark:text-white font-serif">Observações</p>
         <p className="mt-1 leading-relaxed text-slate-600 dark:text-slate-400 line-clamp-2">{hospedagem.perfil.observacoes || 'Nenhuma observação adicional.'}</p>
       </div>

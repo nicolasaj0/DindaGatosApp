@@ -242,7 +242,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               onClick={() => setReportServiceFilter(btn.id as any)}
               className={`rounded-xl px-3 py-1.5 text-xs font-semibold border transition-all ${isSelected
                 ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
-                : 'bg-white dark:bg-warmBg-955 text-slate-600 dark:text-slate-350 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
+                : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
                 }`}
             >
               {btn.label}
@@ -265,7 +265,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             <div>
               <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Receita Total Gerada</p>
               <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">R$ {highlights.totalSpentAll.toFixed(0)}</p>
-              <p className="text-[11px] text-slate-450 dark:text-slate-500 mt-0.5">{highlights.totalNightsAll} diárias/visitas registradas</p>
+              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{highlights.totalNightsAll} diárias/visitas registradas</p>
             </div>
           </div>
 
@@ -274,7 +274,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
               <Clock size={120} className="text-emerald-600 dark:text-emerald-400" />
             </div>
-            <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 p-3 text-emerald-650 dark:text-emerald-400">
+            <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 p-3 text-emerald-600 dark:text-emerald-400">
               <Award size={24} />
             </div>
             <div className="min-w-0 flex-1">
@@ -374,7 +374,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           <div>
             <div className="flex items-center justify-between">
               <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ganhos do Mês</p>
-              <TrendingUp size={14} className="text-slate-400 dark:text-slate-505" />
+              <TrendingUp size={14} className="text-slate-400 dark:text-slate-500" />
             </div>
             <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
               R$ {(periodStats.month.recebido + periodStats.month.aReceber).toFixed(0)}
@@ -472,7 +472,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
 
       {/* 3. Seção do Gráfico */}
       <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-warmBg-900/80 p-6 shadow-sm backdrop-blur-md">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-150 dark:border-slate-800/60 pb-5 mb-6">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-slate-800/60 pb-5 mb-6">
           <div>
             <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
               <span>📈</span> Desempenho por Hóspede Felino
@@ -523,11 +523,11 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               return (
                 <div
                   key={cat.id}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200/50 dark:border-slate-850 hover:shadow-md dark:hover:bg-slate-900/40 hover:border-terracota-500/30 transition duration-200 group"
+                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:shadow-md dark:hover:bg-slate-900/40 hover:border-terracota-500/30 transition duration-200 group"
                 >
                   {/* Cat Photo and Name */}
                   <div className="flex items-center gap-3 w-full sm:w-56 flex-shrink-0">
-                    <div className="h-11 w-11 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200/60 dark:border-slate-700 flex-shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition">
+                    <div className="h-11 w-11 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition">
                       {cat.fotoUrl ? (
                         <img src={cat.fotoUrl} alt={cat.nomeGato} className="h-full w-full object-cover" />
                       ) : (
@@ -536,7 +536,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                     </div>
                     <div className="min-w-0">
                       <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-terracota-600 dark:group-hover:text-terracota-400 transition font-serif">{cat.nomeGato}</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">Tutor: <span className="font-semibold text-slate-700 dark:text-slate-350">{cat.nomeTutor}</span></p>
+                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">Tutor: <span className="font-semibold text-slate-700 dark:text-slate-300">{cat.nomeTutor}</span></p>
                     </div>
                   </div>
 
@@ -546,11 +546,11 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                     <div className="space-y-1">
                       <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
                         <span>Diárias/Visitas</span>
-                        <span className="text-slate-700 dark:text-slate-350 font-bold">{cat.nights} {cat.nights === 1 ? 'dia/visita' : 'dias/visitas'} ({cat.staysCount} {cat.staysCount === 1 ? 'serviço' : 'serviços'})</span>
+                        <span className="text-slate-700 dark:text-slate-300 font-bold">{cat.nights} {cat.nights === 1 ? 'dia/visita' : 'dias/visitas'} ({cat.staysCount} {cat.staysCount === 1 ? 'serviço' : 'serviços'})</span>
                       </div>
                       <div className="w-full h-3 bg-slate-100/80 dark:bg-slate-950 rounded-full overflow-hidden shadow-inner">
                         <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-ardosia-400 rounded-full transition-all duration-700 ease-out"
+                          className="h-full bg-gradient-to-r from-emerald-500 to-slate-400 rounded-full transition-all duration-700 ease-out"
                           style={{ width: `${nightsWidth}%` }}
                         />
                       </div>

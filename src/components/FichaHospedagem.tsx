@@ -39,7 +39,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
             {hospedagem.fotoUrl ? (
               <img src={hospedagem.fotoUrl} alt={hospedagem.nomeGato} className="h-full w-full object-cover" />
             ) : (
-              <div className="flex h-full w-full items-center justify-center text-slate-400 text-2xl font-bold bg-slate-150 dark:bg-slate-750">
+              <div className="flex h-full w-full items-center justify-center text-slate-400 text-2xl font-bold bg-slate-100 dark:bg-slate-800">
                 {hospedagem.nomeGato.charAt(0).toUpperCase()}
               </div>
             )}
@@ -59,7 +59,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
         </div>
 
         <div className="flex flex-wrap justify-center sm:justify-start gap-2">
-          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-350 border border-slate-200 dark:border-slate-700">
+          <span className="inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-700 dark:text-slate-400 border border-slate-200 dark:border-slate-700">
             {getServiceLabel()}
           </span>
           <span className={`inline-flex items-center gap-1 rounded-full px-2.5 py-0.5 text-[11px] font-bold ${getStatusTagColor(hospedagem.perfil.sociabilidade)}`}>
@@ -69,7 +69,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
             hospedagem.status === 'agendado' ? 'bg-mostarda-100 dark:bg-mostarda-950/40 text-mostarda-800 dark:text-mostarda-400' :
             hospedagem.status === 'hospedado' ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-400' :
             hospedagem.status === 'saindo_hoje' ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-800 dark:text-amber-400' :
-            'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-350'
+            'bg-slate-100 dark:bg-slate-700 text-slate-800 dark:text-slate-400'
           }`}>
             {labelStatus(hospedagem.status, hospedagem.tipoServico)}
           </span>
@@ -131,7 +131,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
               Endereço: <strong>{hospedagem.enderecoServico || 'Não informado'}</strong>
             </p>
             {hospedagem.detalhesServico && (
-              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 bg-white dark:bg-slate-800 px-2 py-1.5 rounded-lg border border-slate-100 dark:border-slate-750">
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-2 bg-white dark:bg-slate-800 px-2 py-1.5 rounded-lg border border-slate-100 dark:border-slate-700">
                 Observações do serviço: {hospedagem.detalhesServico}
               </p>
             )}
@@ -161,7 +161,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
             <span>Controle Financeiro</span>
             <span className="text-[11px] font-normal text-slate-500">Total: R$ {totals.valorTotal.toFixed(2)}</span>
           </h4>
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-850 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-white dark:bg-slate-800 p-3 rounded-xl border border-slate-200/60 dark:border-slate-800">
             <div className="flex items-center gap-3">
               <span className={`h-3 w-3 rounded-full ${
                 hospedagem.statusPagamento === 'pago' ? 'bg-sucesso-500' :
@@ -169,7 +169,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
                 'bg-slate-300 dark:bg-slate-700'
               }`}></span>
               <div>
-                <p className="text-sm font-semibold text-slate-700 dark:text-slate-350">
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-300">
                   Status: <strong className={
                     hospedagem.statusPagamento === 'pago' ? 'text-sucesso-600 dark:text-sucesso-400' :
                     hospedagem.statusPagamento === 'parcial' ? 'text-mostarda-600 dark:text-mostarda-400' :
@@ -223,7 +223,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
           </h4>
           <div className="grid gap-2 sm:grid-cols-2 md:grid-cols-3 text-xs">
             {hospedagem.dataHoraConfirmacaoCheckIn && (
-              <div className="flex items-center gap-2 text-emerald-850 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 rounded-xl p-2.5">
+              <div className="flex items-center gap-2 text-emerald-800 dark:text-emerald-400 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-100/50 dark:border-emerald-900/30 rounded-xl p-2.5">
                 <span className="flex h-2 w-2 rounded-full bg-emerald-500"></span>
                 <div>
                   <span className="font-semibold block">{hospedagem.tipoServico === 'hospedagem' ? 'Check-in Confirmado:' : 'Início Confirmado:'}</span>

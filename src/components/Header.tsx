@@ -68,7 +68,7 @@ export function Header({ hospedagens, theme, onToggleTheme }: HeaderProps) {
             className="rounded-full bg-white/10 hover:bg-white/20 border border-white/20 p-2.5 text-mostarda-50 hover:text-white shadow-inner backdrop-blur-md transition-all duration-200 flex-shrink-0"
             title={theme === 'dark' ? 'Ativar Modo Claro' : 'Ativar Modo Escuro'}
           >
-            {theme === 'dark' ? <Sun size={20} className="animate-pulse text-amber-350" /> : <Moon size={20} />}
+            {theme === 'dark' ? <Sun size={20} className="animate-pulse text-amber-300" /> : <Moon size={20} />}
           </button>
         </div>
       </div>
