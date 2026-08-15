@@ -140,7 +140,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
 
         {/* Detalhes de Transporte Embutido se houver */}
         {hospedagem.transporteAdicional && hospedagem.tipoServico !== 'transporte' && (
-          <div className="rounded-2xl bg-ardosia-50/50 dark:bg-ardosia-950/20 p-4 border border-ardosia-150/60 dark:border-ardosia-900/30 sm:col-span-2">
+          <div className="rounded-2xl bg-ardosia-50/50 dark:bg-ardosia-950/20 p-4 border border-ardosia-200/60 dark:border-ardosia-900/30 sm:col-span-2">
             <h4 className="text-xs font-bold text-ardosia-700 dark:text-ardosia-400 uppercase tracking-wider mb-1 flex items-center gap-1.5">
               <Car size={14} /> Transporte Embutido
             </h4>

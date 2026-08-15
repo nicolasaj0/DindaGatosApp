@@ -35,8 +35,8 @@ export function Column({ status, items, onEdit, onCheckOut, onCheckIn, onOpenPag
           </span>
         </div>
       </div>
-      
-      <div 
+
+      <div
         className={
           isRowMode
             ? "flex flex-row gap-4 overflow-x-auto pb-3 pt-1 scrollbar-thin scroll-smooth select-none"
@@ -50,8 +50,8 @@ export function Column({ status, items, onEdit, onCheckOut, onCheckIn, onOpenPag
           </div>
         ) : (
           items.map((item) => (
-            <div 
-              key={item.id} 
+            <div
+              key={item.id}
               className={isRowMode ? "min-w-[310px] sm:min-w-[340px] max-w-[360px] flex-shrink-0" : "w-full"}
             >
               <Card

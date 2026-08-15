@@ -24,20 +24,20 @@ const formatTimestampShort = (ts?: string) => {
 export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagamentoModal }: CardProps) {
   const reverterUltimoPagamento = useHospedagemStore((state) => state.reverterUltimoPagamento);
 
-  const hasMedication = hospedagem.perfil.medicamentos && 
-    hospedagem.perfil.medicamentos.trim() !== '' && 
+  const hasMedication = hospedagem.perfil.medicamentos &&
+    hospedagem.perfil.medicamentos.trim() !== '' &&
     hospedagem.perfil.medicamentos.toLowerCase() !== 'nenhum';
 
-  const showActiveMedicationAlert = hasMedication && 
+  const showActiveMedicationAlert = hasMedication &&
     (hospedagem.status === 'hospedado' || hospedagem.status === 'saindo_hoje');
 
   const medicationTag = hasMedication
-    ? { 
-        label: hospedagem.perfil.medicamentos!, 
-        color: showActiveMedicationAlert 
-          ? 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50 motion-safe:animate-pulse'
-          : 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400' 
-      }
+    ? {
+      label: hospedagem.perfil.medicamentos!,
+      color: showActiveMedicationAlert
+        ? 'bg-red-100 dark:bg-red-950/60 text-red-700 dark:text-red-400 border border-red-200 dark:border-red-900/50 motion-safe:animate-pulse'
+        : 'bg-orange-100 dark:bg-orange-950/60 text-orange-700 dark:text-orange-400'
+    }
     : { label: 'Sem medicação', color: 'bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-400' };
 
   const totals = calculateEstadiaTotals(hospedagem);
@@ -87,12 +87,11 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
   return (
     <div
       onClick={handleClick}
-      className={`cursor-pointer rounded-3xl border p-4 shadow-sm transition hover:shadow-md ${
-        isDelayed ? 'border-red-300 dark:border-red-700 ring-2 ring-red-100/50 dark:ring-red-950/30 bg-red-50/5 dark:bg-red-950/10 hover:border-red-400' :
-        isCheckInToday ? 'border-emerald-300 dark:border-emerald-700 ring-2 ring-emerald-100/50 dark:ring-emerald-950/30 bg-emerald-50/5 dark:bg-emerald-950/10 hover:border-emerald-400' :
-        isCheckOutToday ? 'border-terracota-300 dark:border-terracota-700 ring-2 ring-terracota-100/50 dark:ring-terracota-950/30 bg-terracota-50/5 dark:bg-terracota-950/10 hover:border-terracota-400' :
-        'border-slate-200 dark:border-slate-700 hover:border-terracota-300 dark:hover:border-terracota-500 bg-white dark:bg-warmBg-900'
-      }`}
+      className={`cursor-pointer rounded-3xl border p-4 shadow-sm transition hover:shadow-md ${isDelayed ? 'border-red-300 dark:border-red-700 ring-2 ring-red-100/50 dark:ring-red-950/30 bg-red-50/5 dark:bg-red-950/10 hover:border-red-400' :
+          isCheckInToday ? 'border-emerald-300 dark:border-emerald-700 ring-2 ring-emerald-100/50 dark:ring-emerald-950/30 bg-emerald-50/5 dark:bg-emerald-950/10 hover:border-emerald-400' :
+            isCheckOutToday ? 'border-terracota-300 dark:border-terracota-700 ring-2 ring-terracota-100/50 dark:ring-terracota-950/30 bg-terracota-50/5 dark:bg-terracota-950/10 hover:border-terracota-400' :
+              'border-slate-200 dark:border-slate-700 hover:border-terracota-300 dark:hover:border-terracota-500 bg-white dark:bg-warmBg-900'
+        }`}
     >
       <div className="flex justify-between items-start mb-3">
         {isDelayed && (
@@ -167,8 +166,8 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         <span className="inline-flex items-center gap-1 rounded-full bg-slate-50 dark:bg-slate-900 px-2.5 py-1 text-slate-600 dark:text-slate-400 border border-slate-200/50 dark:border-slate-800">
           {hospedagem.tipoServico === 'transporte' ? 'Pontual ' : 'Saída '}{formatDateString(hospedagem.dataCheckOut)}
         </span>
-        <span 
-          className="inline-flex items-center gap-1 rounded-full bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100 dark:border-terracota-900/30 px-2.5 py-1 text-xs font-bold text-terracota-700 dark:text-terracota-400 ml-auto" 
+        <span
+          className="inline-flex items-center gap-1 rounded-full bg-terracota-50/50 dark:bg-terracota-950/20 border border-terracota-100 dark:border-terracota-900/30 px-2.5 py-1 text-xs font-bold text-terracota-700 dark:text-terracota-400 ml-auto"
           title={`Total da reserva: R$ ${totals.valorTotal.toFixed(2)}`}
         >
           R$ {totals.valorTotal.toFixed(0)}
@@ -176,37 +175,37 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
       </div>
 
       {/* Registro de Confirmações no Card */}
-      {(hospedagem.dataHoraConfirmacaoCheckIn || 
-        hospedagem.dataHoraConfirmacaoCheckOut || 
-        (hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento) || 
+      {(hospedagem.dataHoraConfirmacaoCheckIn ||
+        hospedagem.dataHoraConfirmacaoCheckOut ||
+        (hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento) ||
         (hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento)) && (
-        <div className="mt-3 flex flex-col gap-1 text-[10px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-2.5">
-          {hospedagem.dataHoraConfirmacaoCheckIn && (
-            <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
-              <span className="h-1 w-1 rounded-full bg-emerald-500 flex-shrink-0"></span>
-              <span>{hospedagem.tipoServico === 'hospedagem' ? 'Check-in: ' : 'Início: '}<strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckIn)}</strong></span>
-            </div>
-          )}
-          {hospedagem.dataHoraConfirmacaoCheckOut && (
-            <div className="flex items-center gap-1.5 text-terracota-700 dark:text-terracota-400">
-              <span className="h-1 w-1 rounded-full bg-terracota-500 flex-shrink-0"></span>
-              <span>{hospedagem.tipoServico === 'hospedagem' ? 'Check-out: ' : 'Concluído: '}<strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckOut)}</strong></span>
-            </div>
-          )}
-          {hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento && (
-            <div className="flex items-center gap-1.5 text-sucesso-700 dark:text-sucesso-400">
-              <span className="h-1 w-1 rounded-full bg-sucesso-500 flex-shrink-0"></span>
-              <span>Pago: <strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoPagamento)}</strong></span>
-            </div>
-          )}
-          {hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento && (
-            <div className="flex items-center gap-1.5 text-mostarda-700 dark:text-mostarda-400">
-              <span className="h-1 w-1 rounded-full bg-mostarda-500 flex-shrink-0"></span>
-              <span>Revertido: <strong>{formatTimestampShort(hospedagem.dataHoraReversaoPagamento)}</strong></span>
-            </div>
-          )}
-        </div>
-      )}
+          <div className="mt-3 flex flex-col gap-1 text-[10px] text-slate-500 dark:text-slate-400 border-t border-slate-100 dark:border-slate-800 pt-2.5">
+            {hospedagem.dataHoraConfirmacaoCheckIn && (
+              <div className="flex items-center gap-1.5 text-emerald-700 dark:text-emerald-400">
+                <span className="h-1 w-1 rounded-full bg-emerald-500 flex-shrink-0"></span>
+                <span>{hospedagem.tipoServico === 'hospedagem' ? 'Check-in: ' : 'Início: '}<strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckIn)}</strong></span>
+              </div>
+            )}
+            {hospedagem.dataHoraConfirmacaoCheckOut && (
+              <div className="flex items-center gap-1.5 text-terracota-700 dark:text-terracota-400">
+                <span className="h-1 w-1 rounded-full bg-terracota-500 flex-shrink-0"></span>
+                <span>{hospedagem.tipoServico === 'hospedagem' ? 'Check-out: ' : 'Concluído: '}<strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoCheckOut)}</strong></span>
+              </div>
+            )}
+            {hospedagem.statusPagamento === 'pago' && hospedagem.dataHoraConfirmacaoPagamento && (
+              <div className="flex items-center gap-1.5 text-sucesso-700 dark:text-sucesso-400">
+                <span className="h-1 w-1 rounded-full bg-sucesso-500 flex-shrink-0"></span>
+                <span>Pago: <strong>{formatTimestampShort(hospedagem.dataHoraConfirmacaoPagamento)}</strong></span>
+              </div>
+            )}
+            {hospedagem.statusPagamento === 'pendente' && hospedagem.dataHoraReversaoPagamento && (
+              <div className="flex items-center gap-1.5 text-mostarda-700 dark:text-mostarda-400">
+                <span className="h-1 w-1 rounded-full bg-mostarda-500 flex-shrink-0"></span>
+                <span>Revertido: <strong>{formatTimestampShort(hospedagem.dataHoraReversaoPagamento)}</strong></span>
+              </div>
+            )}
+          </div>
+        )}
 
       {/* Observações */}
       <div className="mt-3 rounded-2xl bg-slate-50/60 dark:bg-slate-900/30 border border-slate-200/40 dark:border-slate-800/60 p-3 text-xs text-slate-700 dark:text-slate-300">
@@ -275,20 +274,19 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
                 onOpenPagamentoModal(hospedagem);
               }
             }}
-            className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-bold transition border ${
-              hospedagem.statusPagamento === 'pago'
+            className={`inline-flex items-center gap-1 rounded-xl px-2.5 py-1 text-[11px] font-bold transition border ${hospedagem.statusPagamento === 'pago'
                 ? 'bg-sucesso-50/80 border-sucesso-200 text-sucesso-700 dark:bg-sucesso-950/20 dark:border-sucesso-900/40 dark:text-sucesso-400 hover:bg-sucesso-100'
                 : hospedagem.statusPagamento === 'parcial'
-                ? 'bg-mostarda-50 border-mostarda-200 text-mostarda-800 dark:bg-mostarda-950/20 dark:border-mostarda-900/40 dark:text-mostarda-400 hover:bg-mostarda-100'
-                : 'bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
-            }`}
+                  ? 'bg-mostarda-50 border-mostarda-200 text-mostarda-800 dark:bg-mostarda-950/20 dark:border-mostarda-900/40 dark:text-mostarda-400 hover:bg-mostarda-100'
+                  : 'bg-slate-100 border-slate-200 text-slate-700 dark:bg-slate-800 dark:border-slate-700 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700'
+              }`}
           >
             <DollarSign size={12} />
             {hospedagem.statusPagamento === 'pago'
               ? 'Pago'
               : hospedagem.statusPagamento === 'parcial'
-              ? `Parcial (R$ ${valorPago.toFixed(0)} / R$ ${totals.valorTotal.toFixed(0)})`
-              : 'Registrar Pagamento'}
+                ? `Parcial (R$ ${valorPago.toFixed(0)} / R$ ${totals.valorTotal.toFixed(0)})`
+                : 'Registrar Pagamento'}
           </button>
         </div>
       </div>

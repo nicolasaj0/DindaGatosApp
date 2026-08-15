@@ -295,7 +295,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
           {/* Card Destaque 3: Mais Rentável */}
           <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
             <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
-              <Sparkles size={120} className="text-purple-650 dark:text-purple-400" />
+              <Sparkles size={120} className="text-purple-600 dark:text-purple-400" />
             </div>
             <div className="rounded-2xl bg-purple-50 dark:bg-purple-950/40 p-3 text-purple-600 dark:text-purple-400">
               <Cat size={24} />

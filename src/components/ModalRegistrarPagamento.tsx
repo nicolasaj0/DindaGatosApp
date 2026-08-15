@@ -29,6 +29,19 @@ export function ModalRegistrarPagamento({
     }
   }, [hospedagem, isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !hospedagem) return null;
 
   const totals = calculateEstadiaTotals(hospedagem);
@@ -58,7 +71,16 @@ export function ModalRegistrarPagamento({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn">
+    <div
+      role="dialog"
+      aria-modal="true"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) {
+          onClose();
+        }
+      }}
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+    >
       <div className="w-full max-w-md bg-white dark:bg-warmBg-900 rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
         <div className="flex items-center gap-3">
           <div className="p-3 bg-sucesso-50 dark:bg-sucesso-950/40 rounded-2xl text-sucesso-600 dark:text-sucesso-400">

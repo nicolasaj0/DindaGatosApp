@@ -1,15 +1,12 @@
-import { useState, useEffect } from 'react';
-import { Hospedagem } from '../types';
-import { getLocalDateString, formatDateString } from '../utils';
+import { useState, useEffect, memo } from 'react';
 import { Sun, Moon, PawPrint } from 'lucide-react';
 
 interface HeaderProps {
-  hospedagens: Hospedagem[];
   theme: 'light' | 'dark';
   onToggleTheme: () => void;
 }
 
-export function Header({ hospedagens, theme, onToggleTheme }: HeaderProps) {
+export const Header = memo(function Header({ theme, onToggleTheme }: HeaderProps) {
   const [currentDateTime, setCurrentDateTime] = useState(new Date());
 
   useEffect(() => {
@@ -49,7 +46,7 @@ export function Header({ hospedagens, theme, onToggleTheme }: HeaderProps) {
               <span>Dinda de Gatos</span>
             </p>
             <h1 className="mt-2 text-3xl sm:text-4xl font-extrabold font-serif tracking-tight text-white">Painel de Gerenciamento</h1>
-            
+
             <div className="mt-3 inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-3 py-1 text-xs font-semibold text-mostarda-50 shadow-inner backdrop-blur-md">
               <span className="relative flex h-2 w-2">
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
@@ -64,6 +61,7 @@ export function Header({ hospedagens, theme, onToggleTheme }: HeaderProps) {
           </div>
 
           <button
+            type="button"
             onClick={onToggleTheme}
             className="rounded-full bg-white/10 hover:bg-white/20 border border-white/20 p-2.5 text-mostarda-50 hover:text-white shadow-inner backdrop-blur-md transition-all duration-200 flex-shrink-0"
             title={theme === 'dark' ? 'Ativar Modo Claro' : 'Ativar Modo Escuro'}
@@ -74,4 +72,4 @@ export function Header({ hospedagens, theme, onToggleTheme }: HeaderProps) {
       </div>
     </header>
   );
-}
+});

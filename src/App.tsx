@@ -12,7 +12,7 @@ import { FichaGato } from './components/FichaGato';
 import { RelatoriosView } from './components/RelatoriosView';
 import { ModalRegistrarPagamento } from './components/ModalRegistrarPagamento';
 import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Eye } from 'lucide-react';
-import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus } from './utils';
+import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus, calculateEstadiaTotals } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
   'agendado',
@@ -36,11 +36,13 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
   }, [gatoId, estadias]);
 
   const stats = useMemo(() => {
-    const totalNights = history.reduce((sum, e) => sum + calculateNights(e.dataCheckIn, e.dataCheckOut), 0);
-    const totalSpent = history.reduce((sum, e) => {
-      const nights = calculateNights(e.dataCheckIn, e.dataCheckOut);
-      return sum + (nights * (e.valorDiaria || 50));
-    }, 0);
+    let totalNights = 0;
+    let totalSpent = 0;
+    history.forEach((e) => {
+      const totals = calculateEstadiaTotals(e);
+      totalNights += totals.nights;
+      totalSpent += totals.valorTotal;
+    });
     return {
       count: history.length,
       nights: totalNights,
@@ -75,15 +77,14 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
       {isOpen && (
         <div className="mt-1.5 space-y-1 max-h-36 overflow-y-auto pr-1 scrollbar-thin">
           {history.map((e) => {
-            const nights = calculateNights(e.dataCheckIn, e.dataCheckOut);
-            const val = nights * (e.valorDiaria || 50);
+            const totals = calculateEstadiaTotals(e);
             return (
               <div key={e.id} className="flex justify-between items-center text-[10px] bg-slate-50 dark:bg-slate-950 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800/80">
                 <span className="font-medium text-slate-600 dark:text-slate-400">
                   {formatDateString(e.dataCheckIn)} - {formatDateString(e.dataCheckOut)}
                 </span>
                 <span className="font-bold text-slate-600 dark:text-slate-400">
-                  {nights === 1 ? '1 dia' : `${nights} dias`} • R$ {val.toFixed(0)}
+                  {totals.nights === 1 ? '1 dia' : `${totals.nights} dias`} • R$ {totals.valorTotal.toFixed(0)}
                 </span>
                 <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${e.status === 'concluido'
                   ? 'bg-slate-100 dark:bg-slate-900 text-slate-500'
@@ -234,8 +235,9 @@ function App() {
   useEffect(() => {
     const syncStatuses = () => {
       const hoje = getLocalDateString();
+      const currentList = useHospedagemStore.getState().hospedagens;
 
-      hospedagens.forEach((item) => {
+      currentList.forEach((item) => {
         // Não alterar quem já foi concluído manualmente
         if (item.status === 'concluido') return;
 
@@ -262,7 +264,7 @@ function App() {
     syncStatuses();
     const interval = setInterval(syncStatuses, 10000);
     return () => clearInterval(interval);
-  }, [hospedagens, updateHospedagem]);
+  }, [updateHospedagem]);
 
   const handleCheckIn = (id: string) => {
     updateHospedagem(id, {
@@ -404,7 +406,7 @@ function App() {
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-warmBg-100 dark:bg-warmBg-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
-      <Header hospedagens={hospedagens} theme={theme} onToggleTheme={toggleTheme} />
+      <Header theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="mx-auto max-w-7xl px-4 pb-10 pt-6">
         {/* Main View Tabs selector */}
