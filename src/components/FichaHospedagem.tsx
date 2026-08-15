@@ -93,12 +93,18 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
         </div>
 
         {/* Medicamentos */}
-        <div className="rounded-card bg-parchment p-3.5 border border-border-ledger">
-          <h4 className="font-mono text-[10px] font-bold text-ink-muted uppercase tracking-wider mb-2 flex items-center gap-1">
-            <Pill size={13} /> Medicamentos
+        <div className={`rounded-card p-3.5 border ${
+          hasMedication
+            ? 'bg-parchment border-stamp-wine/40'
+            : 'bg-parchment border-border-ledger'
+        }`}>
+          <h4 className={`font-mono text-[10px] font-bold uppercase tracking-wider mb-2 flex items-center gap-1.5 ${
+            hasMedication ? 'text-stamp-wine' : 'text-ink-muted'
+          }`}>
+            <Pill size={13} /> {hasMedication ? 'Medicamentos (Prescrição Ativa)' : 'Medicamentos'}
           </h4>
           {hasMedication ? (
-            <p className="text-xs font-semibold text-stamp-wine">{hospedagem.perfil.medicamentos}</p>
+            <p className="text-xs font-semibold text-stamp-wine leading-relaxed break-words">{hospedagem.perfil.medicamentos}</p>
           ) : (
             <p className="text-xs italic text-ink-muted">Sem medicação prescrita.</p>
           )}

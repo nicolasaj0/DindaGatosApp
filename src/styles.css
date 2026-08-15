@@ -66,6 +66,28 @@ body {
   animation: stampSettle 0.22s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  .animate-stampSettle {
+    animation: none;
+    transform: rotate(-4deg);
+  }
+  * {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Acessibilidade de Foco */
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+a:focus-visible {
+  outline: 2px solid rgb(var(--color-stamp-plum));
+  outline-offset: 2px;
+}
+
 /* Custom Scrollbars */
 .scrollbar-thin::-webkit-scrollbar {
   height: 6px;

@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { Camera, Check, DollarSign, Home, PawPrint, Car, Undo2 } from 'lucide-react';
+import { Camera, Check, DollarSign, Home, PawPrint, Car, Undo2, Pill } from 'lucide-react';
 import { Hospedagem } from '../types';
 import { useHospedagemStore } from '../store';
 import { getLocalDateString, formatDateString, calculateEstadiaTotals } from '../utils';
@@ -142,7 +142,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
       </div>
 
       {/* Top line: Identificador de serviço */}
-      <div className="flex items-center gap-1.5 text-[11px] font-mono text-ink-muted mb-2.5">
+      <div className="flex items-center gap-1.5 text-[11px] font-mono text-ink-muted mb-2.5 pr-20">
         {getServiceIcon()}
         <span>{getServiceLabel()}</span>
         <span>•</span>
@@ -160,7 +160,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
             </div>
           )}
         </div>
-        <div className="min-w-0 flex-1 pr-16">
+        <div className="min-w-0 flex-1 pr-20 sm:pr-24">
           <p className="truncate text-base font-bold font-display text-ink tracking-tight">
             {hospedagem.nomeGato}
           </p>
@@ -173,6 +173,21 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         </div>
       </div>
 
+      {/* Alerta Visual Isolado de Medicação (Apenas quando houver medicação ativa) */}
+      {hasMedication && (
+        <div className="mt-2.5 flex items-start gap-2 rounded-card border border-stamp-wine/40 bg-parchment p-2 text-xs text-stamp-wine">
+          <Pill size={14} className="flex-shrink-0 mt-0.5 text-stamp-wine" />
+          <div className="min-w-0 flex-1">
+            <span className="font-mono text-[10px] font-bold uppercase tracking-wider block text-stamp-wine">
+              Medicação Prescrita
+            </span>
+            <p className="mt-0.5 font-semibold text-stamp-wine leading-tight break-words">
+              {hospedagem.perfil.medicamentos}
+            </p>
+          </div>
+        </div>
+      )}
+
       {/* Metadados Limpos em Linha (Substituindo Badges Pastéis) */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-border-ledger pt-2.5 text-xs font-body text-ink-subtle">
         <span>{hospedagem.perfil.sociabilidade === 'sociavel' ? 'Sociável' : 'Isolado'}</span>
@@ -180,14 +195,6 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         {hospedagem.perfil.personalidade && (
           <>
             <span>{hospedagem.perfil.personalidade}</span>
-            <span>•</span>
-          </>
-        )}
-        {hasMedication && (
-          <>
-            <span className="font-semibold text-stamp-wine">
-              Meds: {hospedagem.perfil.medicamentos}
-            </span>
             <span>•</span>
           </>
         )}
