@@ -52,26 +52,26 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
 
   if (history.length === 0) {
     return (
-      <div className="text-[11px] text-slate-400 dark:text-slate-500 text-center font-medium">
-        Nenhuma hospedagem registrada ainda.
+      <div className="text-[11px] font-body text-ink-muted text-center">
+        Nenhum registro anterior.
       </div>
     );
   }
 
   return (
-    <div className="space-y-1.5">
+    <div className="space-y-1.5 font-body">
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="w-full flex items-center justify-between text-xs font-semibold text-slate-600 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200 transition"
+        className="w-full flex items-center justify-between text-xs font-medium text-ink-subtle hover:text-ink transition-colors"
       >
-        <span className="flex items-center gap-1">
-          📊 Histórico ({stats.count})
+        <span className="flex items-center gap-1 font-mono text-xs">
+          Histórico ({stats.count})
         </span>
-        <span className="text-[10px] text-slate-500 dark:text-slate-400">
+        <span className="text-[11px] font-mono text-ink-muted">
           {stats.nights} diárias • R$ {stats.spent.toFixed(0)}
         </span>
-        {isOpen ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+        {isOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
       </button>
 
       {isOpen && (
@@ -79,22 +79,15 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
           {history.map((e) => {
             const totals = calculateEstadiaTotals(e);
             return (
-              <div key={e.id} className="flex justify-between items-center text-[10px] bg-slate-50 dark:bg-slate-950 p-1.5 rounded-lg border border-slate-100 dark:border-slate-800/80">
-                <span className="font-medium text-slate-600 dark:text-slate-400">
+              <div key={e.id} className="flex justify-between items-center text-[10px] font-mono bg-parchment p-1.5 rounded-card border border-border-ledger">
+                <span className="text-ink-subtle">
                   {formatDateString(e.dataCheckIn)} - {formatDateString(e.dataCheckOut)}
                 </span>
-                <span className="font-bold text-slate-600 dark:text-slate-400">
-                  {totals.nights === 1 ? '1 dia' : `${totals.nights} dias`} • R$ {totals.valorTotal.toFixed(0)}
+                <span className="font-bold text-ink">
+                  {totals.nights === 1 ? '1 diária' : `${totals.nights} diárias`} • R$ {totals.valorTotal.toFixed(0)}
                 </span>
-                <span className={`px-1.5 py-0.5 rounded text-[8px] font-bold uppercase tracking-wider ${e.status === 'concluido'
-                  ? 'bg-slate-100 dark:bg-slate-900 text-slate-500'
-                  : e.status === 'hospedado'
-                    ? 'bg-emerald-100 dark:bg-emerald-950/60 text-emerald-600 dark:text-emerald-400'
-                    : e.status === 'saindo_hoje'
-                      ? 'bg-amber-100 dark:bg-amber-950/60 text-amber-600 dark:text-amber-400'
-                      : 'bg-terracota-100 dark:bg-terracota-950/60 text-terracota-600 dark:text-terracota-400'
-                  }`}>
-                  {e.status === 'concluido' ? 'Fim' : e.status === 'hospedado' ? 'In' : e.status === 'saindo_hoje' ? 'Out' : 'Agend'}
+                <span className="px-1.5 py-0.5 rounded-card text-[8px] font-mono font-bold uppercase tracking-wider border border-border-ledger bg-parchment-elevated text-ink-subtle">
+                  {e.status === 'concluido' ? 'Concl' : e.status === 'hospedado' ? 'Hosp' : e.status === 'saindo_hoje' ? 'Saída' : 'Agend'}
                 </span>
               </div>
             );
@@ -405,19 +398,20 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-warmBg-100 dark:bg-warmBg-950 text-slate-900 dark:text-slate-100 transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-parchment text-ink transition-colors duration-150 font-body">
       <Header theme={theme} onToggleTheme={toggleTheme} />
 
       <main className="mx-auto max-w-7xl px-4 pb-10 pt-6">
-        {/* Main View Tabs selector */}
-        <div className="mb-6 flex border-b border-slate-200 dark:border-slate-800 gap-1 overflow-x-auto whitespace-nowrap scrollbar-none">
+        {/* Main View Tabs selector - Solid Chips */}
+        <div className="mb-6 flex gap-2 overflow-x-auto whitespace-nowrap scrollbar-none pb-1">
           <button
             type="button"
             onClick={() => setCurrentView('hospedagens')}
-            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'hospedagens'
-              ? 'border-terracota-500 text-terracota-600 dark:text-terracota-400 dark:border-terracota-400'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
+            className={`flex-shrink-0 px-4 py-2 rounded-card text-xs sm:text-sm font-body transition-colors duration-150 flex items-center gap-2 border ${
+              currentView === 'hospedagens'
+                ? 'bg-stamp-plum text-parchment border-stamp-plum font-semibold'
+                : 'bg-parchment-elevated text-ink-subtle border-border-ledger hover:text-ink hover:border-border-ledger-hover'
+            }`}
           >
             <span>🗓️</span>
             <span>Quadro de Hospedagens</span>
@@ -428,59 +422,65 @@ function App() {
               setCurrentView('gatos');
               setPreSelectedGatoId(undefined);
             }}
-            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'gatos'
-              ? 'border-terracota-500 text-terracota-600 dark:text-terracota-400 dark:border-terracota-400'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
+            className={`flex-shrink-0 px-4 py-2 rounded-card text-xs sm:text-sm font-body transition-colors duration-150 flex items-center gap-2 border ${
+              currentView === 'gatos'
+                ? 'bg-stamp-plum text-parchment border-stamp-plum font-semibold'
+                : 'bg-parchment-elevated text-ink-subtle border-border-ledger hover:text-ink hover:border-border-ledger-hover'
+            }`}
           >
             <span>🐱</span>
             <span>Hóspedes Felinos</span>
-            <span className="inline-flex items-center justify-center rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 text-xs px-2 py-0.5 font-bold">
+            <span className={`inline-flex items-center justify-center rounded-card px-1.5 py-0.5 text-xs font-mono font-medium ${
+              currentView === 'gatos'
+                ? 'bg-parchment text-stamp-plum'
+                : 'bg-parchment text-ink-subtle border border-border-ledger'
+            }`}>
               {gatos.length}
             </span>
           </button>
           <button
             type="button"
             onClick={() => setCurrentView('relatorios')}
-            className={`flex-shrink-0 px-5 py-3 font-semibold text-sm transition-all border-b-2 flex items-center gap-1.5 ${currentView === 'relatorios'
-              ? 'border-terracota-500 text-terracota-600 dark:text-terracota-400 dark:border-terracota-400'
-              : 'border-transparent text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200'
-              }`}
+            className={`flex-shrink-0 px-4 py-2 rounded-card text-xs sm:text-sm font-body transition-colors duration-150 flex items-center gap-2 border ${
+              currentView === 'relatorios'
+                ? 'bg-stamp-plum text-parchment border-stamp-plum font-semibold'
+                : 'bg-parchment-elevated text-ink-subtle border-border-ledger hover:text-ink hover:border-border-ledger-hover'
+            }`}
           >
             <span>📊</span>
             <span>Relatórios</span>
           </button>
         </div>
 
-        <div className="mb-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-6 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
+        <div className="mb-6 flex flex-col gap-4 rounded-card border border-border-ledger bg-parchment-elevated p-5 sm:p-6 shadow-sm md:flex-row md:items-center md:justify-between transition-colors duration-150">
           <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.25em] text-slate-500 dark:text-slate-400">Dashboard</p>
-            <h2 className="mt-2 text-3xl font-semibold text-slate-900 dark:text-slate-100">
+            <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-muted">Visão Geral</p>
+            <h2 className="mt-1 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">
               {currentView === 'hospedagens' ? 'Quadro de Hospedagens' : currentView === 'gatos' ? 'Histórico & Hóspedes Felinos' : 'Relatório Financeiro & Desempenho'}
             </h2>
-            <p className="mt-2 max-w-2xl text-sm text-slate-600 dark:text-slate-400">
+            <p className="mt-1 max-w-2xl text-xs sm:text-sm font-body text-ink-subtle">
               {currentView === 'hospedagens'
-                ? 'Gerencie e acompanhe automaticamente os check-ins, estadias e saídas com base no calendário.'
+                ? 'Acompanhamento de check-ins, estadias ativas e previsões de saída da pousada.'
                 : currentView === 'gatos'
-                  ? 'Consulte perfis unificados dos gatos, verifique diárias acumuladas e faça agendamentos rápidos.'
-                  : 'Analise a visão geral financeira de diárias e receitas geradas por período e hóspede.'}
+                  ? 'Cadastros unificados de hóspedes felinos, histórico de diárias e agendamentos.'
+                  : 'Consolidado financeiro de diárias realizadas, a receber e faturamento por período.'}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
+          <div className="flex flex-wrap items-center gap-2.5">
             <button
               onClick={handleExportJSON}
-              className="inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-300 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
+              className="inline-flex items-center justify-center gap-1.5 rounded-card border border-border-ledger bg-parchment px-3.5 py-2 text-xs font-body font-medium text-ink hover:border-border-ledger-hover transition-colors"
               title="Salva uma cópia de segurança de todos os dados e fotos no seu computador"
             >
-              <Download size={16} />
-              Salvar Cópia (Backup)
+              <Download size={14} />
+              <span>Salvar Cópia (Backup)</span>
             </button>
             <label
-              className="cursor-pointer inline-flex items-center justify-center gap-2 rounded-2xl border border-ardosia-300 dark:border-ardosia-800 bg-white dark:bg-warmBg-900 px-4 py-3 text-sm font-semibold text-ardosia-700 dark:text-ardosia-300 shadow-sm hover:bg-ardosia-50 dark:hover:bg-ardosia-950/20 transition"
+              className="cursor-pointer inline-flex items-center justify-center gap-1.5 rounded-card border border-border-ledger bg-parchment px-3.5 py-2 text-xs font-body font-medium text-ink hover:border-border-ledger-hover transition-colors"
               title="Restaura os dados e fotos a partir de um arquivo de cópia salvo"
             >
-              <Upload size={16} />
-              Restaurar Cópia (Importar)
+              <Upload size={14} />
+              <span>Restaurar Cópia</span>
               <input
                 type="file"
                 accept=".json"
@@ -490,9 +490,10 @@ function App() {
             </label>
             <button
               onClick={() => setIsModalOpen(true)}
-              className="inline-flex items-center justify-center rounded-2xl bg-terracota-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-terracota-500/20 transition hover:bg-terracota-600"
+              className="inline-flex items-center justify-center gap-1.5 rounded-card bg-stamp-plum text-parchment border border-stamp-plum px-4 py-2 text-xs font-body font-semibold hover:opacity-90 transition-opacity"
             >
-              Novo Serviço
+              <Plus size={14} />
+              <span>Novo Serviço</span>
             </button>
           </div>
         </div>
@@ -500,74 +501,82 @@ function App() {
         {currentView === 'hospedagens' && (
           <>
             <div className="grid gap-3 grid-cols-2 xl:grid-cols-4">
-              <div className="rounded-3xl border-l-4 border-l-mostarda-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+              <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex justify-between items-start transition-colors duration-150">
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Agendados</p>
-                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'agendado')?.items.length ?? 0}</p>
-                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Proprietários que chegam nos próximos dias.</p>
+                  <p className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-stamp-plum">Agendados</p>
+                  <p className="mt-1 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">{grouped.find((group) => group.status === 'agendado')?.items.length ?? 0}</p>
+                  <p className="mt-0.5 text-[11px] font-body text-ink-subtle">Chegadas previstas</p>
                 </div>
-                <div className="p-2 rounded-2xl bg-mostarda-50 dark:bg-mostarda-950/45 text-mostarda-600 dark:text-mostarda-400 flex-shrink-0 ml-2">
-                  <Calendar size={20} />
+                <div className="p-2 rounded-card border border-border-ledger bg-parchment text-stamp-plum flex-shrink-0 ml-2">
+                  <Calendar size={18} />
                 </div>
               </div>
-              <div className="rounded-3xl border-l-4 border-l-emerald-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+              <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex justify-between items-start transition-colors duration-150">
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Hospedados</p>
-                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{grouped.find((group) => group.status === 'hospedado')?.items.length ?? 0}</p>
-                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Gatos que estão na casa agora.</p>
+                  <p className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-stamp-plum">Hospedados</p>
+                  <p className="mt-1 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">{grouped.find((group) => group.status === 'hospedado')?.items.length ?? 0}</p>
+                  <p className="mt-0.5 text-[11px] font-body text-ink-subtle">Na casa hoje</p>
                 </div>
-                <div className="p-2 rounded-2xl bg-emerald-50 dark:bg-emerald-950/45 text-emerald-600 dark:text-emerald-400 flex-shrink-0 ml-2">
-                  <Cat size={20} />
+                <div className="p-2 rounded-card border border-border-ledger bg-parchment text-stamp-plum flex-shrink-0 ml-2">
+                  <Cat size={18} />
                 </div>
               </div>
-              <div className="rounded-3xl border-l-4 border-l-ardosia-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+              <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex justify-between items-start transition-colors duration-150">
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Entradas Hoje</p>
-                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{entradasHoje.length}</p>
-                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Chegadas previstas para hoje.</p>
+                  <p className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-ink-muted">Entradas Hoje</p>
+                  <p className="mt-1 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">{entradasHoje.length}</p>
+                  <p className="mt-0.5 text-[11px] font-body text-ink-subtle">Previstos para hoje</p>
                 </div>
-                <div className="p-2 rounded-2xl bg-ardosia-50 dark:bg-ardosia-950/45 text-ardosia-600 dark:text-ardosia-400 flex-shrink-0 ml-2">
-                  <ArrowRight size={20} />
+                <div className="p-2 rounded-card border border-border-ledger bg-parchment text-ink-subtle flex-shrink-0 ml-2">
+                  <ArrowRight size={18} />
                 </div>
               </div>
-              <div className="rounded-3xl border-l-4 border-l-terracota-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-4 sm:p-5 shadow-sm transition hover:shadow-md flex justify-between items-start">
+              <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex justify-between items-start transition-colors duration-150">
                 <div className="min-w-0">
-                  <p className="text-xs sm:text-sm font-bold uppercase tracking-[0.15em] sm:tracking-[0.2em] text-slate-500 dark:text-slate-400">Saindo Hoje</p>
-                  <p className="mt-2 text-2xl sm:text-3xl font-extrabold font-serif text-slate-900 dark:text-white">{saidasHoje.length}</p>
-                  <p className="mt-1 text-[11px] sm:text-xs text-slate-600 dark:text-slate-400 leading-snug">Finalizam hospedagem no dia atual.</p>
+                  <p className="font-mono text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-stamp-gold">Saindo Hoje</p>
+                  <p className="mt-1 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">{saidasHoje.length}</p>
+                  <p className="mt-0.5 text-[11px] font-body text-ink-subtle">Fim de estadia hoje</p>
                 </div>
-                <div className="p-2 rounded-2xl bg-terracota-50 dark:bg-terracota-950/45 text-terracota-600 dark:text-terracota-400 flex-shrink-0 ml-2">
-                  <ArrowLeft size={20} />
+                <div className="p-2 rounded-card border border-border-ledger bg-parchment text-stamp-gold flex-shrink-0 ml-2">
+                  <ArrowLeft size={18} />
                 </div>
               </div>
             </div>
 
             {/* Filtros e Busca */}
-            <div className="mt-6 flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm lg:flex-row lg:items-center lg:justify-between backdrop-blur-md">
+            <div className="mt-5 flex flex-col gap-3.5 rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm lg:flex-row lg:items-center lg:justify-between transition-colors duration-150">
               <div className="relative flex-1 max-w-md w-full">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                  <svg className="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-ink-muted">
+                  <Search size={16} />
                 </span>
                 <input
                   type="text"
                   placeholder="Buscar por gato ou tutor..."
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-warmBg-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500 transition-all shadow-inner"
+                  className="w-full rounded-card border border-border-ledger bg-parchment pl-9 pr-8 py-1.5 text-xs sm:text-sm text-ink placeholder:text-ink-muted focus:border-border-ledger-hover outline-none transition-colors"
                 />
+                {searchTerm && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchTerm('')}
+                    className="absolute inset-y-0 right-0 flex items-center pr-2.5 text-ink-muted hover:text-ink text-xs font-mono"
+                    title="Limpar busca"
+                  >
+                    ✕
+                  </button>
+                )}
               </div>
 
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 justify-between lg:justify-end">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-3 justify-between lg:justify-end">
                 {/* Filtro por Tipo de Serviço */}
-                <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Serviço:</span>
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted mr-1">Serviço:</span>
                   {[
                     { id: 'todos', label: 'Todos' },
-                    { id: 'hospedagem', label: '🏠 Hospedagem' },
-                    { id: 'cat_sitter', label: '🐾 Cat Sitter' },
-                    { id: 'transporte', label: '🚗 Transporte' },
+                    { id: 'hospedagem', label: 'Hospedagem' },
+                    { id: 'cat_sitter', label: 'Cat Sitter' },
+                    { id: 'transporte', label: 'Transporte' },
                   ].map((btn) => {
                     const isSelected = serviceFilter === btn.id;
                     return (
@@ -575,10 +584,11 @@ function App() {
                         key={btn.id}
                         type="button"
                         onClick={() => setServiceFilter(btn.id as any)}
-                        className={`rounded-xl px-3 py-1.5 text-xs font-semibold border transition-all ${isSelected
-                          ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
-                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
+                        className={`rounded-card px-2.5 py-1 text-xs font-body border transition-colors ${
+                          isSelected
+                            ? 'bg-stamp-plum text-parchment border-stamp-plum font-semibold'
+                            : 'bg-parchment text-ink-subtle border-border-ledger hover:border-border-ledger-hover hover:text-ink'
+                        }`}
                       >
                         {btn.label}
                       </button>
@@ -587,13 +597,13 @@ function App() {
                 </div>
 
                 {/* Filtros Rápidos */}
-                <div className="flex flex-wrap gap-2 items-center">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-1">Filtrar:</span>
+                <div className="flex flex-wrap gap-1.5 items-center">
+                  <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted mr-1">Filtro:</span>
                   {[
-                    { id: 'todos', label: '🐾 Todos' },
-                    { id: 'medication', label: '💊 Medicamento' },
-                    { id: 'isolado', label: '🔒 Isolado' },
-                    { id: 'sociavel', label: '🤝 Sociável' },
+                    { id: 'todos', label: 'Todos' },
+                    { id: 'medication', label: 'Medicamento' },
+                    { id: 'isolado', label: 'Isolado' },
+                    { id: 'sociavel', label: 'Sociável' },
                   ].map((btn) => {
                     const isSelected = activeFilter === btn.id;
                     return (
@@ -601,10 +611,11 @@ function App() {
                         key={btn.id}
                         type="button"
                         onClick={() => setActiveFilter(btn.id as any)}
-                        className={`rounded-xl px-3.5 py-1.5 text-xs font-semibold border transition-all ${isSelected
-                          ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
-                          : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                          }`}
+                        className={`rounded-card px-2.5 py-1 text-xs font-body border transition-colors ${
+                          isSelected
+                            ? 'bg-stamp-plum text-parchment border-stamp-plum font-semibold'
+                            : 'bg-parchment text-ink-subtle border-border-ledger hover:border-border-ledger-hover hover:text-ink'
+                        }`}
                       >
                         {btn.label}
                       </button>
@@ -613,30 +624,30 @@ function App() {
                 </div>
 
                 {/* Seletor de Modo de Layout */}
-                <div className="flex items-center gap-1 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200/55 dark:border-slate-800/80 self-start sm:self-auto">
+                <div className="flex items-center gap-1 rounded-card border border-border-ledger bg-parchment p-0.5 self-start sm:self-auto">
                   <button
                     type="button"
                     onClick={() => handleLayoutModeChange('rows')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'rows'
-                      ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                      }`}
+                    className={`px-2.5 py-1 rounded-card text-xs font-body transition-colors ${
+                      layoutMode === 'rows'
+                        ? 'bg-stamp-plum text-parchment font-semibold'
+                        : 'text-ink-subtle hover:text-ink'
+                    }`}
                     title="Visualização Horizontal"
                   >
-                    <span>☱</span>
-                    <span>Fileiras</span>
+                    Fileiras
                   </button>
                   <button
                     type="button"
                     onClick={() => handleLayoutModeChange('columns')}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${layoutMode === 'columns'
-                      ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
-                      : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                      }`}
+                    className={`px-2.5 py-1 rounded-card text-xs font-body transition-colors ${
+                      layoutMode === 'columns'
+                        ? 'bg-stamp-plum text-parchment font-semibold'
+                        : 'text-ink-subtle hover:text-ink'
+                    }`}
                     title="Visualização Vertical"
                   >
-                    <span>🗓️</span>
-                    <span>Colunas</span>
+                    Colunas
                   </button>
                 </div>
               </div>
@@ -644,7 +655,7 @@ function App() {
 
             {/* Mobile Tab Selector (Apenas no Modo Colunas) */}
             {layoutMode === 'columns' && (
-              <div className="mt-6 flex gap-2 overflow-x-auto pb-2 scrollbar-none xl:hidden">
+              <div className="mt-4 flex gap-2 overflow-x-auto pb-1 scrollbar-none xl:hidden">
                 {statusOrder.map((status) => {
                   const count = grouped.find((group) => group.status === status)?.items.length ?? 0;
                   const isActive = activeTab === status;
@@ -653,14 +664,16 @@ function App() {
                       key={status}
                       type="button"
                       onClick={() => setActiveTab(status)}
-                      className={`flex-shrink-0 flex items-center gap-2 rounded-2xl px-4 py-2 text-sm font-semibold transition-all border ${isActive
-                        ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10'
-                        : 'bg-white dark:bg-warmBg-900 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                        }`}
+                      className={`flex-shrink-0 flex items-center gap-2 rounded-card px-3 py-1.5 text-xs font-body transition-colors border ${
+                        isActive
+                          ? 'bg-stamp-plum text-parchment border-stamp-plum font-semibold'
+                          : 'bg-parchment-elevated text-ink-subtle border-border-ledger hover:border-border-ledger-hover hover:text-ink'
+                      }`}
                     >
                       <span>{serviceFilter !== 'todos' ? labelStatus(status, serviceFilter) : getStatusLabel(status)}</span>
-                      <span className={`inline-flex items-center justify-center rounded-full h-5 px-1.5 text-xs font-bold ${isActive ? 'bg-terracota-500 text-white' : 'bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400'
-                        }`}>
+                      <span className={`inline-flex items-center justify-center rounded-card px-1.5 py-0.2 text-[10px] font-mono font-medium ${
+                        isActive ? 'bg-parchment text-stamp-plum' : 'bg-parchment text-ink-subtle border border-border-ledger'
+                      }`}>
                         {count}
                       </span>
                     </button>
@@ -692,19 +705,19 @@ function App() {
         )}
 
         {currentView === 'gatos' && (
-          <div className="space-y-6">
+          <div className="space-y-5">
             {/* Campo de Busca Gatos */}
-            <div className="flex flex-col gap-4 rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-slate-900/80 p-5 shadow-sm md:flex-row md:items-center md:justify-between backdrop-blur-md">
+            <div className="flex flex-col gap-3 rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm md:flex-row md:items-center md:justify-between transition-colors duration-150">
               <div className="relative flex-1 max-w-md w-full">
-                <span className="absolute inset-y-0 left-0 flex items-center pl-3.5 pointer-events-none">
-                  <Search size={18} className="text-slate-400 dark:text-slate-500" />
+                <span className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none text-ink-muted">
+                  <Search size={16} />
                 </span>
                 <input
                   type="text"
                   placeholder="Buscar por nome do gato ou tutor..."
                   value={gatosSearchTerm}
                   onChange={(e) => setGatosSearchTerm(e.target.value)}
-                  className="w-full rounded-2xl border border-slate-200 dark:border-slate-700 bg-white dark:bg-warmBg-800 pl-10 pr-4 py-2.5 text-sm text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-slate-500 focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500 transition-all shadow-inner"
+                  className="w-full rounded-card border border-border-ledger bg-parchment pl-9 pr-3 py-1.5 text-xs sm:text-sm text-ink placeholder:text-ink-muted focus:border-border-ledger-hover outline-none transition-colors"
                 />
               </div>
               <button
@@ -713,22 +726,22 @@ function App() {
                   setPreSelectedGatoId(undefined);
                   setIsModalOpen(true);
                 }}
-                className="inline-flex items-center justify-center gap-1.5 rounded-2xl bg-terracota-500 px-4 py-2.5 text-sm font-semibold text-white shadow-lg shadow-terracota-500/20 transition hover:bg-terracota-600"
+                className="inline-flex items-center justify-center gap-1.5 rounded-card bg-stamp-plum text-parchment border border-stamp-plum px-3.5 py-1.5 text-xs font-body font-semibold hover:opacity-90 transition-opacity"
               >
-                <Plus size={16} />
+                <Plus size={14} />
                 Novo Serviço
               </button>
             </div>
 
             {/* Grid de Hóspedes Felinos */}
             {filteredGatos.length === 0 ? (
-              <div className="flex flex-col items-center justify-center rounded-3xl border-2 border-dashed border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/40 p-12 text-center text-slate-400 dark:text-slate-500">
-                <span className="text-4xl mb-2">🐾</span>
-                <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Nenhum gato encontrado</p>
-                <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Crie um novo cadastro ou ajuste os termos de busca.</p>
+              <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-border-ledger bg-parchment p-10 text-center text-ink-muted">
+                <span className="text-3xl mb-2 opacity-70">🐾</span>
+                <p className="text-sm font-body font-medium text-ink">Nenhum felino encontrado</p>
+                <p className="text-xs font-body text-ink-muted mt-0.5">Cadastre um novo gato ou ajuste os termos da busca.</p>
               </div>
             ) : (
-              <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
                 {filteredGatos.map((gato) => (
                   <div
                     key={gato.id}
@@ -736,82 +749,81 @@ function App() {
                       setViewingGato(gato);
                       setIsViewGatoModalOpen(true);
                     }}
-                    className="cursor-pointer rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 shadow-sm flex flex-col justify-between hover:shadow-md transition duration-200"
+                    className="cursor-pointer rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex flex-col justify-between hover:border-border-ledger-hover transition-colors duration-150"
                   >
                     <div>
                       {/* Informações Principais */}
-                      <div className="flex gap-4 items-start">
-                        <div className="h-16 w-16 overflow-hidden rounded-2xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0 flex items-center justify-center shadow-inner">
+                      <div className="flex gap-3 items-start">
+                        <div className="h-14 w-14 overflow-hidden rounded-card border border-border-ledger bg-parchment flex-shrink-0 flex items-center justify-center">
                           {gato.fotoUrl ? (
                             <img src={gato.fotoUrl} alt={gato.nomeGato} className="h-full w-full object-cover" />
                           ) : (
-                            <Cat size={32} className="text-slate-300 dark:text-slate-600" />
+                            <Cat size={24} className="text-ink-muted" />
                           )}
                         </div>
                         <div className="min-w-0 flex-1">
-                          <h3 className="text-lg font-bold text-slate-900 dark:text-white truncate">{gato.nomeGato}</h3>
-                          <p className="text-xs text-slate-500 dark:text-slate-400 truncate mt-0.5">
-                            Tutor: <span className="font-semibold text-slate-700 dark:text-slate-300">{gato.nomeTutor}</span>
+                          <h3 className="text-base font-bold font-display text-ink truncate">{gato.nomeGato}</h3>
+                          <p className="text-xs font-body text-ink-subtle truncate mt-0.5">
+                            Tutor: <span className="font-medium text-ink">{gato.nomeTutor}</span>
                           </p>
-                          <p className="text-[10px] text-slate-400 dark:text-slate-500 mt-1">
+                          <p className="text-[10px] font-mono text-ink-muted mt-0.5">
                             Cadastrado em {formatDateString(gato.dataCadastro)}
                           </p>
                         </div>
                       </div>
 
-                      {/* Badges de Perfil */}
-                      <div className="mt-3.5 flex flex-wrap gap-1.5">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${gato.perfil.sociabilidade === 'sociavel'
-                          ? 'bg-emerald-50 dark:bg-emerald-950/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100/50 dark:border-emerald-900/30'
-                          : 'bg-rose-50 dark:bg-rose-950/20 text-rose-700 dark:text-rose-400 border border-rose-100/50 dark:border-rose-900/30'
-                          }`}>
-                          {gato.perfil.sociabilidade === 'sociavel' ? 'Sociável' : 'Isolado'}
-                        </span>
+                      {/* Metadados em Linha */}
+                      <div className="mt-3 flex flex-wrap items-center gap-1.5 border-t border-border-ledger pt-2 text-xs font-body text-ink-subtle">
+                        <span>{gato.perfil.sociabilidade === 'sociavel' ? 'Sociável' : 'Isolado'}</span>
                         {gato.perfil.personalidade && (
-                          <span className="text-[10px] font-bold bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full border border-slate-200/50 dark:border-slate-700">
-                            {gato.perfil.personalidade}
-                          </span>
+                          <>
+                            <span>•</span>
+                            <span>{gato.perfil.personalidade}</span>
+                          </>
                         )}
                         {gato.valorDiariaPadrao && (
-                          <span className="text-[10px] font-bold bg-terracota-50 dark:bg-terracota-950/20 text-terracota-700 dark:text-terracota-400 px-2 py-0.5 rounded-full border border-terracota-100/50 dark:border-terracota-900/30 ml-auto">
-                            R$ {gato.valorDiariaPadrao} (valor de referência)
-                          </span>
+                          <>
+                            <span>•</span>
+                            <span className="font-mono font-medium text-ink">
+                              R$ {gato.valorDiariaPadrao}/dia
+                            </span>
+                          </>
                         )}
                       </div>
 
                       {/* Prontuário / Notas rápidas */}
-                      <div className="mt-4 space-y-1.5 text-xs text-slate-600 dark:text-slate-400 bg-slate-50/50 dark:bg-slate-950/30 rounded-2xl p-3 border border-slate-100/80 dark:border-slate-800/60">
+                      <div className="mt-3 space-y-1 text-xs font-body text-ink-subtle bg-parchment rounded-card p-2.5 border border-border-ledger">
                         {gato.perfil.dieta && (
-                          <p className="truncate"><strong className="text-slate-800 dark:text-slate-200">🍽️ Dieta:</strong> {gato.perfil.dieta}</p>
+                          <p className="truncate"><strong className="font-mono text-[10px] uppercase text-ink-muted">Dieta:</strong> {gato.perfil.dieta}</p>
                         )}
                         {gato.perfil.medicamentos && gato.perfil.medicamentos.toLowerCase() !== 'nenhum' && (
-                          <p className="truncate text-red-600 dark:text-red-400 font-semibold">
-                            <strong className="text-slate-800 dark:text-slate-200">💊 Meds:</strong> {gato.perfil.medicamentos}
+                          <p className="truncate text-stamp-wine font-semibold">
+                            <strong className="font-mono text-[10px] uppercase text-stamp-wine">Meds:</strong> {gato.perfil.medicamentos}
                           </p>
                         )}
                         {gato.perfil.observacoes && (
-                          <p className="truncate"><strong className="text-slate-800 dark:text-slate-200">📝 Obs:</strong> {gato.perfil.observacoes}</p>
+                          <p className="truncate"><strong className="font-mono text-[10px] uppercase text-ink-muted">Obs:</strong> {gato.perfil.observacoes}</p>
                         )}
                       </div>
                     </div>
 
                     {/* Histórico Desdobrável */}
-                    <div className="mt-4 pt-3 border-t border-slate-200 dark:border-slate-800/80" onClick={(e) => e.stopPropagation()}>
+                    <div className="mt-3 pt-2.5 border-t border-border-ledger" onClick={(e) => e.stopPropagation()}>
                       <GatoStayHistory gatoId={gato.id} estadias={estadias} />
                     </div>
 
                     {/* Ações */}
-                    <div className="mt-4 flex gap-2 pt-3 border-t border-slate-200 dark:border-slate-800/80" onClick={(e) => e.stopPropagation()}>
+                    <div className="mt-3 flex gap-2 pt-2.5 border-t border-border-ledger" onClick={(e) => e.stopPropagation()}>
                       <button
                         type="button"
                         onClick={() => {
                           setPreSelectedGatoId(gato.id);
                           setIsModalOpen(true);
                         }}
-                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-terracota-50 dark:bg-terracota-950/20 border border-terracota-100/50 dark:border-terracota-900/30 py-2 text-xs font-semibold text-terracota-600 dark:text-terracota-400 hover:bg-terracota-100 dark:hover:bg-terracota-950/40 transition"
+                        className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-card bg-parchment border border-border-ledger py-1.5 text-xs font-body font-medium text-ink hover:border-border-ledger-hover transition-colors"
                       >
                         <Calendar size={13} />
-                        Agendar Serviço
+                        Agendar
                       </button>
                       <button
                         type="button"
@@ -819,7 +831,7 @@ function App() {
                           setSelectedGato(gato);
                           setIsEditGatoModalOpen(true);
                         }}
-                        className="p-2 rounded-xl border border-slate-200 dark:border-slate-800 text-slate-500 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+                        className="p-1.5 rounded-card border border-border-ledger text-ink-subtle hover:text-ink hover:border-border-ledger-hover transition-colors"
                         title="Editar prontuário do gato"
                       >
                         <Edit2 size={13} />
@@ -827,7 +839,7 @@ function App() {
                       <button
                         type="button"
                         onClick={() => handleDeleteGato(gato)}
-                        className="p-2 rounded-xl border border-red-100 dark:border-red-950/20 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-950/20 transition"
+                        className="p-1.5 rounded-card border border-border-ledger text-stamp-wine hover:border-stamp-wine transition-colors"
                         title="Remover cadastro permanentemente"
                       >
                         <Trash2 size={13} />

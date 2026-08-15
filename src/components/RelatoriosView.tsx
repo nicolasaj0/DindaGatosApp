@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Estadia, Gato, TipoServico } from '../types';
-import { calculateNights, calculateEstadiaTotals } from '../utils';
+import { calculateEstadiaTotals } from '../utils';
 import { Cat, DollarSign, Calendar, TrendingUp, Award, Clock, Sparkles } from 'lucide-react';
 
 interface RelatoriosViewProps {
@@ -167,7 +167,6 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
     return { catsData, activeCats };
   }, [gatos, estadias, reportServiceFilter]);
 
-
   // 3. Highlight Metrics (KPIs)
   const highlights = useMemo(() => {
     const { catsData } = catAnalytics;
@@ -222,17 +221,17 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
   }, [catAnalytics.activeCats]);
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-5 font-body text-ink">
       {/* Filtro por Tipo de Serviço em Relatórios */}
-      <div className="flex flex-wrap items-center gap-2 bg-white/80 dark:bg-slate-900/80 border border-slate-200/80 dark:border-slate-800 rounded-3xl p-4 shadow-sm backdrop-blur-md">
-        <span className="text-xs font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500 mr-2 flex items-center gap-1">
-          📊 Serviço do Relatório:
+      <div className="flex flex-wrap items-center gap-2 bg-parchment-elevated border border-border-ledger rounded-card p-3.5 shadow-sm transition-colors duration-150">
+        <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted mr-1 flex items-center gap-1">
+          Serviço do Relatório:
         </span>
         {[
           { id: 'todos', label: 'Todos os Serviços' },
-          { id: 'hospedagem', label: '🏠 Hospedagem' },
-          { id: 'cat_sitter', label: '🐾 Cat Sitter' },
-          { id: 'transporte', label: '🚗 Transporte' },
+          { id: 'hospedagem', label: 'Hospedagem' },
+          { id: 'cat_sitter', label: 'Cat Sitter' },
+          { id: 'transporte', label: 'Transporte' },
         ].map((btn) => {
           const isSelected = reportServiceFilter === btn.id;
           return (
@@ -240,10 +239,11 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               key={btn.id}
               type="button"
               onClick={() => setReportServiceFilter(btn.id as any)}
-              className={`rounded-xl px-3 py-1.5 text-xs font-semibold border transition-all ${isSelected
-                ? 'bg-terracota-500 text-white border-terracota-500 shadow-md shadow-terracota-500/10 font-bold'
-                : 'bg-white dark:bg-warmBg-950 text-slate-600 dark:text-slate-400 border-slate-200 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800'
-                }`}
+              className={`rounded-card px-2.5 py-1 text-xs font-body border transition-colors ${
+                isSelected
+                  ? 'bg-stamp-plum text-parchment border-stamp-plum font-semibold'
+                  : 'bg-parchment text-ink-subtle border-border-ledger hover:border-border-ledger-hover hover:text-ink'
+              }`}
             >
               {btn.label}
             </button>
@@ -253,64 +253,55 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
 
       {/* 1. KPIs / Destaques Gerais */}
       {highlights && (
-        <div className="grid gap-4 md:grid-cols-3">
+        <div className="grid gap-3 md:grid-cols-3">
           {/* Card Destaque 1: Faturamento Geral */}
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
-            <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
-              <TrendingUp size={120} className="text-terracota-500 dark:text-terracota-400" />
-            </div>
-            <div className="rounded-2xl bg-terracota-50 dark:bg-terracota-950/40 p-3 text-terracota-600 dark:text-terracota-400">
-              <DollarSign size={24} />
+          <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex items-center gap-3.5 transition-colors duration-150">
+            <div className="rounded-card border border-border-ledger bg-parchment p-2.5 text-stamp-moss">
+              <DollarSign size={20} />
             </div>
             <div>
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Receita Total Gerada</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white mt-1">R$ {highlights.totalSpentAll.toFixed(0)}</p>
-              <p className="text-[11px] text-slate-400 dark:text-slate-500 mt-0.5">{highlights.totalNightsAll} diárias/visitas registradas</p>
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">Receita Total Gerada</p>
+              <p className="text-xl sm:text-2xl font-bold font-display text-ink mt-0.5">R$ {highlights.totalSpentAll.toFixed(0)}</p>
+              <p className="text-[11px] font-mono text-ink-subtle mt-0.5">{highlights.totalNightsAll} diárias registradas</p>
             </div>
           </div>
 
           {/* Card Destaque 2: Gato VIP */}
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
-            <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
-              <Clock size={120} className="text-emerald-600 dark:text-emerald-400" />
-            </div>
-            <div className="rounded-2xl bg-emerald-50 dark:bg-emerald-950/40 p-3 text-emerald-600 dark:text-emerald-400">
-              <Award size={24} />
+          <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex items-center gap-3.5 transition-colors duration-150">
+            <div className="rounded-card border border-border-ledger bg-parchment p-2.5 text-stamp-plum">
+              <Award size={20} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Cliente Mais Frequente</p>
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">Mais Frequente</p>
               {highlights.vipCat ? (
                 <>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 truncate">{highlights.vipCat.nomeGato}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate">
-                    {highlights.vipCat.nights} diárias/visitas • Tutor: {highlights.vipCat.nomeTutor}
+                  <p className="text-lg font-bold font-display text-ink mt-0.5 truncate">{highlights.vipCat.nomeGato}</p>
+                  <p className="text-xs font-mono text-ink-subtle mt-0.5 truncate">
+                    {highlights.vipCat.nights} diárias • Tutor: {highlights.vipCat.nomeTutor}
                   </p>
                 </>
               ) : (
-                <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 mt-1">Nenhum registro</p>
+                <p className="text-xs font-body text-ink-muted mt-1">Nenhum registro</p>
               )}
             </div>
           </div>
 
           {/* Card Destaque 3: Mais Rentável */}
-          <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex items-center gap-4 relative overflow-hidden group">
-            <div className="absolute right-0 top-0 translate-x-4 -translate-y-4 opacity-5 dark:opacity-10 group-hover:scale-110 transition duration-300">
-              <Sparkles size={120} className="text-purple-600 dark:text-purple-400" />
-            </div>
-            <div className="rounded-2xl bg-purple-50 dark:bg-purple-950/40 p-3 text-purple-600 dark:text-purple-400">
-              <Cat size={24} />
+          <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex items-center gap-3.5 transition-colors duration-150">
+            <div className="rounded-card border border-border-ledger bg-parchment p-2.5 text-stamp-gold">
+              <Sparkles size={20} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase tracking-wider">Mais Rentável</p>
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">Maior Valor Acumulado</p>
               {highlights.topEarner ? (
                 <>
-                  <p className="text-lg font-bold text-slate-900 dark:text-white mt-1 truncate">{highlights.topEarner.nomeGato}</p>
-                  <p className="text-xs text-slate-600 dark:text-slate-400 mt-0.5 truncate">
+                  <p className="text-lg font-bold font-display text-ink mt-0.5 truncate">{highlights.topEarner.nomeGato}</p>
+                  <p className="text-xs font-mono text-ink-subtle mt-0.5 truncate">
                     R$ {highlights.topEarner.spent.toFixed(0)} • Tutor: {highlights.topEarner.nomeTutor}
                   </p>
                 </>
               ) : (
-                <p className="text-sm font-semibold text-slate-400 dark:text-slate-500 mt-1">Nenhum registro</p>
+                <p className="text-xs font-body text-ink-muted mt-1">Nenhum registro</p>
               )}
             </div>
           </div>
@@ -318,51 +309,47 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       )}
 
       {/* 2. Overview Períodos (Semanal, Mensal, Anual) */}
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-4 md:grid-cols-3">
         {/* Card 1: Semanal */}
-        <div className="rounded-3xl border-t-4 border-t-terracota-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex flex-col justify-between">
+        <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex flex-col justify-between transition-colors duration-150">
           <div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ganhos da Semana</p>
-              <Calendar size={14} className="text-slate-400 dark:text-slate-500" />
+            <div className="flex items-center justify-between border-b border-border-ledger pb-2">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">Ganhos da Semana</p>
+              <Calendar size={13} className="text-ink-muted" />
             </div>
-            <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
+            <p className="text-2xl sm:text-3xl font-bold font-display text-ink mt-2">
               R$ {(periodStats.week.recebido + periodStats.week.aReceber).toFixed(0)}
             </p>
 
-            <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1 font-semibold text-sucesso-600 dark:text-sucesso-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-sucesso-500"></span> Recebido:
-                </span>
-                <span className="font-bold text-sucesso-600 dark:text-sucesso-400">R$ {periodStats.week.recebido.toFixed(0)}</span>
+            <div className="mt-3 space-y-1.5 text-xs font-mono">
+              <div className="flex justify-between text-stamp-moss">
+                <span>Recebido:</span>
+                <span className="font-bold">R$ {periodStats.week.recebido.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 motion-safe:animate-pulse"></span> A Receber:
-                </span>
-                <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.week.aReceber.toFixed(0)}</span>
+              <div className="flex justify-between text-stamp-gold">
+                <span>A Receber:</span>
+                <span className="font-bold">R$ {periodStats.week.aReceber.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/85 pt-2">
-                <span>Previsto (Não concluído):</span>
-                <span className="font-semibold text-slate-500">R$ {periodStats.week.projected.toFixed(0)}</span>
+              <div className="flex justify-between border-t border-border-ledger pt-1 text-ink-muted text-[11px]">
+                <span>Previsto (em aberto):</span>
+                <span>R$ {periodStats.week.projected.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Diárias/Visitas:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-300">{periodStats.week.nights}</span>
+              <div className="flex justify-between text-ink-subtle">
+                <span>Diárias:</span>
+                <span className="font-semibold text-ink">{periodStats.week.nights}</span>
               </div>
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div className="mt-5 space-y-1.5">
-            <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+          {/* Progress bar sólida */}
+          <div className="mt-4 space-y-1">
+            <div className="w-full h-1.5 bg-parchment rounded-card border border-border-ledger overflow-hidden flex">
               <div
-                className="h-full bg-sucesso-500 transition-all duration-300"
+                className="h-full bg-stamp-moss"
                 style={{ width: `${(periodStats.week.recebido / (periodStats.week.recebido + periodStats.week.aReceber || 1)) * 100}%` }}
               />
             </div>
-            <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            <div className="flex justify-between text-[9px] font-mono font-bold text-ink-muted uppercase tracking-wider">
               <span>Recebido</span>
               <span>A Receber</span>
             </div>
@@ -370,49 +357,45 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
         </div>
 
         {/* Card 2: Mês */}
-        <div className="rounded-3xl border-t-4 border-t-emerald-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex flex-col justify-between flex-shrink-0">
+        <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex flex-col justify-between transition-colors duration-150">
           <div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ganhos do Mês</p>
-              <TrendingUp size={14} className="text-slate-400 dark:text-slate-500" />
+            <div className="flex items-center justify-between border-b border-border-ledger pb-2">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">Ganhos do Mês</p>
+              <TrendingUp size={13} className="text-ink-muted" />
             </div>
-            <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
+            <p className="text-2xl sm:text-3xl font-bold font-display text-ink mt-2">
               R$ {(periodStats.month.recebido + periodStats.month.aReceber).toFixed(0)}
             </p>
 
-            <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1 font-semibold text-sucesso-600 dark:text-sucesso-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-sucesso-500"></span> Recebido:
-                </span>
-                <span className="font-bold text-sucesso-600 dark:text-sucesso-400">R$ {periodStats.month.recebido.toFixed(0)}</span>
+            <div className="mt-3 space-y-1.5 text-xs font-mono">
+              <div className="flex justify-between text-stamp-moss">
+                <span>Recebido:</span>
+                <span className="font-bold">R$ {periodStats.month.recebido.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 motion-safe:animate-pulse"></span> A Receber:
-                </span>
-                <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.month.aReceber.toFixed(0)}</span>
+              <div className="flex justify-between text-stamp-gold">
+                <span>A Receber:</span>
+                <span className="font-bold">R$ {periodStats.month.aReceber.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/85 pt-2">
-                <span>Previsto (Não concluído):</span>
-                <span className="font-semibold text-slate-500">R$ {periodStats.month.projected.toFixed(0)}</span>
+              <div className="flex justify-between border-t border-border-ledger pt-1 text-ink-muted text-[11px]">
+                <span>Previsto (em aberto):</span>
+                <span>R$ {periodStats.month.projected.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Diárias/Visitas:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-300">{periodStats.month.nights}</span>
+              <div className="flex justify-between text-ink-subtle">
+                <span>Diárias:</span>
+                <span className="font-semibold text-ink">{periodStats.month.nights}</span>
               </div>
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div className="mt-5 space-y-1.5">
-            <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+          {/* Progress bar sólida */}
+          <div className="mt-4 space-y-1">
+            <div className="w-full h-1.5 bg-parchment rounded-card border border-border-ledger overflow-hidden flex">
               <div
-                className="h-full bg-sucesso-500 transition-all duration-300"
+                className="h-full bg-stamp-moss"
                 style={{ width: `${(periodStats.month.recebido / (periodStats.month.recebido + periodStats.month.aReceber || 1)) * 100}%` }}
               />
             </div>
-            <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            <div className="flex justify-between text-[9px] font-mono font-bold text-ink-muted uppercase tracking-wider">
               <span>Recebido</span>
               <span>A Receber</span>
             </div>
@@ -420,49 +403,45 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
         </div>
 
         {/* Card 3: Anual */}
-        <div className="rounded-3xl border-t-4 border-t-purple-500 border-slate-200/80 dark:border-slate-800 bg-white dark:bg-warmBg-900 p-5 shadow-sm flex flex-col justify-between flex-shrink-0">
+        <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 shadow-sm flex flex-col justify-between transition-colors duration-150">
           <div>
-            <div className="flex items-center justify-between">
-              <p className="text-xs font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">Ganhos do Ano</p>
-              <Sparkles size={14} className="text-slate-400 dark:text-slate-500" />
+            <div className="flex items-center justify-between border-b border-border-ledger pb-2">
+              <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">Ganhos do Ano</p>
+              <Sparkles size={13} className="text-ink-muted" />
             </div>
-            <p className="text-3xl font-extrabold text-slate-900 dark:text-white mt-3">
+            <p className="text-2xl sm:text-3xl font-bold font-display text-ink mt-2">
               R$ {(periodStats.year.recebido + periodStats.year.aReceber).toFixed(0)}
             </p>
 
-            <div className="mt-4 space-y-2 text-xs text-slate-600 dark:text-slate-400">
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1 font-semibold text-sucesso-600 dark:text-sucesso-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-sucesso-500"></span> Recebido:
-                </span>
-                <span className="font-bold text-sucesso-600 dark:text-sucesso-400">R$ {periodStats.year.recebido.toFixed(0)}</span>
+            <div className="mt-3 space-y-1.5 text-xs font-mono">
+              <div className="flex justify-between text-stamp-moss">
+                <span>Recebido:</span>
+                <span className="font-bold">R$ {periodStats.year.recebido.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span className="flex items-center gap-1 font-semibold text-mostarda-600 dark:text-mostarda-400">
-                  <span className="h-1.5 w-1.5 rounded-full bg-mostarda-500 motion-safe:animate-pulse"></span> A Receber:
-                </span>
-                <span className="font-bold text-mostarda-700 dark:text-mostarda-400">R$ {periodStats.year.aReceber.toFixed(0)}</span>
+              <div className="flex justify-between text-stamp-gold">
+                <span>A Receber:</span>
+                <span className="font-bold">R$ {periodStats.year.aReceber.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between border-t border-slate-100 dark:border-slate-800/85 pt-2">
-                <span>Previsto (Não concluído):</span>
-                <span className="font-semibold text-slate-500">R$ {periodStats.year.projected.toFixed(0)}</span>
+              <div className="flex justify-between border-t border-border-ledger pt-1 text-ink-muted text-[11px]">
+                <span>Previsto (em aberto):</span>
+                <span>R$ {periodStats.year.projected.toFixed(0)}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Diárias/Visitas:</span>
-                <span className="font-semibold text-slate-800 dark:text-slate-300">{periodStats.year.nights}</span>
+              <div className="flex justify-between text-ink-subtle">
+                <span>Diárias:</span>
+                <span className="font-semibold text-ink">{periodStats.year.nights}</span>
               </div>
             </div>
           </div>
 
-          {/* Progress bar */}
-          <div className="mt-5 space-y-1.5">
-            <div className="w-full h-1.5 bg-slate-100 dark:bg-slate-800 rounded-full overflow-hidden flex">
+          {/* Progress bar sólida */}
+          <div className="mt-4 space-y-1">
+            <div className="w-full h-1.5 bg-parchment rounded-card border border-border-ledger overflow-hidden flex">
               <div
-                className="h-full bg-sucesso-500 transition-all duration-300"
+                className="h-full bg-stamp-moss"
                 style={{ width: `${(periodStats.year.recebido / (periodStats.year.recebido + periodStats.year.aReceber || 1)) * 100}%` }}
               />
             </div>
-            <div className="flex justify-between text-[9px] font-bold text-slate-400 dark:text-slate-500 uppercase tracking-wider">
+            <div className="flex justify-between text-[9px] font-mono font-bold text-ink-muted uppercase tracking-wider">
               <span>Recebido</span>
               <span>A Receber</span>
             </div>
@@ -471,51 +450,51 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       </div>
 
       {/* 3. Seção do Gráfico */}
-      <div className="rounded-3xl border border-slate-200/80 dark:border-slate-800 bg-white/80 dark:bg-warmBg-900/80 p-6 shadow-sm backdrop-blur-md">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-slate-200 dark:border-slate-800/60 pb-5 mb-6">
+      <div className="rounded-card border border-border-ledger bg-parchment-elevated p-4 sm:p-5 shadow-sm transition-colors duration-150">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-border-ledger pb-3 mb-4">
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white flex items-center gap-1.5">
-              <span>📈</span> Desempenho por Hóspede Felino
+            <h3 className="text-base font-bold font-display text-ink">
+              Desempenho por Hóspede Felino
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Comparação de diárias e ganhos gerados por cada felino cadastrado.</p>
+            <p className="text-xs font-body text-ink-subtle mt-0.5">Comparação de diárias e receitas geradas por cada felino.</p>
           </div>
 
           {/* Sorting Toggles */}
-          <div className="flex items-center gap-1.5 bg-slate-100 dark:bg-slate-950 p-1 rounded-2xl border border-slate-200/50 dark:border-slate-800/80 self-start sm:self-auto">
+          <div className="flex items-center gap-1 rounded-card border border-border-ledger bg-parchment p-0.5 self-start sm:self-auto">
             <button
               type="button"
               onClick={() => setSortBy('spent')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${sortBy === 'spent'
-                ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                }`}
+              className={`px-2.5 py-1 rounded-card text-xs font-body transition-colors ${
+                sortBy === 'spent'
+                  ? 'bg-stamp-plum text-parchment font-semibold'
+                  : 'text-ink-subtle hover:text-ink'
+              }`}
             >
-              <span>💰</span>
-              <span><span className="hidden sm:inline">Ordenar por </span>Ganhos</span>
+              Ganhos
             </button>
             <button
               type="button"
               onClick={() => setSortBy('nights')}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 transition-all ${sortBy === 'nights'
-                ? 'bg-white dark:bg-warmBg-800 text-terracota-600 dark:text-terracota-400 shadow-sm font-bold'
-                : 'text-slate-500 dark:text-slate-400 hover:text-slate-800 dark:hover:text-slate-200'
-                }`}
+              className={`px-2.5 py-1 rounded-card text-xs font-body transition-colors ${
+                sortBy === 'nights'
+                  ? 'bg-stamp-plum text-parchment font-semibold'
+                  : 'text-ink-subtle hover:text-ink'
+              }`}
             >
-              <span>🌙</span>
-              <span><span className="hidden sm:inline">Ordenar por </span>Diárias</span>
+              Diárias
             </button>
           </div>
         </div>
 
         {/* Custom Bars Render Grid */}
         {sortedCats.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-16 text-center text-slate-400 dark:text-slate-500 border border-dashed border-slate-200 dark:border-slate-800 rounded-2xl bg-white/50 dark:bg-slate-900/40">
-            <span className="text-4xl mb-2">📊</span>
-            <p className="text-sm font-semibold text-slate-500 dark:text-slate-400">Nenhum registro com diárias para este filtro</p>
-            <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">Hospede um felino ou registre um serviço para visualizar os dados consolidados no gráfico.</p>
+          <div className="flex flex-col items-center justify-center py-12 text-center text-ink-muted border border-dashed border-border-ledger rounded-card bg-parchment">
+            <span className="text-3xl mb-2 opacity-70">📊</span>
+            <p className="text-sm font-body font-medium text-ink">Nenhum registro para este filtro</p>
+            <p className="text-xs font-body text-ink-muted mt-0.5">Cadastre e conclua serviços para visualizar o gráfico comparativo.</p>
           </div>
         ) : (
-          <div className="space-y-4 max-h-[600px] overflow-y-auto pr-1 scrollbar-thin">
+          <div className="space-y-3 max-h-[560px] overflow-y-auto pr-1 scrollbar-thin">
             {sortedCats.map((cat) => {
               const nightsWidth = (cat.nights / maxValues.nights) * 100;
               const spentWidth = (cat.spent / maxValues.spent) * 100;
@@ -523,48 +502,48 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               return (
                 <div
                   key={cat.id}
-                  className="flex flex-col sm:flex-row sm:items-center gap-4 bg-slate-50/40 dark:bg-slate-950/20 p-4 rounded-2xl border border-slate-200 dark:border-slate-800 hover:shadow-md dark:hover:bg-slate-900/40 hover:border-terracota-500/30 transition duration-200 group"
+                  className="flex flex-col sm:flex-row sm:items-center gap-3.5 bg-parchment p-3 rounded-card border border-border-ledger hover:border-border-ledger-hover transition-colors duration-150"
                 >
                   {/* Cat Photo and Name */}
-                  <div className="flex items-center gap-3 w-full sm:w-56 flex-shrink-0">
-                    <div className="h-11 w-11 overflow-hidden rounded-xl bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex-shrink-0 flex items-center justify-center shadow-inner group-hover:scale-105 transition">
+                  <div className="flex items-center gap-2.5 w-full sm:w-52 flex-shrink-0">
+                    <div className="h-10 w-10 overflow-hidden rounded-card bg-parchment-elevated border border-border-ledger flex-shrink-0 flex items-center justify-center">
                       {cat.fotoUrl ? (
                         <img src={cat.fotoUrl} alt={cat.nomeGato} className="h-full w-full object-cover" />
                       ) : (
-                        <Cat size={20} className="text-slate-400 dark:text-slate-500" />
+                        <Cat size={18} className="text-ink-muted" />
                       )}
                     </div>
                     <div className="min-w-0">
-                      <p className="text-sm font-bold text-slate-900 dark:text-white truncate group-hover:text-terracota-600 dark:group-hover:text-terracota-400 transition font-serif">{cat.nomeGato}</p>
-                      <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate mt-0.5">Tutor: <span className="font-semibold text-slate-700 dark:text-slate-300">{cat.nomeTutor}</span></p>
+                      <p className="text-sm font-bold font-display text-ink truncate">{cat.nomeGato}</p>
+                      <p className="text-[11px] font-body text-ink-subtle truncate">Tutor: <span className="font-medium text-ink">{cat.nomeTutor}</span></p>
                     </div>
                   </div>
 
                   {/* Progressive Horizontal Bar Chart */}
-                  <div className="flex-1 space-y-3">
+                  <div className="flex-1 space-y-2">
                     {/* Diárias Bar */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        <span>Diárias/Visitas</span>
-                        <span className="text-slate-700 dark:text-slate-300 font-bold">{cat.nights} {cat.nights === 1 ? 'dia/visita' : 'dias/visitas'} ({cat.staysCount} {cat.staysCount === 1 ? 'serviço' : 'serviços'})</span>
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-ink-muted">
+                        <span>Diárias</span>
+                        <span className="text-ink">{cat.nights} {cat.nights === 1 ? 'diária' : 'diárias'} ({cat.staysCount} {cat.staysCount === 1 ? 'reserva' : 'reservas'})</span>
                       </div>
-                      <div className="w-full h-3 bg-slate-100/80 dark:bg-slate-950 rounded-full overflow-hidden shadow-inner">
+                      <div className="w-full h-2 bg-parchment-elevated border border-border-ledger rounded-card overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-emerald-500 to-slate-400 rounded-full transition-all duration-700 ease-out"
+                          className="h-full bg-stamp-moss rounded-card transition-all duration-500 ease-out"
                           style={{ width: `${nightsWidth}%` }}
                         />
                       </div>
                     </div>
 
                     {/* Ganhos Bar */}
-                    <div className="space-y-1">
-                      <div className="flex justify-between text-[10px] font-bold uppercase tracking-wider text-slate-400 dark:text-slate-500">
-                        <span>Ganhos</span>
-                        <span className="text-terracota-600 dark:text-terracota-400 font-bold">R$ {cat.spent.toFixed(0)}</span>
+                    <div className="space-y-0.5">
+                      <div className="flex justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-ink-muted">
+                        <span>Receita</span>
+                        <span className="text-stamp-gold font-bold">R$ {cat.spent.toFixed(0)}</span>
                       </div>
-                      <div className="w-full h-3 bg-slate-100/80 dark:bg-slate-950 rounded-full overflow-hidden shadow-inner">
+                      <div className="w-full h-2 bg-parchment-elevated border border-border-ledger rounded-card overflow-hidden">
                         <div
-                          className="h-full bg-gradient-to-r from-terracota-500 to-mostarda-400 rounded-full transition-all duration-700 ease-out"
+                          className="h-full bg-stamp-gold rounded-card transition-all duration-500 ease-out"
                           style={{ width: `${spentWidth}%` }}
                         />
                       </div>

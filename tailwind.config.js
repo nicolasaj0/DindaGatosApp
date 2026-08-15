@@ -4,75 +4,34 @@ export default {
   theme: {
     extend: {
       colors: {
-        terracota: {
-          50: '#FDF7F4',
-          100: '#FBECE5',
-          200: '#F6D2C2',
-          300: '#EEAD92',
-          400: '#E47F58',
-          500: '#D97A4D', // Primária
-          600: '#C56235',
-          700: '#A44E28',
-          800: '#843F22',
-          900: '#6C351D',
-          950: '#3D1B0E',
+        parchment: {
+          DEFAULT: 'rgb(var(--color-parchment) / <alpha-value>)',
+          elevated: 'rgb(var(--color-parchment-elevated) / <alpha-value>)',
         },
-        mostarda: {
-          50: '#FEFAF0',
-          100: '#FDF2D9',
-          200: '#FAE1AE',
-          300: '#F6CC7B',
-          400: '#F1B34E',
-          500: '#E8B84B', // Secundária
-          600: '#CD9231',
-          700: '#AA7126',
-          800: '#885822',
-          900: '#70481F',
-          950: '#41270E',
+        ink: {
+          DEFAULT: 'rgb(var(--color-ink) / <alpha-value>)',
+          subtle: 'rgb(var(--color-ink-subtle))',
+          muted: 'rgb(var(--color-ink-muted))',
         },
-        ardosia: {
-          50: '#F5F8F8',
-          100: '#EBF2F2',
-          200: '#CCE0E0',
-          300: '#9EC1C1',
-          400: '#6C9E9E',
-          500: '#4A7C7C', // Apoio Frio
-          600: '#3B6666',
-          700: '#325353',
-          800: '#2C4747',
-          900: '#283E3E',
-          950: '#142323',
+        'border-ledger': {
+          DEFAULT: 'rgb(var(--color-border-ledger))',
+          hover: 'rgb(var(--color-border-ledger-hover))',
         },
-        warmBg: {
-          50: '#FCFAF7',
-          100: '#FAF6F0', // Fundo Claro
-          250: '#F3EDE2',
-          300: '#E9DEC9',
-          400: '#D2C1A5',
-          500: '#BCA383',
-          650: '#947D61',
-          700: '#7C674E',
-          800: '#524434',
-          900: '#352C22',
-          950: '#211A16', // Fundo Escuro
-        },
-        sucesso: {
-          50: '#ECFDF5',
-          100: '#D1FAE5',
-          200: '#A7F3D0',
-          300: '#6EE7B7',
-          400: '#34D399',
-          500: '#10B981',
-          600: '#059669',
-          700: '#047857',
-          800: '#065F46',
-          900: '#064E3B',
-          950: '#022C22',
+        stamp: {
+          plum: 'rgb(var(--color-stamp-plum) / <alpha-value>)',
+          wine: 'rgb(var(--color-stamp-wine) / <alpha-value>)',
+          moss: 'rgb(var(--color-stamp-moss) / <alpha-value>)',
+          gold: 'rgb(var(--color-stamp-gold) / <alpha-value>)',
         },
       },
       fontFamily: {
-        serif: ['Lora', 'Georgia', 'serif'],
-        sans: ['Poppins', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        display: ['Fraunces', 'Georgia', 'serif'],
+        body: ['Work Sans', 'ui-sans-serif', 'system-ui', 'sans-serif'],
+        mono: ['IBM Plex Mono', 'monospace'],
+      },
+      borderRadius: {
+        card: '10px',
+        stamp: '50%',
       },
     },
   },

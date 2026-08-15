@@ -33,21 +33,21 @@ export function Modal({ isOpen, title, onClose, children }: ModalProps) {
           onClose();
         }
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 dark:bg-black/80 backdrop-blur-sm sm:p-4 animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/65 sm:p-4 transition-colors"
     >
-      <div className="w-full max-w-2xl bg-white dark:bg-slate-900 shadow-2xl flex flex-col h-full sm:h-auto max-h-screen sm:max-h-[90vh] sm:rounded-3xl border border-transparent dark:border-slate-800/80">
-        <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-800 px-4 sm:px-6 py-3.5 flex-shrink-0">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-white">{title}</h2>
+      <div className="w-full max-w-2xl bg-parchment-elevated text-ink border border-border-ledger shadow-md flex flex-col h-full sm:h-auto max-h-screen sm:max-h-[90vh] sm:rounded-card">
+        <div className="flex items-center justify-between border-b border-border-ledger px-4 sm:px-6 py-3.5 flex-shrink-0">
+          <h2 className="text-lg font-bold font-display text-ink tracking-tight">{title}</h2>
           <button
             type="button"
             onClick={onClose}
             aria-label="Fechar"
-            className="rounded-lg p-1 text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 hover:text-slate-700 dark:hover:text-slate-200 transition"
+            className="rounded-card border border-border-ledger p-1.5 text-ink-subtle hover:text-ink hover:border-border-ledger-hover transition-colors"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
-        <div className="overflow-y-auto p-4 sm:p-6">{children}</div>
+        <div className="overflow-y-auto p-4 sm:p-6 scrollbar-thin">{children}</div>
       </div>
     </div>
   );

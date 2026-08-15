@@ -79,51 +79,51 @@ export function ModalRegistrarPagamento({
           onClose();
         }
       }}
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-sm animate-fadeIn"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/65 transition-colors"
     >
-      <div className="w-full max-w-md bg-white dark:bg-warmBg-900 rounded-3xl p-6 shadow-2xl border border-slate-200 dark:border-slate-800 space-y-5">
+      <div className="w-full max-w-md bg-parchment-elevated text-ink rounded-card p-5 sm:p-6 shadow-md border border-border-ledger space-y-4">
         <div className="flex items-center gap-3">
-          <div className="p-3 bg-sucesso-50 dark:bg-sucesso-950/40 rounded-2xl text-sucesso-600 dark:text-sucesso-400">
-            <DollarSign size={24} />
+          <div className="p-2.5 bg-parchment rounded-card border border-border-ledger text-stamp-moss">
+            <DollarSign size={20} />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-slate-900 dark:text-white font-serif">
+            <h3 className="text-base font-bold font-display text-ink tracking-tight">
               Registrar Pagamento
             </h3>
-            <p className="text-xs text-slate-500 dark:text-slate-400">
-              {hospedagem.nomeGato} • Tutor(a): {hospedagem.nomeTutor}
+            <p className="text-xs font-body text-ink-subtle">
+              {hospedagem.nomeGato} • Tutor: <span className="font-medium text-ink">{hospedagem.nomeTutor}</span>
             </p>
           </div>
         </div>
 
         {/* Resumo financeiro da reserva */}
-        <div className="bg-slate-50 dark:bg-slate-950/60 p-4 rounded-2xl border border-slate-100 dark:border-slate-800/80 space-y-2 text-xs">
-          <div className="flex justify-between text-slate-600 dark:text-slate-400">
+        <div className="bg-parchment p-3.5 rounded-card border border-border-ledger space-y-2 text-xs font-mono">
+          <div className="flex justify-between text-ink-subtle">
             <span>Valor Total da Reserva:</span>
-            <span className="font-bold text-slate-800 dark:text-slate-200">
+            <span className="font-bold text-ink">
               R$ {totals.valorTotal.toFixed(2)}
             </span>
           </div>
           {totals.valorTransporte > 0 && (
-            <div className="flex justify-between text-[11px] text-slate-500 dark:text-slate-500 pl-2 border-l-2 border-slate-300 dark:border-slate-700">
+            <div className="flex justify-between text-[11px] text-ink-muted pl-2 border-l border-border-ledger">
               <span>Inclui Transporte:</span>
               <span>R$ {totals.valorTransporte.toFixed(2)}</span>
             </div>
           )}
-          <div className="flex justify-between text-sucesso-600 dark:text-sucesso-400">
+          <div className="flex justify-between text-stamp-moss">
             <span>Já Recebido:</span>
             <span className="font-bold">R$ {valorPago.toFixed(2)}</span>
           </div>
-          <div className="flex justify-between text-mostarda-700 dark:text-mostarda-400 font-bold border-t border-slate-200 dark:border-slate-800 pt-2 text-sm">
+          <div className="flex justify-between text-stamp-gold font-bold border-t border-border-ledger pt-2 text-sm">
             <span>Saldo Restante:</span>
             <span>R$ {saldoRestante.toFixed(2)}</span>
           </div>
         </div>
 
         {/* Form para valor do novo pagamento */}
-        <form onSubmit={handleSubmit} className="space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 uppercase tracking-wide mb-1.5">
+            <label className="block font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1.5">
               Valor a Receber Agora (R$) *
             </label>
             <input
@@ -137,7 +137,7 @@ export function ModalRegistrarPagamento({
                 setErrorMsg('');
               }}
               placeholder="0,00"
-              className="w-full rounded-2xl border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-lg font-bold text-slate-900 dark:text-white focus:border-terracota-500 focus:outline-none focus:ring-1 focus:ring-terracota-500"
+              className="w-full rounded-card border border-border-ledger bg-parchment px-3 py-2 text-base font-mono font-bold text-ink focus:border-border-ledger-hover outline-none transition-colors"
               autoFocus
             />
           </div>
@@ -148,7 +148,7 @@ export function ModalRegistrarPagamento({
               <button
                 type="button"
                 onClick={() => setPreset(saldoRestante)}
-                className="px-3 py-1.5 rounded-xl bg-emerald-50 dark:bg-emerald-950/30 text-emerald-700 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-900/50 text-xs font-bold hover:bg-emerald-100 transition"
+                className="px-2.5 py-1 rounded-card border border-border-ledger bg-parchment text-ink text-xs font-mono font-medium hover:border-border-ledger-hover transition-colors"
               >
                 Quitar Saldo (R$ {saldoRestante.toFixed(2)})
               </button>
@@ -157,7 +157,7 @@ export function ModalRegistrarPagamento({
               <button
                 type="button"
                 onClick={() => setPreset(totals.valorTotal * 0.5)}
-                className="px-3 py-1.5 rounded-xl bg-mostarda-50 dark:bg-mostarda-950/30 text-mostarda-800 dark:text-mostarda-400 border border-mostarda-200 dark:border-mostarda-900/50 text-xs font-bold hover:bg-mostarda-100 transition"
+                className="px-2.5 py-1 rounded-card border border-border-ledger bg-parchment text-ink text-xs font-mono font-medium hover:border-border-ledger-hover transition-colors"
               >
                 50% Entrada (R$ {(totals.valorTotal * 0.5).toFixed(2)})
               </button>
@@ -165,25 +165,25 @@ export function ModalRegistrarPagamento({
           </div>
 
           {errorMsg && (
-            <div className="flex items-center gap-1.5 text-xs text-red-600 dark:text-red-400 font-semibold bg-red-50 dark:bg-red-950/30 p-2.5 rounded-xl border border-red-200 dark:border-red-900/50">
+            <div className="flex items-center gap-1.5 text-xs text-stamp-wine font-body font-semibold bg-parchment p-2.5 rounded-card border border-stamp-wine">
               <AlertCircle size={14} className="flex-shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
 
-          <div className="flex gap-3 pt-2">
+          <div className="flex gap-2.5 pt-2 border-t border-border-ledger">
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 rounded-xl border border-slate-300 dark:border-slate-700 py-2.5 text-sm font-semibold text-slate-700 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition"
+              className="flex-1 rounded-card border border-border-ledger bg-parchment py-2 text-xs font-body font-medium text-ink hover:border-border-ledger-hover transition-colors"
             >
               Cancelar
             </button>
             <button
               type="submit"
-              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-sucesso-500 py-2.5 text-sm font-semibold text-white hover:bg-sucesso-600 shadow-md shadow-sucesso-500/10 transition"
+              className="flex-1 inline-flex items-center justify-center gap-1.5 rounded-card bg-stamp-moss text-parchment border border-stamp-moss py-2 text-xs font-body font-semibold hover:opacity-90 transition-opacity"
             >
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={14} />
               Confirmar Recebimento
             </button>
           </div>
