@@ -2,6 +2,7 @@ import { useMemo } from 'react';
 import { Hospedagem, HospedagemStatus, TipoServico } from '../types';
 import { Card } from './Card';
 import { getStatusLabel, labelStatus } from '../utils';
+import { ClipboardList } from 'lucide-react';
 
 interface ColumnProps {
   status: HospedagemStatus;
@@ -45,7 +46,7 @@ export function Column({ status, items, onEdit, onCheckOut, onCheckIn, onOpenPag
       >
         {count === 0 ? (
           <div className={`flex flex-col items-center justify-center rounded-card border border-dashed border-border-ledger bg-parchment p-6 text-center text-ink-muted ${isRowMode ? 'min-w-[280px] py-10' : 'w-full'}`}>
-            <span className="text-xl mb-1 opacity-70">📋</span>
+            <ClipboardList size={22} strokeWidth={1.5} className="mb-1 opacity-70 text-ink-muted" />
             <p className="text-xs font-body font-medium text-ink-muted">Nenhum registro nesta lista</p>
           </div>
         ) : (

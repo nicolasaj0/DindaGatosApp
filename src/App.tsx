@@ -11,7 +11,7 @@ import { FormEditGato } from './components/FormEditGato';
 import { FichaGato } from './components/FichaGato';
 import { RelatoriosView } from './components/RelatoriosView';
 import { ModalRegistrarPagamento } from './components/ModalRegistrarPagamento';
-import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Eye } from 'lucide-react';
+import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Eye, NotebookText, PawPrint, BookText } from 'lucide-react';
 import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus, calculateEstadiaTotals } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
@@ -413,8 +413,12 @@ function App() {
                 : 'bg-parchment-elevated text-ink-subtle border-border-ledger hover:text-ink hover:border-border-ledger-hover'
             }`}
           >
-            <span>🗓️</span>
-            <span>Quadro de Hospedagens</span>
+            <NotebookText
+              size={18}
+              strokeWidth={1.5}
+              className={currentView === 'hospedagens' ? 'text-parchment' : 'text-ink/70'}
+            />
+            <span>Movimento</span>
           </button>
           <button
             type="button"
@@ -428,8 +432,12 @@ function App() {
                 : 'bg-parchment-elevated text-ink-subtle border-border-ledger hover:text-ink hover:border-border-ledger-hover'
             }`}
           >
-            <span>🐱</span>
-            <span>Hóspedes Felinos</span>
+            <PawPrint
+              size={18}
+              strokeWidth={1.5}
+              className={currentView === 'gatos' ? 'text-parchment' : 'text-ink/70'}
+            />
+            <span>Fichário</span>
             <span className={`inline-flex items-center justify-center rounded-card px-1.5 py-0.5 text-xs font-mono font-medium ${
               currentView === 'gatos'
                 ? 'bg-parchment text-stamp-plum'
@@ -447,7 +455,11 @@ function App() {
                 : 'bg-parchment-elevated text-ink-subtle border-border-ledger hover:text-ink hover:border-border-ledger-hover'
             }`}
           >
-            <span>📊</span>
+            <BookText
+              size={18}
+              strokeWidth={1.5}
+              className={currentView === 'relatorios' ? 'text-parchment' : 'text-ink/70'}
+            />
             <span>Relatórios</span>
           </button>
         </div>
@@ -456,7 +468,7 @@ function App() {
           <div>
             <p className="font-mono text-[11px] font-bold uppercase tracking-widest text-ink-muted">Visão Geral</p>
             <h2 className="mt-1 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">
-              {currentView === 'hospedagens' ? 'Quadro de Hospedagens' : currentView === 'gatos' ? 'Histórico & Hóspedes Felinos' : 'Relatório Financeiro & Desempenho'}
+              {currentView === 'hospedagens' ? 'Movimento' : currentView === 'gatos' ? 'Fichário' : 'Relatórios'}
             </h2>
             <p className="mt-1 max-w-2xl text-xs sm:text-sm font-body text-ink-subtle">
               {currentView === 'hospedagens'
@@ -733,10 +745,10 @@ function App() {
               </button>
             </div>
 
-            {/* Grid de Hóspedes Felinos */}
+            {/* Grid do Fichário */}
             {filteredGatos.length === 0 ? (
               <div className="flex flex-col items-center justify-center rounded-card border border-dashed border-border-ledger bg-parchment p-10 text-center text-ink-muted">
-                <span className="text-3xl mb-2 opacity-70">🐾</span>
+                <PawPrint size={32} strokeWidth={1.5} className="mb-2 opacity-70 text-ink-muted" />
                 <p className="text-sm font-body font-medium text-ink">Nenhum felino encontrado</p>
                 <p className="text-xs font-body text-ink-muted mt-0.5">Cadastre um novo gato ou ajuste os termos da busca.</p>
               </div>

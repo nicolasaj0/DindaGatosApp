@@ -82,7 +82,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
           )}
           <div className="mt-2.5 flex flex-wrap gap-2 items-center font-mono text-xs">
             <span className="text-ink-subtle bg-parchment-elevated border border-border-ledger rounded-card px-2 py-0.5">
-              {hospedagem.tipoServico === 'transporte' ? 'transporte' : totals.nights === 1 ? '1 diária 🌙' : `${totals.nights} diárias 🌙`}
+              {hospedagem.tipoServico === 'transporte' ? 'transporte' : totals.nights === 1 ? '1 diária' : `${totals.nights} diárias`}
             </span>
             <span className="text-ink font-semibold bg-parchment-elevated border border-border-ledger rounded-card px-2 py-0.5">
               {totals.valorTransporte > 0

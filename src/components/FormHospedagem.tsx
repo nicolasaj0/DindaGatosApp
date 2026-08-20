@@ -322,10 +322,10 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
           onChange={handleSelectGatoChange}
           className="w-full rounded-card border border-border-ledger bg-parchment-elevated px-3 py-1.5 text-xs sm:text-sm text-ink focus:border-border-ledger-hover outline-none"
         >
-          <option value="">✨ Novo Cadastro (Preencher ficha)</option>
+          <option value="">+ Novo Cadastro (Preencher ficha)</option>
           {gatos.map((g) => (
             <option key={g.id} value={g.id}>
-              🐱 {g.nomeGato} (Tutor: {g.nomeTutor})
+              {g.nomeGato} (Tutor: {g.nomeTutor})
             </option>
           ))}
         </select>

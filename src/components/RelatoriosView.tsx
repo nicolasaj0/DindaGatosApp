@@ -1,7 +1,7 @@
 import { useState, useMemo } from 'react';
 import { Estadia, Gato, TipoServico } from '../types';
 import { calculateEstadiaTotals } from '../utils';
-import { Cat, DollarSign, Calendar, TrendingUp, Award, Clock, Sparkles } from 'lucide-react';
+import { Cat, DollarSign, Calendar, TrendingUp, Award, Clock, Sparkles, BarChart3 } from 'lucide-react';
 
 interface RelatoriosViewProps {
   estadias: Estadia[];
@@ -225,7 +225,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
       {/* Filtro por Tipo de Serviço em Relatórios */}
       <div className="flex flex-wrap items-center gap-2 bg-parchment-elevated border border-border-ledger rounded-card p-3.5 shadow-sm transition-colors duration-150">
         <span className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted mr-1 flex items-center gap-1">
-          Serviço do Relatório:
+          Filtrar por Serviço:
         </span>
         {[
           { id: 'todos', label: 'Todos os Serviços' },
@@ -489,7 +489,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
         {/* Custom Bars Render Grid */}
         {sortedCats.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-12 text-center text-ink-muted border border-dashed border-border-ledger rounded-card bg-parchment">
-            <span className="text-3xl mb-2 opacity-70">📊</span>
+            <BarChart3 size={32} strokeWidth={1.5} className="mb-2 opacity-70 text-ink-muted" />
             <p className="text-sm font-body font-medium text-ink">Nenhum registro para este filtro</p>
             <p className="text-xs font-body text-ink-muted mt-0.5">Cadastre e conclua serviços para visualizar o gráfico comparativo.</p>
           </div>
