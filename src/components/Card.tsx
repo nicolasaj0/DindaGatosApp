@@ -265,7 +265,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         <button
           type="button"
           onClick={handleCheckOutClick}
-          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-card bg-stamp-gold text-ink border border-stamp-gold px-3 py-2 text-xs font-body font-semibold hover:opacity-90 transition-opacity"
+          className="mt-3 flex w-full items-center justify-center gap-1.5 rounded-card bg-stamp-gold text-parchment border border-stamp-gold px-3 py-2 text-xs font-body font-semibold hover:opacity-90 transition-opacity"
         >
           <Check size={14} />
           <span>{hospedagem.tipoServico === 'transporte' ? 'Concluir Transporte' : hospedagem.tipoServico === 'cat_sitter' ? 'Concluir Atendimento' : 'Confirmar Saída (Check-out)'}</span>
