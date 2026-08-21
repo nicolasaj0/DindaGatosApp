@@ -95,12 +95,3 @@ Certifique-se de ter o [Node.js](https://nodejs.org/) instalado em sua máquina.
    A pasta `dist` será gerada com os arquivos estáticos prontos para hospedagem (Vercel, Netlify, Github Pages, etc.).
 
 ---
-
-## 📐 Diretrizes de Desenvolvimento e Regras do Projeto
-
-Caso queira estender ou modificar o código deste projeto, siga as diretrizes técnicas estabelecidas:
-
-- **Fuso Horário e Datas**: Nunca formate datas `YYYY-MM-DD` instanciando `new Date(dateStr)` diretamente (evita bugs de fuso horário deslocando o dia em -1). Utilize splits de string para formatação direta ou funções locais helpers de `getFullYear()`, `getMonth() + 1`, `getDate()`.
-- **Modo Leitura por Padrão**: Modais de visualização de registros devem sempre abrir em modo leitura para evitar exclusões ou alterações acidentais. Inclua um botão explícito para ativar o modo de edição.
-- **Otimização de Mídias**: Qualquer imagem local carregada no estado deve obrigatoriamente passar pelo utilitário de compressão em canvas antes de ser serializada.
-- **Sem Jargões Técnicos**: Use sempre termos amigáveis para usuários não-técnicos (ex: "Salvar Cópia (Backup)" em vez de "Exportar JSON").
