@@ -1,97 +1,69 @@
-# 🐾 DindaGatos App
+# DindaGatos App
 
-O **DindaGatos App** é uma ferramenta web moderno, fluido e intuitivo desenvolvido para gerenciar e organizar hospedagens de gatos. Projetado com foco em usabilidade para usuários leigos, o aplicativo simplifica a gestão de rotinas de hotelaria felina, acompanhamento de estadias, controle de medicações e faturamento.
+Aplicação web para gerenciar hospedagens de gatos: acompanhamento de estadias, controle de medicações e faturamento, com foco em usabilidade para usuários sem experiência técnica.
 
----
+## Funcionalidades
 
-## ✨ Principais Funcionalidades
+### Quadro Kanban
+Colunas organizadas automaticamente pelo status da estadia:
+- **Agendados** — próximas estadias planejadas.
+- **Hospedados** — gatos atualmente no hotel.
+- **Saindo hoje** — hóspedes que finalizam a estadia no dia.
+- **Concluídos** — histórico de estadias finalizadas.
 
-### 📋 Quadro Kanban Inteligente
-Acompanhe o fluxo das hospedagens em tempo real através de colunas organizacionais automáticas:
-- **Agendados**: Próximas estadias planejadas.
-- **Hospedados**: Gatos que estão atualmente no hotel.
-- **Saindo Hoje**: Hóspedes que finalizam a estadia no dia corrente.
-- **Concluídos**: Histórico de estadias finalizadas.
+### Busca e filtros
+- Busca por nome do gato ou do tutor, em tempo real.
+- Filtros rápidos: todos, com medicação ativa, isolados (não socializam) e sociáveis.
 
-### 🔍 Busca e Filtros Rápidos (Tempo Real)
-- **Barra de Pesquisa**: Encontre qualquer hóspede instantaneamente digitando o nome do gato ou do tutor.
-- **Filtros Rápidos**: Triagem com um clique para focar em grupos específicos:
-  - **Todos**: Exibição completa.
-  - **Medicamentos** 💊: Exibe apenas os gatos com tratamento ativo.
-  - **Isolados** 🔒: Exibe apenas gatos que não socializam com outros.
-  - **Sociáveis** 🤝: Exibe apenas gatos liberados para socialização.
+### Estadias e precificação
+- Cálculo automático da duração da estadia a partir das datas de check-in e check-out.
+- Valor de diária configurável por hóspede (padrão R$ 50,00), com total estimado calculado automaticamente.
+- Validação que impede definir check-out anterior ao check-in.
+- Valores exibidos nos cartões do Kanban e na ficha do hóspede.
 
-### 💰 Gerenciador de Estadias e Precificação
-- **Cálculo Automático de Diárias**: Insira as datas de check-in e check-out e o sistema calcula a duração exata da estadia.
-- **Valor da Diária Personalizável**: Defina valores individuais por hóspede (padrão de R$ 50,00) e veja o valor total estimado na hora.
-- **Visualização Rápida**: Valores exibidos diretamente nos cartões Kanban e detalhados na ficha do hóspede.
-- **Validação de Segurança**: Bloqueio inteligente que impede o agendamento de check-out antes da data de check-in.
+### Alerta de medicação
+Hóspedes com medicação pendente exibem um indicador visual pulsante no Kanban, para chamar atenção do cuidador.
 
-### 🚨 Alerta Visual Pulsante de Medicamentos
-- Gatos hospedados que possuem medicação pendente exibem um alerta vermelho pulsante (`animate-pulse`) no Kanban, chamando a atenção do cuidador imediatamente para garantir que nenhum horário seja esquecido.
+### Upload de imagens
+- Suporte a upload local ou por URL.
+- Compressão automática via canvas (redimensionamento para até 256px e qualidade JPEG 0.7), mantendo o arquivo serializado abaixo de 15KB.
 
-### 🖼️ Upload e Otimização de Imagens
-- Suporte para upload de fotos locais e URLs da internet.
-- **Compressão Automática via Canvas**: Redimensiona e otimiza imagens localmente (largura/altura máxima de 256px e qualidade JPEG 0.7) mantendo os arquivos serializados abaixo de 15KB para não sobrecarregar o armazenamento local.
+### Modo escuro
+Tema claro/escuro com detecção da preferência do sistema operacional e persistência da escolha do usuário.
 
-### 🌗 Modo Escuro Premium (Dark Mode)
-- Interface com tema claro e escuro.
-- Detecção automática da preferência do sistema operacional e persistência de escolha.
-- Transições de cores suaves para uma experiência noturna confortável.
+### Backup e restauração
+Exportação e importação dos dados em JSON. Persistência local via Zustand (`localStorage`).
 
-### 💾 Backup e Restauração de Dados
-- **Salvar Cópia (Backup)**: Exporta todos os registros das hospedagens em formato JSON.
-- **Restaurar Cópia**: Importa cópias de segurança anteriores com facilidade.
-- Persistência total em estado local (`localStorage` via Zustand persist).
+## Tecnologias
 
----
+- [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+- [Vite](https://vitejs.dev/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Zustand](https://zustand-demo.pmnd.rs/) (com persistência)
+- [Lucide React](https://lucide.dev/) (ícones)
 
-## 🛠️ Tecnologias Utilizadas
+## Design responsivo
 
-- **Core**: [React](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
-- **Build/Bundler**: [Vite](https://vitejs.dev/)
-- **Estilização**: [Tailwind CSS](https://tailwindcss.com/) (Estilos e componentes sob medida)
-- **Gerenciamento de Estado**: [Zustand](https://zustand-demo.pmnd.rs/) (com persistência automática)
-- **Ícones**: [Lucide React](https://lucide.dev/)
+- Em telas pequenas, o Kanban é exibido em abas deslizantes; em telas maiores, as colunas aparecem lado a lado.
+- Modais de visualização se tornam painéis (drawers) de tela cheia em dispositivos móveis.
 
----
+## Rodando localmente
 
-## 📱 Design Responsivo e Mobile-First
+Pré-requisito: [Node.js](https://nodejs.org/) instalado.
 
-O aplicativo foi otimizado para funcionar perfeitamente em celulares e tablets, sem prejudicar a experiência em telas grandes:
-- **Visualização em Abas no Mobile**: Em telas pequenas, o Kanban é exibido através de abas deslizantes de fácil clique. Em telas maiores, as colunas são exibidas lado a lado automaticamente.
-- **Fichas e Modais Adaptativos**: Os modais de visualização tornam-se painéis deslizantes (Drawers) de tela cheia em dispositivos móveis, facilitando a navegação com gestos de toque.
+```bash
+git clone https://github.com/nicolasaj0/DindaGatosApp.git
+cd DindaGatosApp
+npm install
+npm run dev
+```
 
----
+Acesse a URL exibida no terminal (geralmente `http://localhost:5173`).
 
-## 🚀 Como Executar o Projeto Localmente
+Para build de produção:
 
-### Pré-requisitos
-Certifique-se de ter o [Node.js](https://nodejs.org/) instalado em sua máquina.
+```bash
+npm run build
+```
 
-### Passos para Instalação e Execução
-
-1. **Clonar o Repositório:**
-   ```bash
-   git clone https://github.com/nicolasaj0/DindaGatosApp.git
-   cd DindaGatosApp
-   ```
-
-2. **Instalar Dependências:**
-   ```bash
-   npm install
-   ```
-
-3. **Executar o Servidor de Desenvolvimento:**
-   ```bash
-   npm run dev
-   ```
-   Acesse a URL gerada no terminal (geralmente `http://localhost:5173`) no seu navegador.
-
-4. **Compilar para Produção (Build):**
-   ```bash
-   npm run build
-   ```
-   A pasta `dist` será gerada com os arquivos estáticos prontos para hospedagem (Vercel, Netlify, Github Pages, etc.).
-
----
+Os arquivos estáticos são gerados na pasta `dist`, prontos para hospedagem (Vercel, Netlify, GitHub Pages etc.).
