@@ -11,7 +11,19 @@ import { FormEditGato } from './components/FormEditGato';
 import { FichaGato } from './components/FichaGato';
 import { RelatoriosView } from './components/RelatoriosView';
 import { ModalRegistrarPagamento } from './components/ModalRegistrarPagamento';
-import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Eye, NotebookText, PawPrint, BookText } from 'lucide-react';
+import { ModalBackupFolder } from './components/ModalBackupFolder';
+import { Download, Upload, Cat, Search, Edit2, Trash2, Calendar, Plus, ChevronDown, ChevronUp, ArrowRight, ArrowLeft, Eye, NotebookText, PawPrint, BookText, FolderSync } from 'lucide-react';
+import {
+  isFileSystemAccessSupported,
+  getStoredDirectoryHandle,
+  pickBackupDirectory,
+  verifyFolderPermission,
+  writeBackupToFolder,
+  clearDirectoryHandle,
+  getCachedFolderName,
+  getLastBackupTimestamp,
+  requestStoragePersistence,
+} from './services/backupStorage';
 import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus, calculateEstadiaTotals } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
@@ -319,6 +331,111 @@ function App() {
     });
   }, [gatos, gatosSearchTerm]);
 
+  // Estados para Cópia Automática na Pasta do Computador
+  const [isBackupFolderModalOpen, setIsBackupFolderModalOpen] = useState(false);
+  const [backupFolderName, setBackupFolderName] = useState<string | null>(getCachedFolderName);
+  const [lastBackupTime, setLastBackupTime] = useState<string | null>(getLastBackupTimestamp);
+  const [backupFolderHandle, setBackupFolderHandle] = useState<FileSystemDirectoryHandle | null>(null);
+  const [hasFolderPermission, setHasFolderPermission] = useState<boolean>(false);
+  const [isBackingUp, setIsBackingUp] = useState<boolean>(false);
+  const isFSSupported = useMemo(() => isFileSystemAccessSupported(), []);
+
+  // Solicitar persistência do armazenamento do navegador e recuperar pasta salva
+  useEffect(() => {
+    requestStoragePersistence();
+
+    if (isFSSupported) {
+      getStoredDirectoryHandle().then(async (handle) => {
+        if (handle) {
+          setBackupFolderHandle(handle);
+          setBackupFolderName(handle.name);
+          const hasPerm = await verifyFolderPermission(handle, false);
+          setHasFolderPermission(hasPerm);
+        }
+      });
+    }
+  }, [isFSSupported]);
+
+  // Rotina de cópia automática ao alterar dados (com debounce de 2 segundos)
+  useEffect(() => {
+    if (!backupFolderHandle || !hasFolderPermission) return;
+
+    const timer = setTimeout(async () => {
+      try {
+        const stateToExport = {
+          gatos: useHospedagemStore.getState().gatos,
+          estadias: useHospedagemStore.getState().estadias,
+        };
+        await writeBackupToFolder(backupFolderHandle, stateToExport);
+        setLastBackupTime(getLastBackupTimestamp());
+      } catch (err) {
+        console.warn('Erro ao salvar cópia automática de segurança:', err);
+      }
+    }, 2000);
+
+    return () => clearTimeout(timer);
+  }, [gatos, estadias, backupFolderHandle, hasFolderPermission]);
+
+  const handleSelectBackupFolder = async () => {
+    const handle = await pickBackupDirectory();
+    setBackupFolderHandle(handle);
+    setBackupFolderName(handle.name);
+    setHasFolderPermission(true);
+    setIsBackingUp(true);
+    try {
+      const stateToExport = {
+        gatos: useHospedagemStore.getState().gatos,
+        estadias: useHospedagemStore.getState().estadias,
+      };
+      await writeBackupToFolder(handle, stateToExport);
+      setLastBackupTime(getLastBackupTimestamp());
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
+  const handleReauthorizeFolder = async () => {
+    if (!backupFolderHandle) return;
+    const granted = await verifyFolderPermission(backupFolderHandle, true);
+    setHasFolderPermission(granted);
+    if (granted) {
+      setIsBackingUp(true);
+      try {
+        const stateToExport = {
+          gatos: useHospedagemStore.getState().gatos,
+          estadias: useHospedagemStore.getState().estadias,
+        };
+        await writeBackupToFolder(backupFolderHandle, stateToExport);
+        setLastBackupTime(getLastBackupTimestamp());
+      } finally {
+        setIsBackingUp(false);
+      }
+    }
+  };
+
+  const handleDisconnectBackupFolder = async () => {
+    await clearDirectoryHandle();
+    setBackupFolderHandle(null);
+    setBackupFolderName(null);
+    setHasFolderPermission(false);
+    setLastBackupTime(null);
+  };
+
+  const handleTriggerBackupNow = async () => {
+    if (!backupFolderHandle) throw new Error('Nenhuma pasta selecionada.');
+    setIsBackingUp(true);
+    try {
+      const stateToExport = {
+        gatos: useHospedagemStore.getState().gatos,
+        estadias: useHospedagemStore.getState().estadias,
+      };
+      await writeBackupToFolder(backupFolderHandle, stateToExport);
+      setLastBackupTime(getLastBackupTimestamp());
+    } finally {
+      setIsBackingUp(false);
+    }
+  };
+
   const handleExportJSON = () => {
     try {
       const stateToExport = {
@@ -470,7 +587,7 @@ function App() {
             <h2 className="mt-1 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">
               {currentView === 'hospedagens' ? 'Movimento' : currentView === 'gatos' ? 'Fichário' : 'Relatórios'}
             </h2>
-            <p className="mt-1 max-w-2xl text-xs sm:text-sm font-body text-ink-subtle">
+            <p className="mt-1 max-w-xl text-xs sm:text-sm font-body text-ink-subtle">
               {currentView === 'hospedagens'
                 ? 'Acompanhamento de check-ins, estadias ativas e previsões de saída da pousada.'
                 : currentView === 'gatos'
@@ -478,7 +595,31 @@ function App() {
                   : 'Consolidado financeiro de diárias realizadas, a receber e faturamento por período.'}
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-2.5">
+          <div className="flex flex-wrap items-center gap-2 sm:gap-2.5 md:justify-end flex-shrink-0">
+            <button
+              type="button"
+              onClick={() => setIsBackupFolderModalOpen(true)}
+              className="inline-flex items-center justify-center gap-1.5 rounded-card border border-border-ledger bg-parchment px-3.5 py-2 text-xs font-body font-medium text-ink hover:border-border-ledger-hover transition-colors"
+              title={
+                backupFolderName
+                  ? `Pasta de segurança vinculada: ${backupFolderName}`
+                  : 'Configurar pasta no computador para cópias de segurança automáticas'
+              }
+            >
+              <FolderSync
+                size={14}
+                className={backupFolderName && hasFolderPermission ? 'text-stamp-moss' : 'text-ink/70'}
+              />
+              <span>Pasta de Segurança</span>
+              {backupFolderName && (
+                <span
+                  className={`h-1.5 w-1.5 rounded-stamp inline-block ${
+                    hasFolderPermission ? 'bg-stamp-moss' : 'bg-stamp-gold'
+                  }`}
+                  title={hasFolderPermission ? 'Cópia automática ativa' : 'Permissão pendente nesta sessão'}
+                />
+              )}
+            </button>
             <button
               onClick={handleExportJSON}
               className="inline-flex items-center justify-center gap-1.5 rounded-card border border-border-ledger bg-parchment px-3.5 py-2 text-xs font-body font-medium text-ink hover:border-border-ledger-hover transition-colors"
@@ -975,6 +1116,20 @@ function App() {
         hospedagem={pagamentoModalHospedagem}
         onClose={() => setPagamentoModalHospedagem(null)}
         onConfirm={handleConfirmPagamento}
+      />
+
+      <ModalBackupFolder
+        isOpen={isBackupFolderModalOpen}
+        onClose={() => setIsBackupFolderModalOpen(false)}
+        folderName={backupFolderName}
+        hasPermission={hasFolderPermission}
+        lastBackupTime={lastBackupTime}
+        isSupported={isFSSupported}
+        isBackingUp={isBackingUp}
+        onSelectFolder={handleSelectBackupFolder}
+        onReauthorizeFolder={handleReauthorizeFolder}
+        onDisconnectFolder={handleDisconnectBackupFolder}
+        onTriggerBackupNow={handleTriggerBackupNow}
       />
     </div>
   );
