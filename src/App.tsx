@@ -24,7 +24,7 @@ import {
   getLastBackupTimestamp,
   requestStoragePersistence,
 } from './services/backupStorage';
-import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus, calculateEstadiaTotals } from './utils';
+import { getLocalDateString, getLocalTimestampString, getStatusLabel, formatDateString, calculateNights, labelStatus, calculateEstadiaTotals, formatCurrency } from './utils';
 
 const statusOrder: HospedagemStatus[] = [
   'agendado',
@@ -81,7 +81,7 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
           Histórico ({stats.count})
         </span>
         <span className="text-[11px] font-mono text-ink-muted">
-          {stats.nights} diárias • R$ {stats.spent.toFixed(0)}
+          {stats.nights} diárias • {formatCurrency(stats.spent)}
         </span>
         {isOpen ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
       </button>
@@ -96,7 +96,7 @@ function GatoStayHistory({ gatoId, estadias }: GatoStayHistoryProps) {
                   {formatDateString(e.dataCheckIn)} - {formatDateString(e.dataCheckOut)}
                 </span>
                 <span className="font-bold text-ink">
-                  {totals.nights === 1 ? '1 diária' : `${totals.nights} diárias`} • R$ {totals.valorTotal.toFixed(0)}
+                  {totals.nights === 1 ? '1 diária' : `${totals.nights} diárias`} • {formatCurrency(totals.valorTotal)}
                 </span>
                 <span className="px-1.5 py-0.5 rounded-card text-[8px] font-mono font-bold uppercase tracking-wider border border-border-ledger bg-parchment-elevated text-ink-subtle">
                   {e.status === 'concluido' ? 'Concl' : e.status === 'hospedado' ? 'Hosp' : e.status === 'saindo_hoje' ? 'Saída' : 'Agend'}
@@ -938,7 +938,7 @@ function App() {
                           <>
                             <span>•</span>
                             <span className="font-mono font-medium text-ink">
-                              R$ {gato.valorDiariaPadrao}/dia
+                              {formatCurrency(gato.valorDiariaPadrao)}/dia
                             </span>
                           </>
                         )}

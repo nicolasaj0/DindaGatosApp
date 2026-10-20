@@ -1,7 +1,7 @@
 import { Hospedagem } from '../types';
 import { Calendar, Pill, Edit2, User, AlertCircle, HeartPulse, MapPin, DollarSign, Car, Undo2 } from 'lucide-react';
 import { useHospedagemStore } from '../store';
-import { formatDateString, calculateEstadiaTotals, labelStatus } from '../utils';
+import { formatDateString, calculateEstadiaTotals, labelStatus, formatCurrency } from '../utils';
 
 interface FichaHospedagemProps {
   hospedagem: Hospedagem;
@@ -86,8 +86,8 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
             </span>
             <span className="text-ink font-semibold bg-parchment-elevated border border-border-ledger rounded-card px-2 py-0.5">
               {totals.valorTransporte > 0
-                ? `Serviço: R$ ${totals.valorServico.toFixed(0)} + Transp: R$ ${totals.valorTransporte.toFixed(0)} = R$ ${totals.valorTotal.toFixed(2)}`
-                : `Diária: R$ ${hospedagem.valorDiaria || 0} • Total: R$ ${totals.valorTotal.toFixed(2)}`}
+                ? `Serviço: ${formatCurrency(totals.valorServico)} + Transp: ${formatCurrency(totals.valorTransporte)} = ${formatCurrency(totals.valorTotal)}`
+                : `Diária: ${formatCurrency(hospedagem.valorDiaria || 0)} • Total: ${formatCurrency(totals.valorTotal)}`}
             </span>
           </div>
         </div>
@@ -134,7 +134,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
               <Car size={13} /> Transporte Adicional Embutido
             </h4>
             <p className="text-xs text-ink">
-              Valor adicional: <strong className="font-mono">R$ {hospedagem.transporteAdicional.valor.toFixed(2)}</strong>
+              Valor adicional: <strong className="font-mono">{formatCurrency(hospedagem.transporteAdicional.valor)}</strong>
               {hospedagem.transporteAdicional.detalhes && (
                 <span className="block mt-0.5 text-ink-subtle">
                   Instruções: {hospedagem.transporteAdicional.detalhes}
@@ -150,7 +150,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
             <h4 className="font-mono text-[10px] font-bold text-ink-muted uppercase tracking-wider">
               Controle Financeiro
             </h4>
-            <span className="font-mono text-xs text-ink font-semibold">Total: R$ {totals.valorTotal.toFixed(2)}</span>
+            <span className="font-mono text-xs text-ink font-semibold">Total: {formatCurrency(totals.valorTotal)}</span>
           </div>
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 bg-parchment-elevated p-3 rounded-card border border-border-ledger">
             <div>
@@ -161,12 +161,12 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
                   'text-ink-subtle'
                 }>
                   {hospedagem.statusPagamento === 'pago' ? 'Quitado (100%)' :
-                   hospedagem.statusPagamento === 'parcial' ? `Parcial (R$ ${valorPago.toFixed(2)} / R$ ${totals.valorTotal.toFixed(2)})` :
+                   hospedagem.statusPagamento === 'parcial' ? `Parcial (${formatCurrency(valorPago)} / ${formatCurrency(totals.valorTotal)})` :
                    'Pendente'}
                 </strong>
               </p>
               <p className="text-xs font-mono text-ink-subtle mt-0.5">
-                Recebido: <strong className="text-stamp-moss">R$ {valorPago.toFixed(2)}</strong> • Saldo a Receber: <strong className="text-stamp-gold">R$ {saldoRestante.toFixed(2)}</strong>
+                Recebido: <strong className="text-stamp-moss">{formatCurrency(valorPago)}</strong> • Saldo a Receber: <strong className="text-stamp-gold">{formatCurrency(saldoRestante)}</strong>
               </p>
             </div>
 
@@ -222,7 +222,7 @@ export function FichaHospedagem({ hospedagem, onClose, onEditClick, onOpenPagame
               hospedagem.historicoPagamentos.map((pag, idx) => (
                 <div key={pag.id || idx} className="rounded-card border border-border-ledger bg-parchment-elevated p-2.5">
                   <span className="font-bold text-stamp-moss block">
-                    Recebido R$ {pag.valor.toFixed(2)}:
+                    Recebido {formatCurrency(pag.valor)}:
                   </span>
                   <span className="text-ink-subtle">{pag.dataHora}</span>
                 </div>

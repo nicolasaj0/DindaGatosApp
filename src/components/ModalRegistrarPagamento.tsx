@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Hospedagem } from '../types';
-import { calculateEstadiaTotals } from '../utils';
+import { calculateEstadiaTotals, formatCurrency } from '../utils';
 import { DollarSign, CheckCircle2, AlertCircle } from 'lucide-react';
 
 interface ModalRegistrarPagamentoProps {
@@ -56,7 +56,7 @@ export function ModalRegistrarPagamento({
       return;
     }
     if (parsed > saldoRestante + 0.01) {
-      setErrorMsg(`O valor não pode ser superior ao saldo restante (R$ ${saldoRestante.toFixed(2)}).`);
+      setErrorMsg(`O valor não pode ser superior ao saldo restante (${formatCurrency(saldoRestante)}).`);
       return;
     }
 
@@ -101,22 +101,22 @@ export function ModalRegistrarPagamento({
           <div className="flex justify-between text-ink-subtle">
             <span>Valor Total da Reserva:</span>
             <span className="font-bold text-ink">
-              R$ {totals.valorTotal.toFixed(2)}
+              {formatCurrency(totals.valorTotal)}
             </span>
           </div>
           {totals.valorTransporte > 0 && (
             <div className="flex justify-between text-[11px] text-ink-muted pl-2 border-l border-border-ledger">
               <span>Inclui Transporte:</span>
-              <span>R$ {totals.valorTransporte.toFixed(2)}</span>
+              <span>{formatCurrency(totals.valorTransporte)}</span>
             </div>
           )}
           <div className="flex justify-between text-stamp-moss">
             <span>Já Recebido:</span>
-            <span className="font-bold">R$ {valorPago.toFixed(2)}</span>
+            <span className="font-bold">{formatCurrency(valorPago)}</span>
           </div>
           <div className="flex justify-between text-stamp-gold font-bold border-t border-border-ledger pt-2 text-sm">
             <span>Saldo Restante:</span>
-            <span>R$ {saldoRestante.toFixed(2)}</span>
+            <span>{formatCurrency(saldoRestante)}</span>
           </div>
         </div>
 
@@ -150,7 +150,7 @@ export function ModalRegistrarPagamento({
                 onClick={() => setPreset(saldoRestante)}
                 className="px-2.5 py-1 rounded-card border border-border-ledger bg-parchment text-ink text-xs font-mono font-medium hover:border-border-ledger-hover transition-colors"
               >
-                Quitar Saldo (R$ {saldoRestante.toFixed(2)})
+                Quitar Saldo ({formatCurrency(saldoRestante)})
               </button>
             )}
             {valorPago === 0 && saldoRestante > 0 && (
@@ -159,7 +159,7 @@ export function ModalRegistrarPagamento({
                 onClick={() => setPreset(totals.valorTotal * 0.5)}
                 className="px-2.5 py-1 rounded-card border border-border-ledger bg-parchment text-ink text-xs font-mono font-medium hover:border-border-ledger-hover transition-colors"
               >
-                50% Entrada (R$ {(totals.valorTotal * 0.5).toFixed(2)})
+                50% Entrada ({formatCurrency(totals.valorTotal * 0.5)})
               </button>
             )}
           </div>

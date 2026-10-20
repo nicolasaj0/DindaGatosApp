@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Hospedagem, TipoServico } from '../types';
-import { resizeImage, getLocalDateString, calculateNights } from '../utils';
+import { resizeImage, getLocalDateString, calculateNights, formatCurrency } from '../utils';
 import { Camera, Upload, Link2, X, Sparkles, Home, PawPrint, Car, ArrowLeft } from 'lucide-react';
 import { useHospedagemStore } from '../store';
 
@@ -560,8 +560,8 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
             {tipoServico === 'transporte' ? 'transporte' : totalNights === 1 ? '1 diária' : `${totalNights} diárias`}
           </span>
           <span className="font-bold text-ink text-sm">
-            Total: R$ {
-              ((totalNights * (parseFloat(formData.valorDiaria) || 0)) + (formData.incluirTransporte ? (parseFloat(formData.valorTransporte) || 0) : 0)).toFixed(2)
+            Total: {
+              formatCurrency((totalNights * (parseFloat(formData.valorDiaria) || 0)) + (formData.incluirTransporte ? (parseFloat(formData.valorTransporte) || 0) : 0))
             }
           </span>
         </div>

@@ -1,6 +1,6 @@
 import { Gato, Estadia } from '../types';
 import { User, Edit2, Calendar, Pill, HeartPulse, AlertCircle, MapPin } from 'lucide-react';
-import { formatDateString } from '../utils';
+import { formatDateString, formatCurrency } from '../utils';
 
 interface FichaGatoProps {
   gato: Gato;
@@ -59,7 +59,7 @@ export function FichaGato({
           </span>
           {gato.valorDiariaPadrao && (
             <span className="inline-flex items-center gap-1 rounded-card bg-parchment text-ink border border-border-ledger px-2.5 py-1 text-xs font-mono font-medium">
-              Diária base: R$ {gato.valorDiariaPadrao}
+              Diária base: {formatCurrency(gato.valorDiariaPadrao)}
             </span>
           )}
         </div>

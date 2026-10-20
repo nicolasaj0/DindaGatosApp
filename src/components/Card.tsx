@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { Camera, Check, DollarSign, Home, PawPrint, Car, Undo2, Pill } from 'lucide-react';
 import { Hospedagem } from '../types';
 import { useHospedagemStore } from '../store';
-import { getLocalDateString, formatDateString, calculateEstadiaTotals } from '../utils';
+import { getLocalDateString, formatDateString, calculateEstadiaTotals, formatCurrency } from '../utils';
 
 interface CardProps {
   hospedagem: Hospedagem;
@@ -206,7 +206,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         )}
         <span>{totals.nights === 1 ? '1 diária' : `${totals.nights} diárias`}</span>
         <span className="ml-auto font-mono font-bold text-ink">
-          R$ {totals.valorTotal.toFixed(0)}
+          {formatCurrency(totals.valorTotal)}
         </span>
       </div>
 
@@ -321,7 +321,7 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
             {hospedagem.statusPagamento === 'pago'
               ? 'Pago'
               : hospedagem.statusPagamento === 'parcial'
-                ? `Parcial (${valorPago.toFixed(0)}/${totals.valorTotal.toFixed(0)})`
+                ? `Parcial (${formatCurrency(valorPago, false)} / ${formatCurrency(totals.valorTotal, false)})`
                 : 'Registrar'}
           </button>
         </div>

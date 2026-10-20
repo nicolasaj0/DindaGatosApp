@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Hospedagem } from '../types';
-import { resizeImage, calculateNights } from '../utils';
+import { resizeImage, calculateNights, formatCurrency } from '../utils';
 import { Camera, Upload, Link2, X } from 'lucide-react';
 
 interface FormEditHospedagemProps {
@@ -378,8 +378,8 @@ export function FormEditHospedagem({
             {initialData.tipoServico === 'transporte' ? 'transporte' : totalNights === 1 ? '1 diária' : `${totalNights} diárias`}
           </span>
           <span className="font-bold text-ink text-sm">
-            Total: R$ {
-              ((totalNights * (parseFloat(formData.valorDiaria) || 0)) + (formData.incluirTransporte ? (parseFloat(formData.valorTransporte) || 0) : 0)).toFixed(2)
+            Total: {
+              formatCurrency((totalNights * (parseFloat(formData.valorDiaria) || 0)) + (formData.incluirTransporte ? (parseFloat(formData.valorTransporte) || 0) : 0))
             }
           </span>
         </div>

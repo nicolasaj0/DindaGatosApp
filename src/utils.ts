@@ -153,3 +153,18 @@ export function deriveStatusPagamento(valorPago: number, valorTotal: number): St
   }
   return 'parcial';
 }
+
+/**
+ * Formata um valor numérico para o padrão monetário brasileiro (BRL).
+ * Exemplo: 12500 -> "R$ 12.500,00" (ou "12.500,00" se includeSymbol = false).
+ */
+export function formatCurrency(value: number | string | undefined | null, includeSymbol = true): string {
+  const num = typeof value === 'string' ? parseFloat(value) : (value ?? 0);
+  const safeNum = isNaN(num) ? 0 : num;
+  const formatted = safeNum.toLocaleString('pt-BR', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  });
+  return includeSymbol ? `R$ ${formatted}` : formatted;
+}
+

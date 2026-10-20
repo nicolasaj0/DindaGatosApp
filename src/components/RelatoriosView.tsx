@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import { Estadia, Gato, TipoServico } from '../types';
-import { calculateEstadiaTotals } from '../utils';
+import { calculateEstadiaTotals, formatCurrency } from '../utils';
 import { Cat, DollarSign, Calendar, TrendingUp, Award, Clock, Sparkles, BarChart3 } from 'lucide-react';
 
 interface RelatoriosViewProps {
@@ -261,7 +261,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
             </div>
             <div>
               <p className="font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted">Receita Total Gerada</p>
-              <p className="text-xl sm:text-2xl font-bold font-display text-ink mt-0.5">R$ {highlights.totalSpentAll.toFixed(0)}</p>
+              <p className="text-xl sm:text-2xl font-bold font-display text-ink mt-0.5">{formatCurrency(highlights.totalSpentAll)}</p>
               <p className="text-[11px] font-mono text-ink-subtle mt-0.5">{highlights.totalNightsAll} diárias registradas</p>
             </div>
           </div>
@@ -297,7 +297,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                 <>
                   <p className="text-lg font-bold font-display text-ink mt-0.5 truncate">{highlights.topEarner.nomeGato}</p>
                   <p className="text-xs font-mono text-ink-subtle mt-0.5 truncate">
-                    R$ {highlights.topEarner.spent.toFixed(0)} • Tutor: {highlights.topEarner.nomeTutor}
+                    {formatCurrency(highlights.topEarner.spent)} • Tutor: {highlights.topEarner.nomeTutor}
                   </p>
                 </>
               ) : (
@@ -318,21 +318,21 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <Calendar size={13} className="text-ink-muted" />
             </div>
             <p className="text-2xl sm:text-3xl font-bold font-display text-ink mt-2">
-              R$ {(periodStats.week.recebido + periodStats.week.aReceber).toFixed(0)}
+              {formatCurrency(periodStats.week.recebido + periodStats.week.aReceber)}
             </p>
 
             <div className="mt-3 space-y-1.5 text-xs font-mono">
               <div className="flex justify-between text-stamp-moss">
                 <span>Recebido:</span>
-                <span className="font-bold">R$ {periodStats.week.recebido.toFixed(0)}</span>
+                <span className="font-bold">{formatCurrency(periodStats.week.recebido)}</span>
               </div>
               <div className="flex justify-between text-stamp-gold">
                 <span>A Receber:</span>
-                <span className="font-bold">R$ {periodStats.week.aReceber.toFixed(0)}</span>
+                <span className="font-bold">{formatCurrency(periodStats.week.aReceber)}</span>
               </div>
               <div className="flex justify-between border-t border-border-ledger pt-1 text-ink-muted text-[11px]">
                 <span>Previsto (em aberto):</span>
-                <span>R$ {periodStats.week.projected.toFixed(0)}</span>
+                <span>{formatCurrency(periodStats.week.projected)}</span>
               </div>
               <div className="flex justify-between text-ink-subtle">
                 <span>Diárias:</span>
@@ -364,21 +364,21 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <TrendingUp size={13} className="text-ink-muted" />
             </div>
             <p className="text-2xl sm:text-3xl font-bold font-display text-ink mt-2">
-              R$ {(periodStats.month.recebido + periodStats.month.aReceber).toFixed(0)}
+              {formatCurrency(periodStats.month.recebido + periodStats.month.aReceber)}
             </p>
 
             <div className="mt-3 space-y-1.5 text-xs font-mono">
               <div className="flex justify-between text-stamp-moss">
                 <span>Recebido:</span>
-                <span className="font-bold">R$ {periodStats.month.recebido.toFixed(0)}</span>
+                <span className="font-bold">{formatCurrency(periodStats.month.recebido)}</span>
               </div>
               <div className="flex justify-between text-stamp-gold">
                 <span>A Receber:</span>
-                <span className="font-bold">R$ {periodStats.month.aReceber.toFixed(0)}</span>
+                <span className="font-bold">{formatCurrency(periodStats.month.aReceber)}</span>
               </div>
               <div className="flex justify-between border-t border-border-ledger pt-1 text-ink-muted text-[11px]">
                 <span>Previsto (em aberto):</span>
-                <span>R$ {periodStats.month.projected.toFixed(0)}</span>
+                <span>{formatCurrency(periodStats.month.projected)}</span>
               </div>
               <div className="flex justify-between text-ink-subtle">
                 <span>Diárias:</span>
@@ -410,21 +410,21 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
               <Sparkles size={13} className="text-ink-muted" />
             </div>
             <p className="text-2xl sm:text-3xl font-bold font-display text-ink mt-2">
-              R$ {(periodStats.year.recebido + periodStats.year.aReceber).toFixed(0)}
+              {formatCurrency(periodStats.year.recebido + periodStats.year.aReceber)}
             </p>
 
             <div className="mt-3 space-y-1.5 text-xs font-mono">
               <div className="flex justify-between text-stamp-moss">
                 <span>Recebido:</span>
-                <span className="font-bold">R$ {periodStats.year.recebido.toFixed(0)}</span>
+                <span className="font-bold">{formatCurrency(periodStats.year.recebido)}</span>
               </div>
               <div className="flex justify-between text-stamp-gold">
                 <span>A Receber:</span>
-                <span className="font-bold">R$ {periodStats.year.aReceber.toFixed(0)}</span>
+                <span className="font-bold">{formatCurrency(periodStats.year.aReceber)}</span>
               </div>
               <div className="flex justify-between border-t border-border-ledger pt-1 text-ink-muted text-[11px]">
                 <span>Previsto (em aberto):</span>
-                <span>R$ {periodStats.year.projected.toFixed(0)}</span>
+                <span>{formatCurrency(periodStats.year.projected)}</span>
               </div>
               <div className="flex justify-between text-ink-subtle">
                 <span>Diárias:</span>
@@ -539,7 +539,7 @@ export function RelatoriosView({ estadias, gatos }: RelatoriosViewProps) {
                     <div className="space-y-0.5">
                       <div className="flex justify-between text-[10px] font-mono font-bold uppercase tracking-wider text-ink-muted">
                         <span>Receita</span>
-                        <span className="text-stamp-gold font-bold">R$ {cat.spent.toFixed(0)}</span>
+                        <span className="text-stamp-gold font-bold">{formatCurrency(cat.spent)}</span>
                       </div>
                       <div className="w-full h-2 bg-parchment-elevated border border-border-ledger rounded-card overflow-hidden">
                         <div
