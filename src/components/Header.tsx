@@ -41,7 +41,7 @@ export const Header = memo(function Header({ theme, onToggleTheme }: HeaderProps
             </div>
 
             <h1 className="mt-1.5 text-2xl sm:text-3xl font-bold font-display text-ink tracking-tight">
-              Painel de Gerenciamento
+              Registro de Serviços
             </h1>
 
             <div className="mt-2.5 flex flex-wrap items-center gap-2">
