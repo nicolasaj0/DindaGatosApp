@@ -47,7 +47,8 @@ export function Column({ status, items, onEdit, onCheckOut, onCheckIn, onOpenPag
         {count === 0 ? (
           <div className={`flex flex-col items-center justify-center rounded-card border border-dashed border-border-ledger bg-parchment p-6 text-center text-ink-muted ${isRowMode ? 'min-w-[280px] py-10' : 'w-full'}`}>
             <ClipboardList size={22} strokeWidth={1.5} className="mb-1 opacity-70 text-ink-muted" />
-            <p className="text-xs font-body font-medium text-ink-muted">Nenhum registro nesta lista</p>
+            <p className="text-xs font-body font-medium text-ink">Nenhum hóspede neste status</p>
+            <p className="text-[11px] font-body text-ink-muted mt-0.5">Novos registros aparecerão aqui automaticamente 📋</p>
           </div>
         ) : (
           items.map((item) => (

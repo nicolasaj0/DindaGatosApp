@@ -146,7 +146,11 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
         {getServiceIcon()}
         <span>{getServiceLabel()}</span>
         <span>•</span>
-        <span>{formatDateString(hospedagem.dataCheckIn)} → {formatDateString(hospedagem.dataCheckOut)}</span>
+        <span>
+          {hospedagem.tipoServico === 'transporte'
+            ? formatDateString(hospedagem.dataCheckIn)
+            : `${formatDateString(hospedagem.dataCheckIn)} → ${formatDateString(hospedagem.dataCheckOut)}`}
+        </span>
       </div>
 
       {/* Foto e Identificação do Gato */}
@@ -204,7 +208,13 @@ export function Card({ hospedagem, onEdit, onCheckOut, onCheckIn, onOpenPagament
             <span>•</span>
           </>
         )}
-        <span>{totals.nights === 1 ? '1 diária' : `${totals.nights} diárias`}</span>
+        <span>
+          {hospedagem.tipoServico === 'transporte'
+            ? 'transporte'
+            : hospedagem.tipoServico === 'cat_sitter'
+              ? (totals.nights === 1 ? '1 visita' : `${totals.nights} visitas`)
+              : (totals.nights === 1 ? '1 diária' : `${totals.nights} diárias`)}
+        </span>
         <span className="ml-auto font-mono font-bold text-ink">
           {formatCurrency(totals.valorTotal)}
         </span>

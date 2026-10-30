@@ -192,6 +192,7 @@ export function FormHospedagem({ onSubmit, onCancel, preSelectedGatoId }: FormHo
 
     const novahospedagem: Hospedagem = {
       id: crypto.randomUUID(),
+      gatoId: selectedGatoId || undefined,
       nomeGato: formData.nomeGato,
       nomeTutor: formData.nomeTutor,
       fotoUrl: formData.fotoUrl || undefined,

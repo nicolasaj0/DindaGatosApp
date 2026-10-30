@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { Hospedagem } from '../types';
-import { resizeImage, calculateNights, formatCurrency } from '../utils';
+import { Hospedagem, HospedagemStatus } from '../types';
+import { resizeImage, calculateNights, formatCurrency, labelStatus } from '../utils';
 import { Camera, Upload, Link2, X } from 'lucide-react';
 
 interface FormEditHospedagemProps {
@@ -22,6 +22,7 @@ export function FormEditHospedagem({
     fotoUrl: initialData.fotoUrl || '',
     dataCheckIn: initialData.dataCheckIn,
     dataCheckOut: initialData.dataCheckOut,
+    status: initialData.status,
     sociabilidade: initialData.perfil.sociabilidade,
     personalidade: initialData.perfil.personalidade,
     dieta: initialData.perfil.dieta,
@@ -117,6 +118,7 @@ export function FormEditHospedagem({
       fotoUrl: formData.fotoUrl || undefined,
       dataCheckIn: formData.dataCheckIn,
       dataCheckOut: finalCheckOut,
+      status: formData.status as HospedagemStatus,
       perfil: {
         sociabilidade: formData.sociabilidade as 'sociavel' | 'isolado',
         personalidade: formData.personalidade,
@@ -147,6 +149,24 @@ export function FormEditHospedagem({
       {/* Banner Informativo do Tipo de Serviço */}
       <div className="bg-parchment border border-border-ledger rounded-card px-3 py-2 text-center text-xs">
         Serviço em Edição: <span className="font-display text-sm font-bold text-ink">{getServiceLabel()}</span>
+      </div>
+
+      {/* Situação / Status Atual */}
+      <div className="rounded-card border border-border-ledger bg-parchment p-3">
+        <label className="block font-mono text-[10px] font-bold uppercase tracking-wider text-ink-muted mb-1.5">
+          Situação / Status do Atendimento
+        </label>
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          className="w-full rounded-card border border-border-ledger bg-parchment-elevated px-3 py-1.5 text-xs sm:text-sm font-medium text-ink focus:border-border-ledger-hover outline-none"
+        >
+          <option value="agendado">Agendado</option>
+          <option value="hospedado">{labelStatus('hospedado', initialData.tipoServico)} (Em Andamento)</option>
+          <option value="saindo_hoje">{labelStatus('saindo_hoje', initialData.tipoServico)} (Finalizando Hoje)</option>
+          <option value="concluido">Concluído</option>
+        </select>
       </div>
 
       {/* Seção de Foto do Gato */}

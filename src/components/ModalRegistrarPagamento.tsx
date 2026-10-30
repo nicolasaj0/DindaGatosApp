@@ -50,11 +50,12 @@ export function ModalRegistrarPagamento({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const parsed = parseFloat(valorInput.replace(',', '.'));
-    if (isNaN(parsed) || parsed <= 0) {
+    const rawParsed = parseFloat(valorInput.replace(',', '.'));
+    if (isNaN(rawParsed) || rawParsed <= 0) {
       setErrorMsg('Por favor, informe um valor maior que zero.');
       return;
     }
+    const parsed = Math.round(rawParsed * 100) / 100;
     if (parsed > saldoRestante + 0.01) {
       setErrorMsg(`O valor não pode ser superior ao saldo restante (${formatCurrency(saldoRestante)}).`);
       return;
@@ -66,7 +67,8 @@ export function ModalRegistrarPagamento({
 
   const setPreset = (valor: number) => {
     const clamped = Math.min(valor, saldoRestante);
-    setValorInput(clamped.toFixed(2));
+    const rounded = Math.round(clamped * 100) / 100;
+    setValorInput(rounded.toFixed(2));
     setErrorMsg('');
   };
 
@@ -127,10 +129,8 @@ export function ModalRegistrarPagamento({
               Valor a Receber Agora (R$) *
             </label>
             <input
-              type="number"
-              step="0.01"
-              min="0.01"
-              max={saldoRestante}
+              type="text"
+              inputMode="decimal"
               value={valorInput}
               onChange={(e) => {
                 setValorInput(e.target.value);

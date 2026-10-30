@@ -177,6 +177,26 @@ function App() {
     setPagamentoModalHospedagem(null);
   };
 
+  // Mantém os modais sempre reativos ao estado mais recente do store
+  const currentSelectedHospedagem = useMemo(() => {
+    if (!selectedHospedagem) return null;
+    return hospedagens.find((h) => h.id === selectedHospedagem.id) || selectedHospedagem;
+  }, [hospedagens, selectedHospedagem]);
+
+  const currentViewingGato = useMemo(() => {
+    if (!viewingGato) return null;
+    return gatos.find((g) => g.id === viewingGato.id) || viewingGato;
+  }, [gatos, viewingGato]);
+
+  const currentSelectedGato = useMemo(() => {
+    if (!selectedGato) return null;
+    return gatos.find((g) => g.id === selectedGato.id) || selectedGato;
+  }, [gatos, selectedGato]);
+
+  const currentPagamentoModalHospedagem = useMemo(() => {
+    if (!pagamentoModalHospedagem) return null;
+    return hospedagens.find((h) => h.id === pagamentoModalHospedagem.id) || pagamentoModalHospedagem;
+  }, [hospedagens, pagamentoModalHospedagem]);
 
   const hoje = getLocalDateString();
 
@@ -248,16 +268,18 @@ function App() {
 
         let novoStatus: HospedagemStatus = item.status;
 
-        // Se alcançou ou passou a data de checkout: se torna saindo_hoje
-        if (hoje >= item.dataCheckOut) {
+        // Se está hospedado e alcançou ou passou a data de checkout: se torna saindo_hoje
+        if (item.status === 'hospedado' && hoje >= item.dataCheckOut) {
           novoStatus = 'saindo_hoje';
         }
-        // Se a data de check-in é no futuro, mantém como agendado (caso as datas tenham mudado)
-        else if (hoje < item.dataCheckIn) {
+        // Se está como saindo_hoje mas a data de checkout agora é no futuro: volta para hospedado
+        else if (item.status === 'saindo_hoje' && hoje < item.dataCheckOut) {
+          novoStatus = 'hospedado';
+        }
+        // Se as datas foram alteradas para o futuro em relação a check-in e ainda não tinha check-in confirmado
+        else if (item.status !== 'agendado' && !item.dataHoraConfirmacaoCheckIn && hoje < item.dataCheckIn) {
           novoStatus = 'agendado';
         }
-        // OBSERVAÇÃO: O status "hospedado" não é mais forçado automaticamente se o status atual for "agendado".
-        // Ele aguarda a confirmação manual de check-in do usuário.
 
         if (novoStatus !== item.status) {
           updateHospedagem(item.id, { status: novoStatus });
@@ -272,8 +294,12 @@ function App() {
   }, [updateHospedagem]);
 
   const handleCheckIn = (id: string) => {
+    const item = hospedagens.find((h) => h.id === id);
+    const hoje = getLocalDateString();
+    // Se a saída já for hoje ou no passado (ex: serviço no mesmo dia), vai direto para saindo_hoje
+    const novoStatus: HospedagemStatus = (item && hoje >= item.dataCheckOut) ? 'saindo_hoje' : 'hospedado';
     updateHospedagem(id, {
-      status: 'hospedado',
+      status: novoStatus,
       dataHoraConfirmacaoCheckIn: getLocalTimestampString()
     });
   };
@@ -502,11 +528,11 @@ function App() {
 
         if (confirm(`Aviso: Isso substituirá todos os registros atuais do sistema por ${count} hospedagens do backup. Deseja continuar?`)) {
           setHospedagens(importedData);
-          alert('Dados importados com sucesso!');
+          alert('Dados restaurados com sucesso!');
         }
       } catch (error: any) {
-        console.error('Erro na importação:', error);
-        alert(`Erro na importação: ${error.message || 'formato de arquivo inválido'}`);
+        console.error('Erro na restauração:', error);
+        alert(`Erro na restauração: ${error.message || 'formato de arquivo inválido'}`);
       } finally {
         e.target.value = '';
       }
@@ -1030,17 +1056,17 @@ function App() {
 
       <Modal
         isOpen={isEditModalOpen}
-        title={isEditing ? `Editar Ficha: ${selectedHospedagem?.nomeGato}` : `Ficha de Hospedagem: ${selectedHospedagem?.nomeGato}`}
+        title={isEditing ? `Editar Ficha: ${currentSelectedHospedagem?.nomeGato}` : `Ficha de Hospedagem: ${currentSelectedHospedagem?.nomeGato}`}
         onClose={() => {
           setIsEditModalOpen(false);
           setSelectedHospedagem(null);
           setIsEditing(false);
         }}
       >
-        {selectedHospedagem && (
+        {currentSelectedHospedagem && (
           isEditing ? (
             <FormEditHospedagem
-              hospedagem={selectedHospedagem}
+              hospedagem={currentSelectedHospedagem}
               onSubmit={handleUpdateHospedagem}
               onCancel={() => {
                 setIsEditing(false);
@@ -1049,7 +1075,7 @@ function App() {
             />
           ) : (
             <FichaHospedagem
-              hospedagem={selectedHospedagem}
+              hospedagem={currentSelectedHospedagem}
               onEditClick={() => setIsEditing(true)}
               onClose={() => {
                 setIsEditModalOpen(false);
@@ -1063,15 +1089,15 @@ function App() {
 
       <Modal
         isOpen={isEditGatoModalOpen}
-        title={`Editar Prontuário: ${selectedGato?.nomeGato}`}
+        title={`Editar Prontuário: ${currentSelectedGato?.nomeGato}`}
         onClose={() => {
           setIsEditGatoModalOpen(false);
           setSelectedGato(null);
         }}
       >
-        {selectedGato && (
+        {currentSelectedGato && (
           <FormEditGato
-            gato={selectedGato}
+            gato={currentSelectedGato}
             onSubmit={handleUpdateGato}
             onCancel={() => {
               setIsEditGatoModalOpen(false);
@@ -1083,15 +1109,15 @@ function App() {
 
       <Modal
         isOpen={isViewGatoModalOpen}
-        title={`Prontuário: ${viewingGato?.nomeGato}`}
+        title={`Prontuário: ${currentViewingGato?.nomeGato}`}
         onClose={() => {
           setIsViewGatoModalOpen(false);
           setViewingGato(null);
         }}
       >
-        {viewingGato && (
+        {currentViewingGato && (
           <FichaGato
-            gato={viewingGato}
+            gato={currentViewingGato}
             estadias={estadias}
             onClose={() => {
               setIsViewGatoModalOpen(false);
@@ -1099,12 +1125,12 @@ function App() {
             }}
             onAgendarClick={() => {
               setIsViewGatoModalOpen(false);
-              setPreSelectedGatoId(viewingGato.id);
+              setPreSelectedGatoId(currentViewingGato.id);
               setIsModalOpen(true);
             }}
             onEditClick={() => {
               setIsViewGatoModalOpen(false);
-              setSelectedGato(viewingGato);
+              setSelectedGato(currentViewingGato);
               setIsEditGatoModalOpen(true);
             }}
           />
@@ -1112,8 +1138,8 @@ function App() {
       </Modal>
 
       <ModalRegistrarPagamento
-        isOpen={!!pagamentoModalHospedagem}
-        hospedagem={pagamentoModalHospedagem}
+        isOpen={!!currentPagamentoModalHospedagem}
+        hospedagem={currentPagamentoModalHospedagem}
         onClose={() => setPagamentoModalHospedagem(null)}
         onConfirm={handleConfirmPagamento}
       />
