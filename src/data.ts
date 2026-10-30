@@ -18,6 +18,7 @@ export const hospedagensMock: Hospedagem[] = [
     },
     statusPagamento: 'pendente',
     tipoServico: 'hospedagem',
+    valorDiaria: 60,
   },
   {
     id: '2',
@@ -35,6 +36,7 @@ export const hospedagensMock: Hospedagem[] = [
     },
     statusPagamento: 'pendente',
     tipoServico: 'hospedagem',
+    valorDiaria: 60,
   },
   {
     id: '3',
@@ -53,5 +55,6 @@ export const hospedagensMock: Hospedagem[] = [
     },
     statusPagamento: 'pendente',
     tipoServico: 'hospedagem',
+    valorDiaria: 60,
   },
 ];

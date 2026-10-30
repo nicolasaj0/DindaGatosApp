@@ -104,10 +104,13 @@ export function calculateNights(checkIn: string, checkOut: string): number {
   const d1 = new Date(parts1[0], parts1[1] - 1, parts1[2]);
   const d2 = new Date(parts2[0], parts2[1] - 1, parts2[2]);
   
+  if (isNaN(d1.getTime()) || isNaN(d2.getTime())) return 0;
+
   const diffTime = d2.getTime() - d1.getTime();
-  if (diffTime <= 0) return 0;
+  if (diffTime < 0) return 0;
+  if (diffTime === 0) return 1;
   
-  return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+  return Math.round(diffTime / (1000 * 60 * 60 * 24));
 }
 
 export function getLocalTimestampString(date = new Date()): string {
@@ -129,9 +132,11 @@ export function calculateEstadiaTotals(item: {
 }) {
   const tipo = item.tipoServico || 'hospedagem';
   const nights = tipo === 'transporte' ? 1 : calculateNights(item.dataCheckIn, item.dataCheckOut);
-  const valorServico = nights * (item.valorDiaria || 0);
-  const valorTransporte = (tipo !== 'transporte' && item.transporteAdicional?.valor) ? item.transporteAdicional.valor : 0;
-  const valorTotal = valorServico + valorTransporte;
+  const valorServico = Math.round(nights * (item.valorDiaria || 0) * 100) / 100;
+  const valorTransporte = (tipo !== 'transporte' && item.transporteAdicional?.valor)
+    ? Math.round(item.transporteAdicional.valor * 100) / 100
+    : 0;
+  const valorTotal = Math.round((valorServico + valorTransporte) * 100) / 100;
 
   return {
     nights,
@@ -142,8 +147,8 @@ export function calculateEstadiaTotals(item: {
 }
 
 export function deriveStatusPagamento(valorPago: number, valorTotal: number): StatusPagamento {
-  const paid = valorPago || 0;
-  const total = valorTotal || 0;
+  const paid = Math.round((valorPago || 0) * 100) / 100;
+  const total = Math.round((valorTotal || 0) * 100) / 100;
 
   if (paid <= 0) {
     return 'pendente';
